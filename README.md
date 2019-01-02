@@ -1,6 +1,6 @@
-# Tracer-RS485-Modbus-Blynk V2.0
+# Tracer-RS485-Modbus-Blynk V2.0 - RELOADED
 
-### An Arduino project to connect the `EPSolar`/`EPEver` `Tracer A/B`, `Xtra`, `Triton` Series MPPT Solar Controllers (RS-485 Modbus) to an `ESP8266` and monitor it using the `Blynk` mobile app
+### An Arduino project to connect the `EPSolar`/`EPEver` `Tracer A/B`, `Xtra`, `Triton` Series MPPT Solar Controllers (RS-485 Modbus) to an `ESP8266` and monitor it using the `Blynk` mobile app, the reloaded version!
 
 This is almost complete rewrite of the original [project](https://github.com/jaminNZx/Tracer-RS485-Modbus-Blynk), with ton of improvements, refactored code, brand new Blynk project, and wider compatibility of RS485 convertrs.
 
@@ -23,15 +23,18 @@ There is also a support forum on the Blynk community forums: http://community.bl
 
 * An old ethernet cable with RJ45 connector you are happy to cut open
 
+
 ## Sample screenshot
 
 ![Live data on Blynk on Android screenshot](doc/screenshot-blynk.png)
+
 
 ## Software
 
 * [Blynk](http://www.blynk.cc/) Mobile App ([iOS](https://itunes.apple.com/us/app/blynk-iot-for-arduino-rpi/id808760481?mt=8) & [Android](https://play.google.com/store/apps/details?id=cc.blynk&hl=en))
 * Arduino IDE 1.6.9+
 * The project sketch
+
 
 ## Wiring
 
