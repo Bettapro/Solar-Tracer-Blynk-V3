@@ -23,6 +23,10 @@ There is also a support forum on the Blynk community forums: http://community.bl
 
 * An old ethernet cable with RJ45 connector you are happy to cut open
 
+## Sample screenshot
+
+![Live data on Blynk on Android screenshot](doc/screenshot-blynk.png)
+
 ## Software
 
 * [Blynk](http://www.blynk.cc/) Mobile App ([iOS](https://itunes.apple.com/us/app/blynk-iot-for-arduino-rpi/id808760481?mt=8) & [Android](https://play.google.com/store/apps/details?id=cc.blynk&hl=en))
