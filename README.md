@@ -43,6 +43,7 @@ Cut open your ethernet cable and split out pin 3, 5, 7 (B, A, GND). Refer to [Tr
 Follow the wiring guide below: ~~(note that the 2-pol switch is only needed during flashing)~~ **No longer needed!**
 
 ![Tracer Wiring Diagram](doc/schematic.png)
+> Note: as @Don Vukovic noted, there is probably reversed RX and TX on this schematic. Correct is: DI to TX, and RO to RX
 
 ## Setup
 
