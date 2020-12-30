@@ -22,7 +22,6 @@
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 #include <BlynkSimpleEsp8266.h>
-#include <SimpleTimer.h>
 #include <ModbusMaster.h>
 #include "settings.h"
 
