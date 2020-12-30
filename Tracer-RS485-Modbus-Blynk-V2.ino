@@ -123,6 +123,7 @@ void setup()
   Serial.println("Starting ArduinoOTA...");
 
   ArduinoOTA.setHostname(OTA_HOSTNAME);
+  ArduinoOTA.setPassword((const char *)OTA_PASS);
 
   ArduinoOTA.onStart([]() {
     String type;
