@@ -22,7 +22,6 @@
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 #include <BlynkSimpleEsp8266.h>
-#include <SimpleTimer.h>
 #include <ModbusMaster.h>
 #include "settings.h"
 
@@ -124,6 +123,7 @@ void setup()
   Serial.println("Starting ArduinoOTA...");
 
   ArduinoOTA.setHostname(OTA_HOSTNAME);
+  ArduinoOTA.setPassword((const char *)OTA_PASS);
 
   ArduinoOTA.onStart([]() {
     String type;

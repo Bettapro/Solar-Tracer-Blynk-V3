@@ -6,3 +6,6 @@
 
 // Blynk API key
 #define AUTH                  "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+// OTA Update Password
+#define OTA_PASS              "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
