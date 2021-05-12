@@ -103,19 +103,13 @@ class SolarTracer : public ModbusMasterCallable {
       this->AddressRegistry_3100();
       this->AddressRegistry_3106();
       this->AddressRegistry_310D();
-      this->AddressRegistry_311A();
+      this->AddressRegistry_3110();
       this->AddressRegistry_331B();
       this->fetchValue(SolarTracerVariables::LOAD_MANUAL_ONOFF);
     }
 
 
-    float battChargeCurrent, battDischargeCurrent, battOverallCurrent, battChargePower;
-    float bvoltage, ctemp, btemp, bremaining, lpower, lcurrent, pvvoltage, pvcurrent, pvpower;
-    float stats_today_pv_volt_min, stats_today_pv_volt_max,  stats_today_bat_volt_min, stats_today_bat_volt_max, stats_today_generated_energy, stats_month_generated_energy, stats_year_generated_energy, stats_total_generated_energy;
-    float loadOnOff;
-
-    uint16_t globalUpdateCounter = 0;
-    uint8_t currentRealtimeUpdateCounter = 0;
+    
 
     void onModbusPreTransmission() {
       digitalWrite(this->max485_re_neg, 1);
@@ -152,6 +146,7 @@ class SolarTracer : public ModbusMasterCallable {
               this->AddressRegistry_310D();
               break;
             case 3:
+              this->AddressRegistry_3110();
               this->AddressRegistry_311A();
               break;
             case 4:
@@ -213,6 +208,8 @@ class SolarTracer : public ModbusMasterCallable {
           return stats_today_bat_volt_max;
         case SolarTracerVariables::MINIMUM_BATTERY_VOLTAGE_TODAY:
           return stats_today_bat_volt_min;
+        case SolarTracerVariables::REMOTE_BATTERY_TEMP:
+          return rtemp;
         default:
         	break;
       }
@@ -318,12 +315,24 @@ class SolarTracer : public ModbusMasterCallable {
       }
     }
 
+    void AddressRegistry_3110() {
+      uint8_t result = this->node.readInputRegisters(MODBUS_ADDRESS_BATT_TEMP, 2);
+
+      if (result == this->node.ku8MBSuccess) {
+        btemp = this->node.getResponseBuffer(0x00) / 100.0f;
+        ctemp = this->node.getResponseBuffer(0x01) / 100.0f;
+       
+      } else {
+        rs485DataReceived = false;
+      }
+    }
+
     void AddressRegistry_311A() {
-      uint8_t result = this->node.readInputRegisters(0x311A, 2);
+      uint8_t result = this->node.readInputRegisters(MODBUS_ADDRESS_BATT_SOC, 2);
 
       if (result == this->node.ku8MBSuccess) {
         bremaining = this->node.getResponseBuffer(0x00) / 1.0f;
-        btemp = this->node.getResponseBuffer(0x01) / 100.0f;
+        rtemp = this->node.getResponseBuffer(0x01) / 100.0f;
       } else {
         rs485DataReceived = false;
       }
@@ -359,6 +368,14 @@ class SolarTracer : public ModbusMasterCallable {
   protected:
     uint16_t max485_re_neg, max485_de;
     bool rs485DataReceived, rs485readSuccess;
+
+    float battChargeCurrent, battDischargeCurrent, battOverallCurrent, battChargePower;
+    float bvoltage, rtemp, ctemp, btemp, bremaining, lpower, lcurrent, pvvoltage, pvcurrent, pvpower;
+    float stats_today_pv_volt_min, stats_today_pv_volt_max,  stats_today_bat_volt_min, stats_today_bat_volt_max, stats_today_generated_energy, stats_month_generated_energy, stats_year_generated_energy, stats_total_generated_energy;
+    float loadOnOff;
+
+    uint16_t globalUpdateCounter = 0;
+    uint8_t currentRealtimeUpdateCounter = 0;
 
 
 
