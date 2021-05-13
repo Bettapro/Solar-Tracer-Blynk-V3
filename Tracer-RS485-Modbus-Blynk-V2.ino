@@ -42,8 +42,13 @@
 #include <ArduinoOTA.h>
 #endif
 
-#include "SolarTracer.hpp"
 #include "config.h"
+
+#include "SolarTracer.h"
+// should be include if tracer is epsolar/epever  
+#include "EPEVERSolarTracer.hpp"
+
+
 
 
 const int defaultBaudRate = 115200;
@@ -123,7 +128,7 @@ void setup() {
 
 	// Modbus slave ID 1
 	Serial2.begin(defaultBaudRate);
-	thisController = new SolarTracer(Serial2, MAX485_DE, MAX485_RE_NEG);
+	thisController = new EPEVERSolarTracer(Serial2, MAX485_DE, MAX485_RE_NEG);
 
 	// callbacks to toggle DE + RE on MAX485
 	//node.preTransmission(preTransmission);
@@ -252,12 +257,12 @@ void setup() {
 
 // -------------------------------------------------------------------------------
 
-int lc = 0;
-time_t tnow;
-char strftime_buf[64];
+
 
 void getTimeFromServer() {
 	struct tm *ti;
+  time_t tnow;
+  char strftime_buf[64];
 
 	tnow = time(nullptr) + 1;
 	strftime(strftime_buf, sizeof(strftime_buf), "%c", localtime(&tnow));
@@ -273,7 +278,6 @@ void getTimeFromServer() {
 	Serial.println("---------------------------------");
 
 	thisController->syncRealtimeClock(ti);
-	thisController->updateStats();
 }
 
 // --------------------------------------------------------------------------------
