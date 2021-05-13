@@ -1,20 +1,12 @@
-
-// CONNECT THE RS485 MODULE.
-// MAX485 module <-> ESP8266
-//  - DI -> D10 / GPIO1 / TX
-//  - RO -> D9 / GPIO3 / RX
-//  - DE and RE are interconnected with a jumper and then connected do eighter pin D1 or D2
-//  - VCC to +5V / VIN on ESP8266
-//  - GNDs wired together
-// -------------------------------------
-// You do not need to disconnect the RS485 while uploading code.
-// After first upload you should be able to upload over WiFi
-// Tested on NodeMCU + MAX485 module
-// RJ 45 cable: Green -> A, Blue -> B, Brown -> GND module + GND ESP8266
-// MAX485: DE + RE interconnected with a jumper and connected to D1 or D2
+//-------------------------------------------------------------
+//  TRACER RS485 MODBUS BLINK V2 (?V3?)
+//-------------------------------------------------------------
 //
 // Developed by @jaminNZx
 // With modifications by @tekk
+// With modifications by @bettapro
+//
+
 #if defined ESP32
 #define USE_WIFI_NINA false
 #define USE_WIFI101 false
@@ -48,10 +40,6 @@
 // should be include if tracer is epsolar/epever
 #include "EPEVERSolarTracer.hpp"
 
-
-
-
-const int defaultBaudRate = 115200;
 int timerTask1, timerTask2, timerTask3;
 
 
@@ -72,59 +60,32 @@ void updateSolarController() {
 
 // upload values
 void uploadRealtimeToBlynk() {
-  Blynk.virtualWrite(vPIN_PV_POWER,
-                     thisController->getFloatValue(SolarTracerVariables::PV_POWER));
-  Blynk.virtualWrite(vPIN_PV_CURRENT,
-                     thisController->getFloatValue(SolarTracerVariables::PV_CURRENT));
-  Blynk.virtualWrite(vPIN_PV_VOLTAGE,
-                     thisController->getFloatValue(SolarTracerVariables::PV_VOLTAGE));
-  Blynk.virtualWrite(vPIN_LOAD_CURRENT,
-                     thisController->getFloatValue(SolarTracerVariables::LOAD_CURRENT));
-  Blynk.virtualWrite(vPIN_LOAD_POWER,
-                     thisController->getFloatValue(SolarTracerVariables::LOAD_POWER));
-  Blynk.virtualWrite(vPIN_BATT_TEMP,
-                     thisController->getFloatValue(SolarTracerVariables::BATTERY_TEMP));
-  Blynk.virtualWrite(vPIN_BATT_VOLTAGE,
-                     thisController->getFloatValue(
-                       SolarTracerVariables::BATTERY_VOLTAGE));
-  Blynk.virtualWrite(vPIN_BATT_REMAIN,
-                     thisController->getFloatValue(SolarTracerVariables::BATTERY_SOC));
-  Blynk.virtualWrite(vPIN_CONTROLLER_TEMP,
-                     thisController->getFloatValue(
-                       SolarTracerVariables::CONTROLLER_TEMP));
-  Blynk.virtualWrite(vPIN_BATTERY_CHARGE_CURRENT,
-                     thisController->getFloatValue(
-                       SolarTracerVariables::BATTERY_CHARGE_CURRENT));
-  Blynk.virtualWrite(vPIN_BATTERY_CHARGE_POWER,
-                     thisController->getFloatValue(
-                       SolarTracerVariables::BATTERY_CHARGE_POWER));
-  Blynk.virtualWrite(vPIN_BATTERY_OVERALL_CURRENT,
-                     thisController->getFloatValue(
-                       SolarTracerVariables::BATTERY_OVERALL_CURRENT));
-  Blynk.virtualWrite(vPIN_LOAD_ENABLED,
-                     thisController->getFloatValue(
-                       SolarTracerVariables::LOAD_MANUAL_ONOFF));
+  Blynk.virtualWrite(vPIN_PV_POWER, thisController->getFloatValue(SolarTracerVariables::PV_POWER));
+  Blynk.virtualWrite(vPIN_PV_CURRENT, thisController->getFloatValue(SolarTracerVariables::PV_CURRENT));
+  Blynk.virtualWrite(vPIN_PV_VOLTAGE, thisController->getFloatValue(SolarTracerVariables::PV_VOLTAGE));
+  Blynk.virtualWrite(vPIN_LOAD_CURRENT, thisController->getFloatValue(SolarTracerVariables::LOAD_CURRENT));
+  Blynk.virtualWrite(vPIN_LOAD_POWER, thisController->getFloatValue(SolarTracerVariables::LOAD_POWER));
+  Blynk.virtualWrite(vPIN_BATT_TEMP, thisController->getFloatValue(SolarTracerVariables::BATTERY_TEMP));
+  Blynk.virtualWrite(vPIN_BATT_VOLTAGE, thisController->getFloatValue(SolarTracerVariables::BATTERY_VOLTAGE));
+  Blynk.virtualWrite(vPIN_BATT_REMAIN, thisController->getFloatValue(SolarTracerVariables::BATTERY_SOC));
+  Blynk.virtualWrite(vPIN_CONTROLLER_TEMP, thisController->getFloatValue(SolarTracerVariables::CONTROLLER_TEMP));
+  Blynk.virtualWrite(vPIN_BATTERY_CHARGE_CURRENT, thisController->getFloatValue(SolarTracerVariables::BATTERY_CHARGE_CURRENT));
+  Blynk.virtualWrite(vPIN_BATTERY_CHARGE_POWER, thisController->getFloatValue(SolarTracerVariables::BATTERY_CHARGE_POWER));
+  Blynk.virtualWrite(vPIN_BATTERY_OVERALL_CURRENT, thisController->getFloatValue(SolarTracerVariables::BATTERY_OVERALL_CURRENT));
+  Blynk.virtualWrite(vPIN_LOAD_ENABLED, thisController->getFloatValue( SolarTracerVariables::LOAD_MANUAL_ONOFF));
 }
 
 // upload values
 void uploadStatsToBlynk() {
-  Blynk.virtualWrite(vPIN_STAT_ENERGY_GENERATED_TODAY,
-                     thisController->getFloatValue(
-                       SolarTracerVariables::GENERATED_ENERGY_TODAY));
-  Blynk.virtualWrite(vPIN_STAT_ENERGY_GENERATED_THIS_MONTH,
-                     thisController->getFloatValue(
-                       SolarTracerVariables::GENERATED_ENERGY_MONTH));
-  Blynk.virtualWrite(vPIN_STAT_ENERGY_GENERATED_THIS_YEAR,
-                     thisController->getFloatValue(
-                       SolarTracerVariables::GENERATED_ENERGY_YEAR));
-  Blynk.virtualWrite(vPIN_STAT_ENERGY_GENERATED_TOTAL,
-                     thisController->getFloatValue(
-                       SolarTracerVariables::GENERATED_ENERGY_TOTAL));
+  Blynk.virtualWrite(vPIN_STAT_ENERGY_GENERATED_TODAY, thisController->getFloatValue( SolarTracerVariables::GENERATED_ENERGY_TODAY));
+  Blynk.virtualWrite(vPIN_STAT_ENERGY_GENERATED_THIS_MONTH, thisController->getFloatValue(SolarTracerVariables::GENERATED_ENERGY_MONTH));
+  Blynk.virtualWrite(vPIN_STAT_ENERGY_GENERATED_THIS_YEAR, thisController->getFloatValue(SolarTracerVariables::GENERATED_ENERGY_YEAR));
+  Blynk.virtualWrite(vPIN_STAT_ENERGY_GENERATED_TOTAL, thisController->getFloatValue(SolarTracerVariables::GENERATED_ENERGY_TOTAL));
 }
 
 void setup() {
-
-  DEBUG_SERIAL.begin(defaultBaudRate);
+  DEBUG_SERIAL.println(" ++ STARTING TRACER-RS485-MODBUS-BLYNK");
+  DEBUG_SERIAL.begin(DEBUG_SERIAL_BAUDRATE);
 
   // Modbus slave ID 1
   CONTROLLER_SERIAL.begin(CONTROLLER_SERIAL_BAUDRATE);
@@ -146,6 +107,7 @@ void setup() {
     delay(5000);
     ESP.restart();
   }
+  DEBUG_SERIAL.println("Connected.");
 
 #ifdef USE_NTP_SERVER
   DEBUG_SERIAL.println(" ++ Setting up Local Time:");
@@ -159,9 +121,29 @@ void setup() {
     delay(10);
   }
   DEBUG_SERIAL.println(" time synced");
+
+
+  char strftime_buf[64];
+  
+  time_t tnow = tnow = time(nullptr) + 1;
+  strftime(strftime_buf, sizeof(strftime_buf), "%c", localtime(&tnow));
+  struct tm * ti = localtime(&tnow);
+
+  DEBUG_SERIAL.print("My NOW is: ");
+  DEBUG_SERIAL.print(ti->tm_year + 1900);
+  DEBUG_SERIAL.print("-");
+  DEBUG_SERIAL.print(ti->tm_mon + 1);
+  DEBUG_SERIAL.print("-");
+  DEBUG_SERIAL.print(ti->tm_mday);
+  DEBUG_SERIAL.print(" ");
+  DEBUG_SERIAL.print(ti->tm_hour);
+  DEBUG_SERIAL.print(":");
+  DEBUG_SERIAL.print(ti->tm_min);
+  DEBUG_SERIAL.print(":");
+  DEBUG_SERIAL.println(ti->tm_sec);
+  
 #endif
 
-  DEBUG_SERIAL.println("Connected.");
 
   DEBUG_SERIAL.println(" ++ Setting up Blynk:");
   DEBUG_SERIAL.print("Connecting...");
@@ -264,16 +246,6 @@ void getTimeFromServer() {
   tnow = time(nullptr) + 1;
   strftime(strftime_buf, sizeof(strftime_buf), "%c", localtime(&tnow));
   ti = localtime(&tnow);
-
-  DEBUG_SERIAL.println("---------------------------------");
-  DEBUG_SERIAL.println(ti->tm_year + 1900);
-  DEBUG_SERIAL.println(ti->tm_mon + 1);
-  DEBUG_SERIAL.println(ti->tm_mday);
-  DEBUG_SERIAL.println(ti->tm_hour);
-  DEBUG_SERIAL.println(ti->tm_min);
-  DEBUG_SERIAL.println(ti->tm_sec);
-  DEBUG_SERIAL.println("---------------------------------");
-
   thisController->syncRealtimeClock(ti);
 }
 
