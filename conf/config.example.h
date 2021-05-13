@@ -3,10 +3,17 @@
  Settings - Tracer
 
  **************************************************************/
+// specify which Serial to use for debug messages
+#define DEBUG_SERIAL Serial
+#define DEBUG_SERIAL_BAUDRATE 115200
 
 /*
  * CONTROLLER 
  */
+ // specify which Serial for solar tracer
+#define CONTROLLER_SERIAL Serial2
+ // specify which baudrate for solar tracer
+#define CONTROLLER_SERIAL_BAUDRATE 115200 
  // specify the pin num. connected to DE
 #define MAX485_DE D1
  // specify the pin num. connected to RE_NEG
