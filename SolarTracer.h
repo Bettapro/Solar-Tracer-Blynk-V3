@@ -29,12 +29,30 @@ typedef enum {
   MINIMUM_PV_VOLTAGE_TODAY,
   MAXIMUM_BATTERY_VOLTAGE_TODAY,
   MINIMUM_BATTERY_VOLTAGE_TODAY,
+  BATTERY_STATUS_TEXT,
+  CHARGING_EQUIPMENT_STATUS_TEXT,
+  DISCHARGING_EQUIPMENT_STATUS_TEXT,
 } SolarTracerVariables;
 
 
 class SolarTracer {
   public:
     SolarTracer() {}
+
+    String getStringValue(SolarTracerVariables variable) {
+      switch (variable) {
+        case SolarTracerVariables::BATTERY_STATUS_TEXT:
+          return batteryStatusText;
+        case SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT:
+          return chargingStatusText;
+        case SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT:
+          return dischargingStatusText;
+        default:
+          break;
+      }
+      // should raise an exception?
+      return "";
+    }
 
     float getFloatValue(SolarTracerVariables variable) {
       switch (variable) {
@@ -83,15 +101,15 @@ class SolarTracer {
         case SolarTracerVariables::REMOTE_BATTERY_TEMP:
           return rtemp;
         default:
-        	break;
+          break;
       }
-      // should raise an exception
+      // should raise an exception?
       return 0.0;
     }
 
 
     virtual bool fetchValue(SolarTracerVariables variable) = 0;
-    virtual bool syncRealtimeClock(struct tm *ti) =0;
+    virtual bool syncRealtimeClock(struct tm *ti) = 0;
     virtual void fetchAllValues() = 0;
     virtual bool updateRun() = 0;
     virtual bool writeBoolValue(SolarTracerVariables variable, bool value) = 0;
@@ -101,6 +119,8 @@ class SolarTracer {
     float bvoltage, rtemp, ctemp, btemp, bremaining, lpower, lcurrent, pvvoltage, pvcurrent, pvpower;
     float stats_today_pv_volt_min, stats_today_pv_volt_max,  stats_today_bat_volt_min, stats_today_bat_volt_max, stats_today_generated_energy, stats_month_generated_energy, stats_year_generated_energy, stats_total_generated_energy;
     float loadOnOff;
+
+    String batteryStatusText, dischargingStatusText, chargingStatusText;
 
 };
 

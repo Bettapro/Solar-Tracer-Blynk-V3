@@ -9,7 +9,7 @@ class EPEVERSolarTracer : public SolarTracer, public ModbusMasterCallable {
   public:
     EPEVERSolarTracer(Stream & SerialCom, uint8_t max485_de, uint8_t max485_re_neg) : SolarTracer() {
       this->node.begin(1, SerialCom);
-      
+
       this->max485_re_neg = max485_re_neg;
       this->max485_de = max485_de;
 
@@ -46,6 +46,7 @@ class EPEVERSolarTracer : public SolarTracer, public ModbusMasterCallable {
       this->AddressRegistry_311A();
       this->AddressRegistry_331B();
       this->fetchValue(SolarTracerVariables::LOAD_MANUAL_ONOFF);
+      this->fetchAddressStatusVariables();
     }
 
     virtual bool updateRun() {
@@ -77,6 +78,7 @@ class EPEVERSolarTracer : public SolarTracer, public ModbusMasterCallable {
               break;
             case 5:
               this->fetchValue(SolarTracerVariables::LOAD_MANUAL_ONOFF);
+              this->fetchAddressStatusVariables();
           }
           currentRealtimeUpdateCounter --;
 
@@ -166,7 +168,7 @@ class EPEVERSolarTracer : public SolarTracer, public ModbusMasterCallable {
 
 
     virtual bool writeBoolValue(SolarTracerVariables variable, bool value) {
-      switch (variable){
+      switch (variable) {
         case SolarTracerVariables::LOAD_FORCE_ONOFF:
           return this->writeControllerSingleCoil(MODBUS_ADDRESS_LOAD_FORCE_ONOFF, value);
         case SolarTracerVariables::LOAD_MANUAL_ONOFF:
@@ -238,7 +240,7 @@ class EPEVERSolarTracer : public SolarTracer, public ModbusMasterCallable {
       if (result == this->node.ku8MBSuccess) {
         btemp = this->node.getResponseBuffer(0x00) / 100.0f;
         ctemp = this->node.getResponseBuffer(0x01) / 100.0f;
-       
+
       } else {
         rs485readSuccess = false;
       }
@@ -265,6 +267,126 @@ class EPEVERSolarTracer : public SolarTracer, public ModbusMasterCallable {
       }
     }
 
+    void fetchAddressStatusVariables() {
+      uint8_t result = this->node.readInputRegisters(MODBUS_ADDRESS_BATTERY_STATUS, 3);
+
+      if (result == this->node.ku8MBSuccess) {
+        uint16_t batteryStatus = node.getResponseBuffer(0x00);
+        if (batteryStatus) {
+          // fault
+          batteryStatusText = "!";
+          switch (batteryStatus & 3) {
+            case 1:
+              batteryStatusText += " OVER VOLT";
+              break;
+            case 2:
+              batteryStatusText += " UNDER VOLT";
+              break;
+            case 3:
+              batteryStatusText += " LOW VOLT";
+              break;
+            case 4:
+              batteryStatusText += " FAULT";
+              break;
+          }
+
+          switch ((batteryStatus >> 16) & 3) {
+            case 1:
+              batteryStatusText += " OVER TEMP";
+              break;
+            case 2:
+              batteryStatusText += " LOW TEMP";
+              break;
+          }
+
+          if (batteryStatus >> 32) {
+            batteryStatusText += " ABN BATT. RESIST.";
+          }
+
+        }
+        else {
+          batteryStatusText = "Normal";
+        }
+
+
+        uint16_t chargingStatus = node.getResponseBuffer(0x01);
+        if (chargingStatus & 2) {
+          // fault
+          if ( (chargingStatus & 16) > 0) {
+            chargingStatusText = "! PV INPUT SHORT";
+          } else if ( chargingStatus & 32 > 0) {
+            chargingStatusText = "! LOAD MOS. SHORT";
+          } else if ( chargingStatus & 64 > 0) {
+            chargingStatusText = "! LOAD SHORT";
+          } else if ( chargingStatus & 128 > 0) {
+            chargingStatusText = "! LOAD OVER CURR.";
+          } else if ( chargingStatus & 256 > 0) {
+            chargingStatusText = "! INPUT OVER CURR.";
+          } else if ( chargingStatus & 512 > 0) {
+            chargingStatusText = "! ANTI REV. MOS. SHORT";
+          } else if ( chargingStatus & 1024 > 0) {
+            chargingStatusText = "! CHRG./ ANTI REV. MOS. SHORT";
+          } else if ( chargingStatus & 2048 > 0) {
+            chargingStatusText = "! CHRG. MOS SHORT";
+          } else {
+            chargingStatusText = "! ??";
+          }
+        }
+        else {
+          switch ((chargingStatus  >> 2) & 3 ) {
+            case 0:
+              chargingStatusText = "Stanby";
+              break;
+            case 1:
+              chargingStatusText = "Float";
+              break;
+            case 2:
+              chargingStatusText = "Boost";
+              break;
+            case 3:
+              chargingStatusText = "Equalisation";
+              break;
+          }
+        }
+
+
+        uint16_t dischargingStatus = node.getResponseBuffer(0x02);
+        if (dischargingStatus & 2) {
+          // fault
+          if ( dischargingStatus & 16 > 0) {
+            dischargingStatusText = "! OUT OVER VOLT.";
+          } else if ( dischargingStatus & 32 > 0) {
+            dischargingStatusText = "! BOOST OVER VOLT";
+          } else if ( dischargingStatus & 64 > 0) {
+            dischargingStatusText = "! HV SIDE SHORT";
+          } else if ( dischargingStatus & 128 > 0) {
+            dischargingStatusText = "! INPUT OVER VOLT.";
+          } else if ( dischargingStatus & 256 > 0) {
+            dischargingStatusText = "! OUT VOLT. ABN";
+          } else if ( dischargingStatus & 512 > 0) {
+            dischargingStatusText = "! UNABLE STOP DISC.";
+          } else if ( dischargingStatus & 1024 > 0) {
+            dischargingStatusText = "! UNABLE DISC.";
+          } else if ( dischargingStatus & 2048 > 0) {
+            dischargingStatusText = "! SHORT";
+          } else {
+            dischargingStatusText = "! ??";
+          }
+        }
+        else {
+          if (dischargingStatus & 1) {
+            dischargingStatusText = "Running";
+          }
+          else {
+            dischargingStatusText = "Standby";
+          }
+
+        }
+      } else {
+        rs485readSuccess = false;
+      }
+    }
+
     void updateStats() {
       uint8_t result = this->node.readInputRegisters(MODBUS_ADDRESS_STAT_MAX_PV_VOLTAGE_TODAY, 29);
 
@@ -284,14 +406,14 @@ class EPEVERSolarTracer : public SolarTracer, public ModbusMasterCallable {
 
 
     /*
-     * Implementation of ModbusMasterCallable
-     */
+       Implementation of ModbusMasterCallable
+    */
     void onModbusPreTransmission() {
       digitalWrite(this->max485_re_neg, 1);
       digitalWrite(this->max485_de, 1);
     }
 
-    virtual void onModbusIdle(){
+    virtual void onModbusIdle() {
       // nothing to do here!
     }
 
@@ -301,7 +423,7 @@ class EPEVERSolarTracer : public SolarTracer, public ModbusMasterCallable {
     }
   protected:
     uint16_t max485_re_neg, max485_de;
-    
+
     bool rs485readSuccess;
 
     uint16_t globalUpdateCounter = 0;
@@ -309,7 +431,7 @@ class EPEVERSolarTracer : public SolarTracer, public ModbusMasterCallable {
 
     ModbusMaster node;
 
-    // MODBUS ADDRESS 
+    // MODBUS ADDRESS
     static const uint16_t MODBUS_ADDRESS_PV_VOLTAGE   =           0x3100;
     static const uint16_t MODBUS_ADDRESS_PV_POWER =             0x3102;
     static const uint16_t MODBUS_ADDRESS_PV_CURRENT =           0x3101;
@@ -324,6 +446,9 @@ class EPEVERSolarTracer : public SolarTracer, public ModbusMasterCallable {
     static const uint16_t MODBUS_ADDRESS_LOAD_FORCE_ONOFF =       0x0006;
     static const uint16_t MODBUS_ADDRESS_LOAD_MANUAL_ONOFF =        0x0002;
     static const uint16_t MODBUS_ADDRESS_BATTERY_CHARGE_ONOFF =     0x0000;
+    static const uint16_t MODBUS_ADDRESS_BATTERY_STATUS =    0x3200;
+    static const uint16_t MODBUS_ADDRESS_CHARGING_EQUIPMENT_STATUS =    0x3200;
+    static const uint16_t MODBUS_ADDRESS_DISCHARGING_EQUIPMENT_STATUS =    0x3200;
     static const uint16_t MODBUS_ADDRESS_STAT_MAX_PV_VOLTAGE_TODAY =    0x3300;
     static const uint16_t MODBUS_ADDRESS_STAT_GENERATED_ENERGY_TODAY =    0x330C;
     static const uint16_t MODBUS_ADDRESS_STAT_GENERATED_ENERGY_MONTH =    0x330E;

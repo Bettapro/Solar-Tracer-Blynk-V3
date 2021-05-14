@@ -73,6 +73,10 @@ void uploadRealtimeToBlynk() {
   Blynk.virtualWrite(vPIN_BATTERY_CHARGE_POWER, thisController->getFloatValue(SolarTracerVariables::BATTERY_CHARGE_POWER));
   Blynk.virtualWrite(vPIN_BATTERY_OVERALL_CURRENT, thisController->getFloatValue(SolarTracerVariables::BATTERY_OVERALL_CURRENT));
   Blynk.virtualWrite(vPIN_LOAD_ENABLED, thisController->getFloatValue( SolarTracerVariables::LOAD_MANUAL_ONOFF));
+
+  Blynk.virtualWrite(vPIN_BATTERY_STATUS_TEXT, thisController->getStringValue( SolarTracerVariables::BATTERY_STATUS_TEXT));
+  Blynk.virtualWrite(vPIN_CHARGING_EQUIPMENT_STATUS_TEXT, thisController->getStringValue( SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT));
+  Blynk.virtualWrite(vPIN_DISCHARGING_EQUIPMENT_STATUS_TEXT, thisController->getStringValue( SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT));
 }
 
 // upload values
