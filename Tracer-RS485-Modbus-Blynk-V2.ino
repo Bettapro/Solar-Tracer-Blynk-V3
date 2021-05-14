@@ -7,10 +7,11 @@
 // With modifications by @bettapro
 //
 
+#include "config.h"
+
 #if defined ESP32
 #define USE_WIFI_NINA false
 #define USE_WIFI101 false
-
 #include <WiFi.h>
 // not needed ?
 //#include <WiFiUdp.h>
@@ -30,11 +31,10 @@
 #error This board is not supported.
 #endif
 
-#ifdef USE_ARDUINO_OTA
+#ifdef USE_OTA_UPDATE
 #include <ArduinoOTA.h>
 #endif
 
-#include "config.h"
 
 #include "SolarTracer.h"
 // should be include if tracer is epsolar/epever
@@ -128,7 +128,7 @@ void setup() {
 
 
   char strftime_buf[64];
-  
+
   time_t tnow = tnow = time(nullptr) + 1;
   strftime(strftime_buf, sizeof(strftime_buf), "%c", localtime(&tnow));
   struct tm * ti = localtime(&tnow);
@@ -145,7 +145,7 @@ void setup() {
   DEBUG_SERIAL.print(ti->tm_min);
   DEBUG_SERIAL.print(":");
   DEBUG_SERIAL.println(ti->tm_sec);
-  
+
 #endif
 
 
@@ -160,9 +160,7 @@ void setup() {
   DEBUG_SERIAL.println();
   DEBUG_SERIAL.println("Connected to Blynk.");
 
-#ifdef USE_ARDUINO_OTA
-
-
+#ifdef USE_OTA_UPDATE
   DEBUG_SERIAL.println("Starting ArduinoOTA...");
 
   ArduinoOTA.setHostname(OTA_HOSTNAME);
@@ -277,7 +275,7 @@ BLYNK_WRITE(vPIN_LOAD_ENABLED) {
 
 void loop() {
   Blynk.run();
-#ifdef USE_ARDUINO_OTA
+#ifdef USE_OTA_UPDATE
   ArduinoOTA.handle();
 #endif
   timer.run();
