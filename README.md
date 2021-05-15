@@ -1,6 +1,13 @@
-# Tracer-RS485-Modbus-Blynk V2.0 - RELOADED
+**NOTE ABOUT THIS FORK:**
+I decided to mark it as **V2.1** because this project will probably stay as a fork as I don't want to affect so heavily the original project (at least at this stage).
+I'm testing the software on my setup day-by-day and keep improving on my needs.
+My goal here is to create a "universal" way to monitor a solar-tracer via an ESP32-ESP8266 + Blynk. This is one reason I rewrite the code to introduce some OOP that gives the possibiliy for future customizations like different communication chanels or protocols (more solar tracer!).
 
-### An Arduino project to connect the `EPSolar`/`EPEver` `Tracer A/B`, `Xtra`, `Triton` Series MPPT Solar Controllers (RS-485 Modbus) to an `ESP8266` and monitor it using the `Blynk` mobile app, the reloaded version!
+
+
+# Tracer-RS485-Modbus-Blynk V2.1
+
+### An Arduino project to connect the `EPSolar`/`EPEver` `Tracer A/B`, `Xtra`, `Triton` Series MPPT Solar Controllers (RS-485 Modbus) to an `ESP8266/ESP32` and monitor it using the `Blynk` mobile app, the reloaded version!
 
 This is almost complete rewrite of the original [project](https://github.com/jaminNZx/Tracer-RS485-Modbus-Blynk), with ton of improvements, refactored code, brand new Blynk project, and wider compatibility of RS485 convertrs.
 
@@ -19,7 +26,7 @@ There is also a support forum on the Blynk community forums: http://community.bl
 
 * [RS485 UART Module](https://www.aliexpress.com/wholesale?catId=0&initiative_id=SB_20170114172807&SearchText=uart+rs485) (~~not the MAX485 chip!~~ - `@tekk:` I'm using [MAX485 cheapo module](doc/max485_module.jpg) and it works fine!)
 
-* [ESP8266 Dev Board](https://www.aliexpress.com/wholesale?catId=0&initiative_id=SB_20170114172938&SearchText=esp8266+mini)
+* [ESP8266 Dev Board](https://www.aliexpress.com/wholesale?catId=0&initiative_id=SB_20170114172938&SearchText=esp8266+mini) or ESP32
 
 * An old ethernet cable with RJ45 connector you are happy to cut open
 
@@ -54,9 +61,11 @@ Follow links to get them.
 * [Blynk Library](https://github.com/blynkkk/blynk-library)
 * [ArduinoOTA](https://github.com/esp8266/Arduino/tree/master/libraries/ArduinoOTA)
 * [SimpleTimer](https://github.com/schinken/SimpleTimer)
-* [ModbusMaster](https://github.com/4-20ma/ModbusMaster)
+* [ModbusMaster](https://github.com/4-20ma/ModbusMaster) -  v2.1 requires my ModbusMaster fork, available [here](https://github.com/Bettapro/ModbusMaster) 
 
 ## Tutorial
+
+**I moved all the settings in one file only (config.h) an example is available in *conf/config.example.h* . *esp_credential.h* is not part of the project any more.** 
 
 ### Edit `esp_credentials.h` library
 
