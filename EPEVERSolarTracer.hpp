@@ -308,25 +308,32 @@ class EPEVERSolarTracer : public SolarTracer, public ModbusMasterCallable {
           batteryStatusText = "Normal";
         }
 
-
         uint16_t chargingStatus = node.getResponseBuffer(0x01);
-        if (chargingStatus & 2) {
-          // fault
-          if ( (chargingStatus & 16) > 0) {
+        if (chargingStatus & 0xFF0) {
+          // doc says that bit2 is 0:Normal, 1:Faul
+          // seems like this bit is behaving different
+          // 0: Not charging, 1: Charging
+          // FAULTs are detected by checking all fault bits bit13-4
+          // chargingStatus & 0xFF0 == 0 means no fault
+          if ( chargingStatus & 16) {
             chargingStatusText = "! PV INPUT SHORT";
-          } else if ( chargingStatus & 32 > 0) {
+          } else if ( chargingStatus & 32 ) {
+            chargingStatusText = "! ?? D5"; // not specified in doc
+          }else if ( chargingStatus & 64 ) {
+            chargingStatusText = "! ?? D6"; // not specified in doc
+          }else if ( chargingStatus & 128 ) {
             chargingStatusText = "! LOAD MOS. SHORT";
-          } else if ( chargingStatus & 64 > 0) {
+          } else if ( chargingStatus & 256 ) {
             chargingStatusText = "! LOAD SHORT";
-          } else if ( chargingStatus & 128 > 0) {
+          } else if ( chargingStatus & 512) {
             chargingStatusText = "! LOAD OVER CURR.";
-          } else if ( chargingStatus & 256 > 0) {
+          } else if ( chargingStatus & 1024 ) {
             chargingStatusText = "! INPUT OVER CURR.";
-          } else if ( chargingStatus & 512 > 0) {
+          } else if ( chargingStatus & 2048 ) {
             chargingStatusText = "! ANTI REV. MOS. SHORT";
-          } else if ( chargingStatus & 1024 > 0) {
+          } else if ( chargingStatus & 4096 ) {
             chargingStatusText = "! CHRG./ ANTI REV. MOS. SHORT";
-          } else if ( chargingStatus & 2048 > 0) {
+          } else if ( chargingStatus & 8192 ) {
             chargingStatusText = "! CHRG. MOS SHORT";
           } else {
             chargingStatusText = "! ??";
@@ -353,21 +360,21 @@ class EPEVERSolarTracer : public SolarTracer, public ModbusMasterCallable {
         uint16_t dischargingStatus = node.getResponseBuffer(0x02);
         if (dischargingStatus & 2) {
           // fault
-          if ( dischargingStatus & 16 > 0) {
+          if ( dischargingStatus & 16 ) {
             dischargingStatusText = "! OUT OVER VOLT.";
-          } else if ( dischargingStatus & 32 > 0) {
+          } else if ( dischargingStatus & 32 ) {
             dischargingStatusText = "! BOOST OVER VOLT";
-          } else if ( dischargingStatus & 64 > 0) {
+          } else if ( dischargingStatus & 64 ) {
             dischargingStatusText = "! HV SIDE SHORT";
-          } else if ( dischargingStatus & 128 > 0) {
+          } else if ( dischargingStatus & 128 ) {
             dischargingStatusText = "! INPUT OVER VOLT.";
-          } else if ( dischargingStatus & 256 > 0) {
+          } else if ( dischargingStatus & 256 ) {
             dischargingStatusText = "! OUT VOLT. ABN";
-          } else if ( dischargingStatus & 512 > 0) {
+          } else if ( dischargingStatus & 512 ) {
             dischargingStatusText = "! UNABLE STOP DISC.";
-          } else if ( dischargingStatus & 1024 > 0) {
+          } else if ( dischargingStatus & 1024 ) {
             dischargingStatusText = "! UNABLE DISC.";
-          } else if ( dischargingStatus & 2048 > 0) {
+          } else if ( dischargingStatus & 2048 ) {
             dischargingStatusText = "! SHORT";
           } else {
             dischargingStatusText = "! ??";
