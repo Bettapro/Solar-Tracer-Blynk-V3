@@ -32,6 +32,7 @@ typedef enum {
   BATTERY_STATUS_TEXT,
   CHARGING_EQUIPMENT_STATUS_TEXT,
   DISCHARGING_EQUIPMENT_STATUS_TEXT,
+  CHARGING_DEVICE_ONOFF
 } SolarTracerVariables;
 
 
@@ -82,6 +83,8 @@ class SolarTracer {
           return battOverallCurrent;
         case SolarTracerVariables::LOAD_MANUAL_ONOFF:
           return loadOnOff;
+        case SolarTracerVariables::CHARGING_DEVICE_ONOFF:
+          return chargingDeviceOnOff;
         case SolarTracerVariables::GENERATED_ENERGY_TODAY:
           return stats_today_generated_energy;
         case SolarTracerVariables::GENERATED_ENERGY_MONTH:
@@ -118,7 +121,7 @@ class SolarTracer {
     float battChargeCurrent, battDischargeCurrent, battOverallCurrent, battChargePower;
     float bvoltage, rtemp, ctemp, btemp, bremaining, lpower, lcurrent, pvvoltage, pvcurrent, pvpower;
     float stats_today_pv_volt_min, stats_today_pv_volt_max,  stats_today_bat_volt_min, stats_today_bat_volt_max, stats_today_generated_energy, stats_month_generated_energy, stats_year_generated_energy, stats_total_generated_energy;
-    float loadOnOff;
+    float loadOnOff, chargingDeviceOnOff;
 
     String batteryStatusText, dischargingStatusText, chargingStatusText;
 

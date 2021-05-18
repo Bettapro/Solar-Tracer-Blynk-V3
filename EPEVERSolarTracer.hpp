@@ -78,68 +78,13 @@ class EPEVERSolarTracer : public SolarTracer, public ModbusMasterCallable {
               break;
             case 5:
               this->fetchValue(SolarTracerVariables::LOAD_MANUAL_ONOFF);
+              this->fetchValue(SolarTracerVariables::LOAD_MANUAL_ONOFF);
               this->fetchAddressStatusVariables();
           }
           currentRealtimeUpdateCounter --;
 
       }
-
       return rs485readSuccess;
-
-
-    }
-
-    virtual float getFloatValue(SolarTracerVariables variable) {
-      switch (variable) {
-        case SolarTracerVariables::PV_VOLTAGE:
-          return pvvoltage;
-        case SolarTracerVariables::PV_POWER:
-          return pvpower;
-        case SolarTracerVariables::PV_CURRENT:
-          return pvcurrent;
-        case SolarTracerVariables::LOAD_CURRENT:
-          return lcurrent;
-        case SolarTracerVariables::LOAD_POWER:
-          return lpower;
-        case SolarTracerVariables::BATTERY_TEMP:
-          return btemp;
-        case SolarTracerVariables::BATTERY_VOLTAGE:
-          return bvoltage;
-        case SolarTracerVariables::BATTERY_SOC:
-          return bremaining;
-        case SolarTracerVariables::CONTROLLER_TEMP:
-          return ctemp;
-        case SolarTracerVariables::BATTERY_CHARGE_CURRENT:
-          return battChargeCurrent;
-        case SolarTracerVariables::BATTERY_CHARGE_POWER:
-          return battChargePower;
-        case SolarTracerVariables::BATTERY_OVERALL_CURRENT:
-          return battOverallCurrent;
-        case SolarTracerVariables::LOAD_MANUAL_ONOFF:
-          return loadOnOff;
-        case SolarTracerVariables::GENERATED_ENERGY_TODAY:
-          return stats_today_generated_energy;
-        case SolarTracerVariables::GENERATED_ENERGY_MONTH:
-          return stats_month_generated_energy;
-        case SolarTracerVariables::GENERATED_ENERGY_YEAR:
-          return stats_year_generated_energy;
-        case SolarTracerVariables::GENERATED_ENERGY_TOTAL:
-          return stats_total_generated_energy;
-        case SolarTracerVariables::MAXIMUM_PV_VOLTAGE_TODAY:
-          return stats_today_pv_volt_max;
-        case SolarTracerVariables::MINIMUM_PV_VOLTAGE_TODAY:
-          return stats_today_pv_volt_min;
-        case SolarTracerVariables::MAXIMUM_BATTERY_VOLTAGE_TODAY:
-          return stats_today_bat_volt_max;
-        case SolarTracerVariables::MINIMUM_BATTERY_VOLTAGE_TODAY:
-          return stats_today_bat_volt_min;
-        case SolarTracerVariables::REMOTE_BATTERY_TEMP:
-          return rtemp;
-        default:
-          break;
-      }
-      // should raise an exception
-      return 0.0;
     }
 
 
@@ -159,6 +104,12 @@ class EPEVERSolarTracer : public SolarTracer, public ModbusMasterCallable {
             loadOnOff = value;
           }
           return rs485readSuccess;
+        case SolarTracerVariables::CHARGING_DEVICE_ONOFF:
+          value =  this->readControllerSingleCoil(MODBUS_ADDRESS_BATTERY_CHARGE_ONOFF);
+          if (rs485readSuccess) {
+            chargingDeviceOnOff = value;
+          }
+          return rs485readSuccess;
         default:
           break;
       }
@@ -173,6 +124,8 @@ class EPEVERSolarTracer : public SolarTracer, public ModbusMasterCallable {
           return this->writeControllerSingleCoil(MODBUS_ADDRESS_LOAD_FORCE_ONOFF, value);
         case SolarTracerVariables::LOAD_MANUAL_ONOFF:
           return this->writeControllerSingleCoil(MODBUS_ADDRESS_LOAD_MANUAL_ONOFF, value);
+        case SolarTracerVariables::CHARGING_DEVICE_ONOFF:
+          return this->writeControllerSingleCoil(MODBUS_ADDRESS_BATTERY_CHARGE_ONOFF, value);
         default:
           break;
       }

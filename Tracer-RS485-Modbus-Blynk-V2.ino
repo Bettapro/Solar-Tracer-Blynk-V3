@@ -73,6 +73,7 @@ void uploadRealtimeToBlynk() {
   Blynk.virtualWrite(vPIN_BATTERY_CHARGE_POWER, thisController->getFloatValue(SolarTracerVariables::BATTERY_CHARGE_POWER));
   Blynk.virtualWrite(vPIN_BATTERY_OVERALL_CURRENT, thisController->getFloatValue(SolarTracerVariables::BATTERY_OVERALL_CURRENT));
   Blynk.virtualWrite(vPIN_LOAD_ENABLED, thisController->getFloatValue( SolarTracerVariables::LOAD_MANUAL_ONOFF));
+  Blynk.virtualWrite(vPIN_CHARGE_DEVICE_ENABLED, thisController->getFloatValue( SolarTracerVariables::CHARGING_DEVICE_ONOFF));
 
   Blynk.virtualWrite(vPIN_BATTERY_STATUS_TEXT, thisController->getStringValue( SolarTracerVariables::BATTERY_STATUS_TEXT));
   Blynk.virtualWrite(vPIN_CHARGING_EQUIPMENT_STATUS_TEXT, thisController->getStringValue( SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT));
@@ -103,7 +104,7 @@ void setup() {
 #ifdef USE_BLYNK_LOCAL_SERVER
   Blynk.begin(BLYNK_AUTH, WIFI_SSID, WIFI_PASS, BLYNK_SERVER, BLYNK_PORT);
 #else
-  Blynk.begin(AUTH, WIFI_SSID, WIFI_PASS);
+  Blynk.begin(BLYNK_AUTH, WIFI_SSID, WIFI_PASS);
 #endif
 
   while (WiFi.waitForConnectResult() != WL_CONNECTED) {
@@ -267,6 +268,25 @@ BLYNK_WRITE(vPIN_LOAD_ENABLED) {
     DEBUG_SERIAL.println("Write & Read failed.");
   }
   thisController->fetchValue(SolarTracerVariables::LOAD_MANUAL_ONOFF);
+
+  DEBUG_SERIAL.println("Uploading results to Blynk.");
+
+  uploadRealtimeToBlynk();
+}
+
+BLYNK_WRITE(vPIN_CHARGE_DEVICE_ENABLED) {
+  uint8_t newState = (uint8_t) param.asInt();
+
+  DEBUG_SERIAL.print("Setting load state output coil to value: ");
+  DEBUG_SERIAL.println(newState);
+
+  if (thisController->writeBoolValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF,
+                                     newState > 0)) {
+    DEBUG_SERIAL.println("Write & Read suceeded.");
+  } else {
+    DEBUG_SERIAL.println("Write & Read failed.");
+  }
+  thisController->fetchValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF);
 
   DEBUG_SERIAL.println("Uploading results to Blynk.");
 
