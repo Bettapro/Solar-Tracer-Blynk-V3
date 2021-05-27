@@ -244,7 +244,7 @@ class EPEVERSolarTracer : public SolarTracer, public ModbusMasterCallable {
               break;
           }
 
-          switch ((batteryStatus >> 16) & 3) {
+          switch ((batteryStatus >> 4) & 3) {
             case 1:
               batteryStatusText += " OVER TEMP";
               break;
@@ -253,7 +253,7 @@ class EPEVERSolarTracer : public SolarTracer, public ModbusMasterCallable {
               break;
           }
 
-          if (batteryStatus >> 32) {
+          if (batteryStatus >> 8) {
             batteryStatusText += " ABN BATT. RESIST.";
           }
 
