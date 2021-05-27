@@ -37,9 +37,9 @@ int _EXFUN(setenv, (const char *__string, const char *__value, int __overwrite))
 #endif
 
 
-#include "SolarTracer.h"
+#include "solartracer/SolarTracer.h"
 // should be include if tracer is epsolar/epever
-#include "EPEVERSolarTracer.hpp"
+#include "solartracer/epever/EPEVERSolarTracer.h"
 
 int timerTask1, timerTask2, timerTask3;
 
