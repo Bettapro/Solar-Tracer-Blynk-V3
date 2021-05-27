@@ -1,0 +1,7 @@
+/config.h
+
+# Platformio
+.pio*
+
+# Visual Studio Code
+.vscode

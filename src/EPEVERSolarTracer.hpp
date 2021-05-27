@@ -12,6 +12,7 @@ class EPEVERSolarTracer : public SolarTracer, public ModbusMasterCallable {
 
       this->max485_re_neg = max485_re_neg;
       this->max485_de = max485_de;
+      this->rs485readSuccess = true;
 
       pinMode(this->max485_re_neg, OUTPUT);
       pinMode(this->max485_de, OUTPUT);
@@ -78,7 +79,7 @@ class EPEVERSolarTracer : public SolarTracer, public ModbusMasterCallable {
               break;
             case 5:
               this->fetchValue(SolarTracerVariables::LOAD_MANUAL_ONOFF);
-              this->fetchValue(SolarTracerVariables::LOAD_MANUAL_ONOFF);
+              this->fetchValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF);
               this->fetchAddressStatusVariables();
           }
           currentRealtimeUpdateCounter --;

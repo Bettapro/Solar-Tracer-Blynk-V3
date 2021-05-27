@@ -16,7 +16,7 @@
 // not needed ?
 //#include <WiFiUdp.h>
 //#include <DNSServer.h>
-#include <WiFiWebServer.h>
+//#include <WiFiWebServer.h>
 // not needed ?
 //#include <ESPmDNS.h>
 #include <BlynkSimpleEsp32.h>
@@ -31,6 +31,7 @@
 #error This board is not supported.
 #endif
 
+
 #ifdef USE_OTA_UPDATE
 #include <ArduinoOTA.h>
 #endif
@@ -43,7 +44,6 @@
 int timerTask1, timerTask2, timerTask3;
 
 
-ModbusMaster node;
 SolarTracer *thisController;
 SimpleTimer timer;
 
@@ -130,7 +130,7 @@ void setup() {
 
   char strftime_buf[64];
 
-  time_t tnow = tnow = time(nullptr) + 1;
+  time_t tnow = time(nullptr) + 1;
   strftime(strftime_buf, sizeof(strftime_buf), "%c", localtime(&tnow));
   struct tm * ti = localtime(&tnow);
 
