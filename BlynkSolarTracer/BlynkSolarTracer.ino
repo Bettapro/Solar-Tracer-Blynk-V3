@@ -31,11 +31,9 @@
 #error This board is not supported.
 #endif
 
-
 #ifdef USE_OTA_UPDATE
 #include <ArduinoOTA.h>
 #endif
-
 
 #include "SolarTracer.h"
 // should be include if tracer is epsolar/epever
@@ -43,23 +41,27 @@
 
 int timerTask1, timerTask2, timerTask3;
 
-
 SolarTracer *thisController;
 SimpleTimer timer;
 
 // ****************************************************************************
 
-void updateSolarController() {
+void updateSolarController()
+{
 
-  if (thisController->updateRun()) {
+  if (thisController->updateRun())
+  {
     DEBUG_SERIAL.println("Update Solar-Tracer SUCCESS!");
-  } else {
+  }
+  else
+  {
     DEBUG_SERIAL.println("Update Solar-Tracer FAILED!");
   }
 }
 
 // upload values
-void uploadRealtimeToBlynk() {
+void uploadRealtimeToBlynk()
+{
   Blynk.virtualWrite(vPIN_PV_POWER, thisController->getFloatValue(SolarTracerVariables::PV_POWER));
   Blynk.virtualWrite(vPIN_PV_CURRENT, thisController->getFloatValue(SolarTracerVariables::PV_CURRENT));
   Blynk.virtualWrite(vPIN_PV_VOLTAGE, thisController->getFloatValue(SolarTracerVariables::PV_VOLTAGE));
@@ -72,23 +74,25 @@ void uploadRealtimeToBlynk() {
   Blynk.virtualWrite(vPIN_BATTERY_CHARGE_CURRENT, thisController->getFloatValue(SolarTracerVariables::BATTERY_CHARGE_CURRENT));
   Blynk.virtualWrite(vPIN_BATTERY_CHARGE_POWER, thisController->getFloatValue(SolarTracerVariables::BATTERY_CHARGE_POWER));
   Blynk.virtualWrite(vPIN_BATTERY_OVERALL_CURRENT, thisController->getFloatValue(SolarTracerVariables::BATTERY_OVERALL_CURRENT));
-  Blynk.virtualWrite(vPIN_LOAD_ENABLED, thisController->getFloatValue( SolarTracerVariables::LOAD_MANUAL_ONOFF));
-  Blynk.virtualWrite(vPIN_CHARGE_DEVICE_ENABLED, thisController->getFloatValue( SolarTracerVariables::CHARGING_DEVICE_ONOFF));
+  Blynk.virtualWrite(vPIN_LOAD_ENABLED, thisController->getFloatValue(SolarTracerVariables::LOAD_MANUAL_ONOFF));
+  Blynk.virtualWrite(vPIN_CHARGE_DEVICE_ENABLED, thisController->getFloatValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF));
 
-  Blynk.virtualWrite(vPIN_BATTERY_STATUS_TEXT, thisController->getStringValue( SolarTracerVariables::BATTERY_STATUS_TEXT));
-  Blynk.virtualWrite(vPIN_CHARGING_EQUIPMENT_STATUS_TEXT, thisController->getStringValue( SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT));
-  Blynk.virtualWrite(vPIN_DISCHARGING_EQUIPMENT_STATUS_TEXT, thisController->getStringValue( SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT));
+  Blynk.virtualWrite(vPIN_BATTERY_STATUS_TEXT, thisController->getStringValue(SolarTracerVariables::BATTERY_STATUS_TEXT));
+  Blynk.virtualWrite(vPIN_CHARGING_EQUIPMENT_STATUS_TEXT, thisController->getStringValue(SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT));
+  Blynk.virtualWrite(vPIN_DISCHARGING_EQUIPMENT_STATUS_TEXT, thisController->getStringValue(SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT));
 }
 
 // upload values
-void uploadStatsToBlynk() {
-  Blynk.virtualWrite(vPIN_STAT_ENERGY_GENERATED_TODAY, thisController->getFloatValue( SolarTracerVariables::GENERATED_ENERGY_TODAY));
+void uploadStatsToBlynk()
+{
+  Blynk.virtualWrite(vPIN_STAT_ENERGY_GENERATED_TODAY, thisController->getFloatValue(SolarTracerVariables::GENERATED_ENERGY_TODAY));
   Blynk.virtualWrite(vPIN_STAT_ENERGY_GENERATED_THIS_MONTH, thisController->getFloatValue(SolarTracerVariables::GENERATED_ENERGY_MONTH));
   Blynk.virtualWrite(vPIN_STAT_ENERGY_GENERATED_THIS_YEAR, thisController->getFloatValue(SolarTracerVariables::GENERATED_ENERGY_YEAR));
   Blynk.virtualWrite(vPIN_STAT_ENERGY_GENERATED_TOTAL, thisController->getFloatValue(SolarTracerVariables::GENERATED_ENERGY_TOTAL));
 }
 
-void setup() {
+void setup()
+{
   DEBUG_SERIAL.println(" ++ STARTING TRACER-RS485-MODBUS-BLYNK");
   DEBUG_SERIAL.begin(DEBUG_SERIAL_BAUDRATE);
 
@@ -107,7 +111,8 @@ void setup() {
   Blynk.begin(BLYNK_AUTH, WIFI_SSID, WIFI_PASS);
 #endif
 
-  while (WiFi.waitForConnectResult() != WL_CONNECTED) {
+  while (WiFi.waitForConnectResult() != WL_CONNECTED)
+  {
     DEBUG_SERIAL.println("Connection Failed! Rebooting...");
     delay(5000);
     ESP.restart();
@@ -121,18 +126,18 @@ void setup() {
   setenv("TZ", TIMEZONE, 3);
   tzset();
 
-  while (time(nullptr) < 100000ul) {
+  while (time(nullptr) < 100000ul)
+  {
     DEBUG_SERIAL.print(".");
     delay(10);
   }
   DEBUG_SERIAL.println(" time synced");
 
-
   char strftime_buf[64];
 
   time_t tnow = time(nullptr) + 1;
   strftime(strftime_buf, sizeof(strftime_buf), "%c", localtime(&tnow));
-  struct tm * ti = localtime(&tnow);
+  struct tm *ti = localtime(&tnow);
 
   DEBUG_SERIAL.print("My NOW is: ");
   DEBUG_SERIAL.print(ti->tm_year + 1900);
@@ -149,11 +154,11 @@ void setup() {
 
 #endif
 
-
   DEBUG_SERIAL.println(" ++ Setting up Blynk:");
   DEBUG_SERIAL.print("Connecting...");
 
-  while (!Blynk.connect()) {
+  while (!Blynk.connect())
+  {
     DEBUG_SERIAL.print(".");
     delay(100);
   }
@@ -165,13 +170,16 @@ void setup() {
   DEBUG_SERIAL.println("Starting ArduinoOTA...");
 
   ArduinoOTA.setHostname(OTA_HOSTNAME);
-  ArduinoOTA.setPassword((const char*) OTA_PASS);
+  ArduinoOTA.setPassword((const char *)OTA_PASS);
 
   ArduinoOTA.onStart([]() {
     String type;
-    if (ArduinoOTA.getCommand() == U_FLASH) {
+    if (ArduinoOTA.getCommand() == U_FLASH)
+    {
       type = "sketch";
-    } else { // U_SPIFFS
+    }
+    else
+    { // U_SPIFFS
       type = "filesystem";
     }
 
@@ -189,15 +197,24 @@ void setup() {
 
   ArduinoOTA.onError([](ota_error_t error) {
     DEBUG_SERIAL.printf("Error[%u]: ", error);
-    if (error == OTA_AUTH_ERROR) {
+    if (error == OTA_AUTH_ERROR)
+    {
       DEBUG_SERIAL.println("Auth Failed");
-    } else if (error == OTA_BEGIN_ERROR) {
+    }
+    else if (error == OTA_BEGIN_ERROR)
+    {
       DEBUG_SERIAL.println("Begin Failed");
-    } else if (error == OTA_CONNECT_ERROR) {
+    }
+    else if (error == OTA_CONNECT_ERROR)
+    {
       DEBUG_SERIAL.println("Connect Failed");
-    } else if (error == OTA_RECEIVE_ERROR) {
+    }
+    else if (error == OTA_RECEIVE_ERROR)
+    {
       DEBUG_SERIAL.println("Receive Failed");
-    } else if (error == OTA_END_ERROR) {
+    }
+    else if (error == OTA_END_ERROR)
+    {
       DEBUG_SERIAL.println("End Failed");
     }
   });
@@ -239,9 +256,8 @@ void setup() {
 
 // -------------------------------------------------------------------------------
 
-
-
-void getTimeFromServer() {
+void getTimeFromServer()
+{
   struct tm *ti;
   time_t tnow;
   char strftime_buf[64];
@@ -255,16 +271,20 @@ void getTimeFromServer() {
 // --------------------------------------------------------------------------------
 
 // callback to on/off button state changes from the Blynk app
-BLYNK_WRITE(vPIN_LOAD_ENABLED) {
-  uint8_t newState = (uint8_t) param.asInt();
+BLYNK_WRITE(vPIN_LOAD_ENABLED)
+{
+  uint8_t newState = (uint8_t)param.asInt();
 
   DEBUG_SERIAL.print("Setting load state output coil to value: ");
   DEBUG_SERIAL.println(newState);
 
   if (thisController->writeBoolValue(SolarTracerVariables::LOAD_MANUAL_ONOFF,
-                                     newState > 0)) {
+                                     newState > 0))
+  {
     DEBUG_SERIAL.println("Write & Read suceeded.");
-  } else {
+  }
+  else
+  {
     DEBUG_SERIAL.println("Write & Read failed.");
   }
   thisController->fetchValue(SolarTracerVariables::LOAD_MANUAL_ONOFF);
@@ -274,16 +294,20 @@ BLYNK_WRITE(vPIN_LOAD_ENABLED) {
   uploadRealtimeToBlynk();
 }
 
-BLYNK_WRITE(vPIN_CHARGE_DEVICE_ENABLED) {
-  uint8_t newState = (uint8_t) param.asInt();
+BLYNK_WRITE(vPIN_CHARGE_DEVICE_ENABLED)
+{
+  uint8_t newState = (uint8_t)param.asInt();
 
   DEBUG_SERIAL.print("Setting load state output coil to value: ");
   DEBUG_SERIAL.println(newState);
 
   if (thisController->writeBoolValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF,
-                                     newState > 0)) {
+                                     newState > 0))
+  {
     DEBUG_SERIAL.println("Write & Read suceeded.");
-  } else {
+  }
+  else
+  {
     DEBUG_SERIAL.println("Write & Read failed.");
   }
   thisController->fetchValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF);
@@ -293,7 +317,8 @@ BLYNK_WRITE(vPIN_CHARGE_DEVICE_ENABLED) {
   uploadRealtimeToBlynk();
 }
 
-void loop() {
+void loop()
+{
   Blynk.run();
 #ifdef USE_OTA_UPDATE
   ArduinoOTA.handle();

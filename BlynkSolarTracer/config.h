@@ -1,3 +1,7 @@
+/**
+ * 
+ * Tracer 
+
 /**************************************************************
 
  Settings - Tracer
@@ -15,9 +19,9 @@
  // specify which baudrate for solar tracer
 #define CONTROLLER_SERIAL_BAUDRATE 115200 
  // specify the pin num. connected to DE
-#define MAX485_DE D1
+#define MAX485_DE 18
  // specify the pin num. connected to RE_NEG
-#define MAX485_RE_NEG D2
+#define MAX485_RE_NEG 18
 // How many ms between each chunk refresh (eg 1000L)
 #define CONTROLLER_UPDATE_MS_PERIOD 2000L
 
@@ -97,5 +101,7 @@
 #define vPIN_STAT_ENERGY_GENERATED_TOTAL                V18
 #define vPIN_MIN_BATTERY_VOLTAGE_TODAY                  V19
 #define vPIN_MAX_BATTERY_VOLTAGE_TODAY                  V20
-#define vPIN_MIN_PV_VOLTAGE_TODAY                       V21
-#define vPIN_MAX_PV_VOLTAGE_TODAY                       V21
+#define vPIN_BATTERY_STATUS_TEXT                        V23
+#define vPIN_CHARGING_EQUIPMENT_STATUS_TEXT             V24
+#define vPIN_DISCHARGING_EQUIPMENT_STATUS_TEXT          V25
+#define vPIN_CHARGE_DEVICE_ENABLED                      V26
