@@ -1,33 +1,43 @@
 /**
  * 
- * Tracer 
+ * Blynk Solar Tracer 
+ * 
+ * Use this file to set parameters and settings for your 
+ * setup.
+ *
+ */
 
-/**************************************************************
-
- Settings - Tracer
-
- **************************************************************/
+/**
+ * DEBUG MESSAGES
+ * 
+ * Support for debug messages via serial
+ */
 // specify which Serial to use for debug messages
 #define DEBUG_SERIAL Serial
+// set accordingly: monitor_speed in platformio.ini
 #define DEBUG_SERIAL_BAUDRATE 115200
 
-/*
- * CONTROLLER 
+
+/**
+ * SOLAR CHARGE CONTROLLER 
+ * 
+ * Define the communication parameters for the
+ * solar tracer
  */
- // specify which Serial for solar tracer
+ // specify the serial port to use 
 #define CONTROLLER_SERIAL Serial2
- // specify which baudrate for solar tracer
+ // specify the baudrate to use
 #define CONTROLLER_SERIAL_BAUDRATE 115200 
  // specify the pin num. connected to DE
 #define MAX485_DE 18
  // specify the pin num. connected to RE_NEG
 #define MAX485_RE_NEG 18
-// How many ms between each chunk refresh (eg 1000L)
+// How many ms between each refresh request 
 #define CONTROLLER_UPDATE_MS_PERIOD 2000L
 
 
  /*
-  * TIME
+  * TIME SYNC
   */
 // uncomment if the ESP should get the time from a NTP server at boot 
 #define USE_NTP_SERVER 
@@ -40,8 +50,10 @@
   #define TIMEZONE  "CET-1CEST-2,M3.5.0/02:00:00,M10.5.0/03:00:00"
 #endif
 
+
 /*
  * WIFI
+
  * Fill with you wifi auth. data
  */
 // your wifi SSID
@@ -49,17 +61,19 @@
 // your wifi PASSWORD
 #define WIFI_PASS             "-your-password-"
 
+
 /*
  * OTA UPDATE
  */
-
 // uncomment to enable OTA updates
 #define USE_OTA_UPDATE
 #ifdef USE_OTA_UPDATE
-	//Over The Air Hostname and password
+	//Over The Air Hostname, set accordingly: upload_port in platformio.ini
 	#define OTA_HOSTNAME "SOLAR-MODBUS"
+  // OTA password, set accordingly: upload_flags --auth in platformio.ini
 	#define OTA_PASS "admin"
 #endif
+
 
 /*
  * BLYNK
@@ -81,7 +95,7 @@
 	#define BLYNK_PORT                  8080
 #endif
 
-// Virtual Pins mappings
+// virtual pins definition and mapping
 #define vPIN_PV_POWER                                   V1
 #define vPIN_PV_CURRENT                                 V2
 #define vPIN_PV_VOLTAGE                                 V3
