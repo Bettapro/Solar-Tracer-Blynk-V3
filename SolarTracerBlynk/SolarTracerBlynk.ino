@@ -1,5 +1,5 @@
 //-------------------------------------------------------------
-//  TRACER RS485 MODBUS BLINK V2 (?V3?)
+//  SOLAR-TRACER-BLYNK (V3)
 //-------------------------------------------------------------
 //
 // Developed by @jaminNZx
@@ -7,9 +7,12 @@
 // With modifications by @bettapro
 //
 
-#include "config.h"
-
 #include <Arduino.h>
+
+#include "config.h"
+#include "board/board_config.h"
+
+
 
 // removes the intellisens error for setenv,tzset
 // see: https://community.platformio.org/t/identifier-is-undefined-setenv-tzset/16162
@@ -28,8 +31,6 @@ int _EXFUN(setenv, (const char *__string, const char *__value, int __overwrite))
 #include <ESP8266mDNS.h>
 #include <WiFiUdp.h>
 #include <BlynkSimpleEsp8266.h>
-#else
-#error This board is not supported.
 #endif
 
 #ifdef USE_OTA_UPDATE

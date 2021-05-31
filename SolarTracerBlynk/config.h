@@ -13,9 +13,9 @@
  * Support for debug messages via serial
  */
 // specify which Serial to use for debug messages
-#define DEBUG_SERIAL Serial
+//#define DEBUG_SERIAL Serial
 // set accordingly: monitor_speed in platformio.ini
-#define DEBUG_SERIAL_BAUDRATE 115200
+//#define DEBUG_SERIAL_BAUDRATE 115200
 
 
 /**
@@ -25,13 +25,13 @@
  * solar tracer
  */
  // specify the serial port to use 
-#define CONTROLLER_SERIAL Serial2
+//#define CONTROLLER_SERIAL Serial2
  // specify the baudrate to use
 #define CONTROLLER_SERIAL_BAUDRATE 115200 
  // specify the pin num. connected to DE
-#define MAX485_DE 18
+//#define MAX485_DE 18
  // specify the pin num. connected to RE_NEG
-#define MAX485_RE_NEG 18
+//#define MAX485_RE_NEG 18
 // How many ms between each refresh request 
 #define CONTROLLER_UPDATE_MS_PERIOD 2000L
 
