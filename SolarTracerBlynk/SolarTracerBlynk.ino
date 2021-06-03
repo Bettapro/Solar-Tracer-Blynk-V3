@@ -13,9 +13,9 @@
 #include "incl/communication_protocol_all.h"
 
 #include "config.h"
+#include "board/board_config.h"
 #include "solartracer/solartracer_config.h"
 
-#include "board/board_config.h"
 
 // removes the intellisens error for setenv,tzset
 // see: https://community.platformio.org/t/identifier-is-undefined-setenv-tzset/16162

@@ -28,7 +28,7 @@
 #define USE_SERIAL_STREAM
 #ifdef USE_SERIAL_STREAM
   // specify the serial port to use 
-  #define BOARD_ST_SERIAL_STREAM Serial2
+  //#define BOARD_ST_SERIAL_STREAM Serial2
   // specify the baudrate to use (leave commented to use the correct based on you solar tracer)
   //#define BOARD_ST_SERIAL_STREAM_BAUDRATE 115200 
 
