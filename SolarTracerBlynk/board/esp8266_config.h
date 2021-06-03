@@ -1,24 +1,20 @@
-// Serial debug
-#ifndef DEBUG_SERIAL
-#define DEBUG_SERIAL Serial
+#ifndef BOARD_DEBUG_SERIAL_STREAM
+#define BOARD_DEBUG_SERIAL_STREAM Serial
 #endif
 
-#ifndef DEBUG_SERIAL_BAUDRATE
-#define DEBUG_SERIAL_BAUDRATE 115200
+#ifndef BOARD_DEBUG_SERIAL_STREAM_BAUDRATE
+#define BOARD_DEBUG_SERIAL_STREAM_BAUDRATE 115200
 #endif
 
-
-// esp8266 - solar controller 
-#ifndef CONTROLLER_SERIAL
-#define CONTROLLER_SERIAL Serial
+#if defined(USE_SERIAL_STREAM) & !defined(BOARD_SERIAL_STREAM)
+#define BOARD_SERIAL_STREAM Serial
 #endif
 
 
-#ifndef MAX485_DE
+#if defined(USE_SERIAL_MAX485) & !defined(MAX485_DE)
 #define MAX485_DE D1
 #endif
 
-#ifndef MAX485_RE_NEG
+#if defined(USE_SERIAL_MAX485) & !defined(MAX485_RE_NEG)
 #define MAX485_RE_NEG D1
 #endif
-

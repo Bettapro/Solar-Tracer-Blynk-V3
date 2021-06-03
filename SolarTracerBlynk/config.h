@@ -13,9 +13,9 @@
  * Support for debug messages via serial
  */
 // specify which Serial to use for debug messages
-//#define DEBUG_SERIAL Serial
+//#define BOARD_DEBUG_SERIAL_STREAM Serial
 // set accordingly: monitor_speed in platformio.ini
-//#define DEBUG_SERIAL_BAUDRATE 115200
+//#define BOARD_DEBUG_SERIAL_STREAM_BAUDRATE 115200
 
 
 /**
@@ -28,9 +28,9 @@
 #define USE_SERIAL_STREAM
 #ifdef USE_SERIAL_STREAM
   // specify the serial port to use 
-  #define CONTROLLER_SERIAL Serial2
+  #define BOARD_ST_SERIAL_STREAM Serial2
   // specify the baudrate to use (leave commented to use the correct based on you solar tracer)
-  //#define CONTROLLER_SERIAL_BAUDRATE 115200 
+  //#define BOARD_ST_SERIAL_STREAM_BAUDRATE 115200 
 
   #define USE_SERIAL_MAX485
   #ifdef USE_SERIAL_MAX485
@@ -57,7 +57,7 @@
 #define USE_NTP_SERVER 
 #ifdef USE_NTP_SERVER
   // uncomment if the controller has to sync its time with the tracer at boot
-  #define TRACER_SYNC_TIME_WITH_CONTROLLER
+  #define SYNC_ST_TIME
   // specify the preferred NTP server
   #define NTP_SERVER "europe.pool.ntp.org"
   // specify your timezone (refer to: https://sites.google.com/a/usapiens.com/opnode/time-zones )

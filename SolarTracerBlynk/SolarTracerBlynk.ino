@@ -55,11 +55,11 @@ void updateSolarController()
 
   if (thisController->updateRun())
   {
-    DEBUG_SERIAL.println("Update Solar-Tracer SUCCESS!");
+    BOARD_DEBUG_SERIAL_STREAM.println("Update Solar-Tracer SUCCESS!");
   }
   else
   {
-    DEBUG_SERIAL.println("Update Solar-Tracer FAILED!");
+    BOARD_DEBUG_SERIAL_STREAM.println("Update Solar-Tracer FAILED!");
   }
 }
 
@@ -97,17 +97,17 @@ void uploadStatsToBlynk()
 
 void setup()
 {
-  DEBUG_SERIAL.println(" ++ STARTING TRACER-RS485-MODBUS-BLYNK");
-  DEBUG_SERIAL.begin(DEBUG_SERIAL_BAUDRATE);
+  BOARD_DEBUG_SERIAL_STREAM.println(" ++ STARTING TRACER-RS485-MODBUS-BLYNK");
+  BOARD_DEBUG_SERIAL_STREAM.begin(BOARD_DEBUG_SERIAL_STREAM_BAUDRATE);
 
 // Modbus slave ID 1
 #ifdef USE_SERIAL_STREAM
-  CONTROLLER_SERIAL.begin(CONTROLLER_SERIAL_BAUDRATE);
+  BOARD_ST_SERIAL_STREAM.begin(BOARD_ST_SERIAL_STREAM_BAUDRATE);
 #endif
   thisController = new SOLAR_TRACER_INSTANCE;
 
-  DEBUG_SERIAL.println(" ++ Setting up WIFI:");
-  DEBUG_SERIAL.println("Connecting...");
+  BOARD_DEBUG_SERIAL_STREAM.println(" ++ Setting up WIFI:");
+  BOARD_DEBUG_SERIAL_STREAM.println("Connecting...");
 
   WiFi.mode(WIFI_STA);
 
@@ -119,25 +119,25 @@ void setup()
 
   while (WiFi.waitForConnectResult() != WL_CONNECTED)
   {
-    DEBUG_SERIAL.println("Connection Failed! Rebooting...");
+    BOARD_DEBUG_SERIAL_STREAM.println("Connection Failed! Rebooting...");
     delay(5000);
     ESP.restart();
   }
-  DEBUG_SERIAL.println("Connected.");
+  BOARD_DEBUG_SERIAL_STREAM.println("Connected.");
 
 #ifdef USE_NTP_SERVER
-  DEBUG_SERIAL.println(" ++ Setting up Local Time:");
-  DEBUG_SERIAL.print("Waiting for NTP time...");
+  BOARD_DEBUG_SERIAL_STREAM.println(" ++ Setting up Local Time:");
+  BOARD_DEBUG_SERIAL_STREAM.print("Waiting for NTP time...");
   configTime(0, 0, NTP_SERVER);
   setenv("TZ", TIMEZONE, 3);
   tzset();
 
   while (time(nullptr) < 100000ul)
   {
-    DEBUG_SERIAL.print(".");
+    BOARD_DEBUG_SERIAL_STREAM.print(".");
     delay(10);
   }
-  DEBUG_SERIAL.println(" time synced");
+  BOARD_DEBUG_SERIAL_STREAM.println(" time synced");
 
   char strftime_buf[64];
 
@@ -145,35 +145,35 @@ void setup()
   strftime(strftime_buf, sizeof(strftime_buf), "%c", localtime(&tnow));
   struct tm *ti = localtime(&tnow);
 
-  DEBUG_SERIAL.print("My NOW is: ");
-  DEBUG_SERIAL.print(ti->tm_year + 1900);
-  DEBUG_SERIAL.print("-");
-  DEBUG_SERIAL.print(ti->tm_mon + 1);
-  DEBUG_SERIAL.print("-");
-  DEBUG_SERIAL.print(ti->tm_mday);
-  DEBUG_SERIAL.print(" ");
-  DEBUG_SERIAL.print(ti->tm_hour);
-  DEBUG_SERIAL.print(":");
-  DEBUG_SERIAL.print(ti->tm_min);
-  DEBUG_SERIAL.print(":");
-  DEBUG_SERIAL.println(ti->tm_sec);
+  BOARD_DEBUG_SERIAL_STREAM.print("My NOW is: ");
+  BOARD_DEBUG_SERIAL_STREAM.print(ti->tm_year + 1900);
+  BOARD_DEBUG_SERIAL_STREAM.print("-");
+  BOARD_DEBUG_SERIAL_STREAM.print(ti->tm_mon + 1);
+  BOARD_DEBUG_SERIAL_STREAM.print("-");
+  BOARD_DEBUG_SERIAL_STREAM.print(ti->tm_mday);
+  BOARD_DEBUG_SERIAL_STREAM.print(" ");
+  BOARD_DEBUG_SERIAL_STREAM.print(ti->tm_hour);
+  BOARD_DEBUG_SERIAL_STREAM.print(":");
+  BOARD_DEBUG_SERIAL_STREAM.print(ti->tm_min);
+  BOARD_DEBUG_SERIAL_STREAM.print(":");
+  BOARD_DEBUG_SERIAL_STREAM.println(ti->tm_sec);
 
 #endif
 
-  DEBUG_SERIAL.println(" ++ Setting up Blynk:");
-  DEBUG_SERIAL.print("Connecting...");
+  BOARD_DEBUG_SERIAL_STREAM.println(" ++ Setting up Blynk:");
+  BOARD_DEBUG_SERIAL_STREAM.print("Connecting...");
 
   while (!Blynk.connect())
   {
-    DEBUG_SERIAL.print(".");
+    BOARD_DEBUG_SERIAL_STREAM.print(".");
     delay(100);
   }
 
-  DEBUG_SERIAL.println();
-  DEBUG_SERIAL.println("Connected to Blynk.");
+  BOARD_DEBUG_SERIAL_STREAM.println();
+  BOARD_DEBUG_SERIAL_STREAM.println("Connected to Blynk.");
 
 #ifdef USE_OTA_UPDATE
-  DEBUG_SERIAL.println("Starting ArduinoOTA...");
+  BOARD_DEBUG_SERIAL_STREAM.println("Starting ArduinoOTA...");
 
   ArduinoOTA.setHostname(OTA_HOSTNAME);
   ArduinoOTA.setPassword((const char *)OTA_PASS);
@@ -191,62 +191,62 @@ void setup()
                        }
 
                        // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
-                       DEBUG_SERIAL.println("Start updating " + type);
+                       BOARD_DEBUG_SERIAL_STREAM.println("Start updating " + type);
                      });
 
   ArduinoOTA.onEnd([]()
-                   { DEBUG_SERIAL.println("\nEnd of update"); });
+                   { BOARD_DEBUG_SERIAL_STREAM.println("\nEnd of update"); });
 
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total)
-                        { DEBUG_SERIAL.printf("Progress: %u%%\r", (progress / (total / 100))); });
+                        { BOARD_DEBUG_SERIAL_STREAM.printf("Progress: %u%%\r", (progress / (total / 100))); });
 
   ArduinoOTA.onError([](ota_error_t error)
                      {
-                       DEBUG_SERIAL.printf("Error[%u]: ", error);
+                       BOARD_DEBUG_SERIAL_STREAM.printf("Error[%u]: ", error);
                        if (error == OTA_AUTH_ERROR)
                        {
-                         DEBUG_SERIAL.println("Auth Failed");
+                         BOARD_DEBUG_SERIAL_STREAM.println("Auth Failed");
                        }
                        else if (error == OTA_BEGIN_ERROR)
                        {
-                         DEBUG_SERIAL.println("Begin Failed");
+                         BOARD_DEBUG_SERIAL_STREAM.println("Begin Failed");
                        }
                        else if (error == OTA_CONNECT_ERROR)
                        {
-                         DEBUG_SERIAL.println("Connect Failed");
+                         BOARD_DEBUG_SERIAL_STREAM.println("Connect Failed");
                        }
                        else if (error == OTA_RECEIVE_ERROR)
                        {
-                         DEBUG_SERIAL.println("Receive Failed");
+                         BOARD_DEBUG_SERIAL_STREAM.println("Receive Failed");
                        }
                        else if (error == OTA_END_ERROR)
                        {
-                         DEBUG_SERIAL.println("End Failed");
+                         BOARD_DEBUG_SERIAL_STREAM.println("End Failed");
                        }
                      });
 
   ArduinoOTA.begin();
 
-  DEBUG_SERIAL.print("ArduinoOTA running. ");
-  DEBUG_SERIAL.print("IP address: ");
-  DEBUG_SERIAL.println(WiFi.localIP());
+  BOARD_DEBUG_SERIAL_STREAM.print("ArduinoOTA running. ");
+  BOARD_DEBUG_SERIAL_STREAM.print("IP address: ");
+  BOARD_DEBUG_SERIAL_STREAM.println(WiFi.localIP());
 #endif
 
-  DEBUG_SERIAL.println(" ++ Setting up solar tracer:");
-#ifdef TRACER_SYNC_TIME_WITH_CONTROLLER
-  DEBUG_SERIAL.println("Set NTP time");
+  BOARD_DEBUG_SERIAL_STREAM.println(" ++ Setting up solar tracer:");
+#ifdef SYNC_ST_TIME
+  BOARD_DEBUG_SERIAL_STREAM.println("Set NTP time");
   getTimeFromServer();
   delay(500);
 #endif
-  DEBUG_SERIAL.println("Get all values");
+  BOARD_DEBUG_SERIAL_STREAM.println("Get all values");
   thisController->fetchAllValues();
   delay(1000);
-  DEBUG_SERIAL.println("Send updates to Blynk");
+  BOARD_DEBUG_SERIAL_STREAM.println("Send updates to Blynk");
   uploadRealtimeToBlynk();
   uploadStatsToBlynk();
   delay(1000);
 
-  DEBUG_SERIAL.println("Starting timed actions...");
+  BOARD_DEBUG_SERIAL_STREAM.println("Starting timed actions...");
 
   // periodically refresh tracer values
   timerTask1 = timer.setInterval(CONTROLLER_UPDATE_MS_PERIOD, updateSolarController);
@@ -255,9 +255,9 @@ void setup()
   // periodically send REALTIME  value to blynk
   timerTask3 = timer.setInterval(BLINK_SYNC_REALTIME_MS_PERIOD, uploadRealtimeToBlynk);
 
-  DEBUG_SERIAL.println("SETUP OK!");
-  DEBUG_SERIAL.println("----------------------------");
-  DEBUG_SERIAL.println();
+  BOARD_DEBUG_SERIAL_STREAM.println("SETUP OK!");
+  BOARD_DEBUG_SERIAL_STREAM.println("----------------------------");
+  BOARD_DEBUG_SERIAL_STREAM.println();
 }
 
 // -------------------------------------------------------------------------------
@@ -281,21 +281,21 @@ BLYNK_WRITE(vPIN_LOAD_ENABLED)
 {
   uint8_t newState = (uint8_t)param.asInt();
 
-  DEBUG_SERIAL.print("Setting load state output coil to value: ");
-  DEBUG_SERIAL.println(newState);
+  BOARD_DEBUG_SERIAL_STREAM.print("Setting load state output coil to value: ");
+  BOARD_DEBUG_SERIAL_STREAM.println(newState);
 
   if (thisController->writeBoolValue(SolarTracerVariables::LOAD_MANUAL_ONOFF,
                                      newState > 0))
   {
-    DEBUG_SERIAL.println("Write & Read suceeded.");
+    BOARD_DEBUG_SERIAL_STREAM.println("Write & Read suceeded.");
   }
   else
   {
-    DEBUG_SERIAL.println("Write & Read failed.");
+    BOARD_DEBUG_SERIAL_STREAM.println("Write & Read failed.");
   }
   thisController->fetchValue(SolarTracerVariables::LOAD_MANUAL_ONOFF);
 
-  DEBUG_SERIAL.println("Uploading results to Blynk.");
+  BOARD_DEBUG_SERIAL_STREAM.println("Uploading results to Blynk.");
 
   uploadRealtimeToBlynk();
 }
@@ -304,21 +304,21 @@ BLYNK_WRITE(vPIN_CHARGE_DEVICE_ENABLED)
 {
   uint8_t newState = (uint8_t)param.asInt();
 
-  DEBUG_SERIAL.print("Setting load state output coil to value: ");
-  DEBUG_SERIAL.println(newState);
+  BOARD_DEBUG_SERIAL_STREAM.print("Setting load state output coil to value: ");
+  BOARD_DEBUG_SERIAL_STREAM.println(newState);
 
   if (thisController->writeBoolValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF,
                                      newState > 0))
   {
-    DEBUG_SERIAL.println("Write & Read suceeded.");
+    BOARD_DEBUG_SERIAL_STREAM.println("Write & Read suceeded.");
   }
   else
   {
-    DEBUG_SERIAL.println("Write & Read failed.");
+    BOARD_DEBUG_SERIAL_STREAM.println("Write & Read failed.");
   }
   thisController->fetchValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF);
 
-  DEBUG_SERIAL.println("Uploading results to Blynk.");
+  BOARD_DEBUG_SERIAL_STREAM.println("Uploading results to Blynk.");
 
   uploadRealtimeToBlynk();
 }
