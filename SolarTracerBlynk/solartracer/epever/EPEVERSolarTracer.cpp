@@ -1,9 +1,9 @@
 #include "EPEVERSolarTracer.h"
 
-EPEVERSolarTracer::EPEVERSolarTracer(Stream &SerialCom, uint8_t max485_de, uint8_t max485_re_neg) 
+EPEVERSolarTracer::EPEVERSolarTracer(Stream &SerialCom, uint8_t slave, uint8_t max485_de, uint8_t max485_re_neg) 
 : SolarTracer()
 {
-  this->node.begin(1, SerialCom);
+  this->node.begin(slave, SerialCom);
 
   this->max485_re_neg = max485_re_neg;
   this->max485_de = max485_de;
@@ -17,6 +17,17 @@ EPEVERSolarTracer::EPEVERSolarTracer(Stream &SerialCom, uint8_t max485_de, uint8
 
   // set this instance as the callback receiver
   this->node.setTransmissionCallable(this);
+}
+
+EPEVERSolarTracer::EPEVERSolarTracer(Stream &SerialCom, uint8_t slave) 
+: SolarTracer()
+{
+  this->node.begin(slave, SerialCom);
+
+  // won't be used as it's not registering to trasmission callback
+  this->max485_re_neg =  this->max485_de = 0;
+
+  this->rs485readSuccess = true;
 }
 
 bool EPEVERSolarTracer::syncRealtimeClock(struct tm *ti)

@@ -1,0 +1,5 @@
+#if ( SOLAR_TRACER_MODEL == EPEVER_SOLAR_TRACER_A | SOLAR_TRACER_MODEL == EPEVER_SOLAR_TRACER_B | SOLAR_TRACER_MODEL == EPEVER_SOLAR_TRACER_TRITON | SOLAR_TRACER_MODEL == EPEVER_SOLAR_TRACER_XTRA )
+#include "epever/epever_config.h"
+#else
+#error This Solar Tracer is not supported.
+#endif

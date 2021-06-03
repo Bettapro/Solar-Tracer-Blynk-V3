@@ -24,16 +24,30 @@
  * Define the communication parameters for the
  * solar tracer
  */
- // specify the serial port to use 
-//#define CONTROLLER_SERIAL Serial2
- // specify the baudrate to use
-#define CONTROLLER_SERIAL_BAUDRATE 115200 
- // specify the pin num. connected to DE
-//#define MAX485_DE 18
- // specify the pin num. connected to RE_NEG
-//#define MAX485_RE_NEG 18
+#define SOLAR_TRACER_MODEL EPEVER_SOLAR_TRACER_A
+#define USE_SERIAL_STREAM
+#ifdef USE_SERIAL_STREAM
+  // specify the serial port to use 
+  #define CONTROLLER_SERIAL Serial2
+  // specify the baudrate to use (leave commented to use the correct based on you solar tracer)
+  //#define CONTROLLER_SERIAL_BAUDRATE 115200 
+
+  #define USE_SERIAL_MAX485
+  #ifdef USE_SERIAL_MAX485
+    // specify the pin num. connected to DE
+    //#define MAX485_DE 18
+    // specify the pin num. connected to RE_NEG
+    //#define MAX485_RE_NEG 18
+  #endif
+#endif
+
+#define SOLAR_TRACER_COMMUNICATION_PROTOCOL COMMUNICATION_PROTOCOL_MODBUS_RTU
+#if SOLAR_TRACER_COMMUNICATION_PROTOCOL == COMMUNICATION_PROTOCOL_MODBUS_RTU
+  //#define MODBUS_SLAVE_ID 1
+#endif
+
 // How many ms between each refresh request 
-#define CONTROLLER_UPDATE_MS_PERIOD 2000L
+//#define CONTROLLER_UPDATE_MS_PERIOD 2000L
 
 
  /*

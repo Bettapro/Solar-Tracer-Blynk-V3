@@ -9,10 +9,13 @@
 
 #include <Arduino.h>
 
+#include "incl/solartracer_all.h"
+#include "incl/communication_protocol_all.h"
+
 #include "config.h"
+#include "solartracer/solartracer_config.h"
+
 #include "board/board_config.h"
-
-
 
 // removes the intellisens error for setenv,tzset
 // see: https://community.platformio.org/t/identifier-is-undefined-setenv-tzset/16162
@@ -37,10 +40,8 @@ int _EXFUN(setenv, (const char *__string, const char *__value, int __overwrite))
 #include <ArduinoOTA.h>
 #endif
 
-
 #include "solartracer/SolarTracer.h"
 // should be include if tracer is epsolar/epever
-#include "solartracer/epever/EPEVERSolarTracer.h"
 
 int timerTask1, timerTask2, timerTask3;
 
@@ -99,9 +100,11 @@ void setup()
   DEBUG_SERIAL.println(" ++ STARTING TRACER-RS485-MODBUS-BLYNK");
   DEBUG_SERIAL.begin(DEBUG_SERIAL_BAUDRATE);
 
-  // Modbus slave ID 1
+// Modbus slave ID 1
+#ifdef USE_SERIAL_STREAM
   CONTROLLER_SERIAL.begin(CONTROLLER_SERIAL_BAUDRATE);
-  thisController = new EPEVERSolarTracer(CONTROLLER_SERIAL, MAX485_DE, MAX485_RE_NEG);
+#endif
+  thisController = new SOLAR_TRACER_INSTANCE;
 
   DEBUG_SERIAL.println(" ++ Setting up WIFI:");
   DEBUG_SERIAL.println("Connecting...");
@@ -175,52 +178,52 @@ void setup()
   ArduinoOTA.setHostname(OTA_HOSTNAME);
   ArduinoOTA.setPassword((const char *)OTA_PASS);
 
-  ArduinoOTA.onStart([]() {
-    String type;
-    if (ArduinoOTA.getCommand() == U_FLASH)
-    {
-      type = "sketch";
-    }
-    else
-    { // U_SPIFFS
-      type = "filesystem";
-    }
+  ArduinoOTA.onStart([]()
+                     {
+                       String type;
+                       if (ArduinoOTA.getCommand() == U_FLASH)
+                       {
+                         type = "sketch";
+                       }
+                       else
+                       { // U_SPIFFS
+                         type = "filesystem";
+                       }
 
-    // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
-    DEBUG_SERIAL.println("Start updating " + type);
-  });
+                       // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+                       DEBUG_SERIAL.println("Start updating " + type);
+                     });
 
-  ArduinoOTA.onEnd([]() {
-    DEBUG_SERIAL.println("\nEnd of update");
-  });
+  ArduinoOTA.onEnd([]()
+                   { DEBUG_SERIAL.println("\nEnd of update"); });
 
-  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-    DEBUG_SERIAL.printf("Progress: %u%%\r", (progress / (total / 100)));
-  });
+  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total)
+                        { DEBUG_SERIAL.printf("Progress: %u%%\r", (progress / (total / 100))); });
 
-  ArduinoOTA.onError([](ota_error_t error) {
-    DEBUG_SERIAL.printf("Error[%u]: ", error);
-    if (error == OTA_AUTH_ERROR)
-    {
-      DEBUG_SERIAL.println("Auth Failed");
-    }
-    else if (error == OTA_BEGIN_ERROR)
-    {
-      DEBUG_SERIAL.println("Begin Failed");
-    }
-    else if (error == OTA_CONNECT_ERROR)
-    {
-      DEBUG_SERIAL.println("Connect Failed");
-    }
-    else if (error == OTA_RECEIVE_ERROR)
-    {
-      DEBUG_SERIAL.println("Receive Failed");
-    }
-    else if (error == OTA_END_ERROR)
-    {
-      DEBUG_SERIAL.println("End Failed");
-    }
-  });
+  ArduinoOTA.onError([](ota_error_t error)
+                     {
+                       DEBUG_SERIAL.printf("Error[%u]: ", error);
+                       if (error == OTA_AUTH_ERROR)
+                       {
+                         DEBUG_SERIAL.println("Auth Failed");
+                       }
+                       else if (error == OTA_BEGIN_ERROR)
+                       {
+                         DEBUG_SERIAL.println("Begin Failed");
+                       }
+                       else if (error == OTA_CONNECT_ERROR)
+                       {
+                         DEBUG_SERIAL.println("Connect Failed");
+                       }
+                       else if (error == OTA_RECEIVE_ERROR)
+                       {
+                         DEBUG_SERIAL.println("Receive Failed");
+                       }
+                       else if (error == OTA_END_ERROR)
+                       {
+                         DEBUG_SERIAL.println("End Failed");
+                       }
+                     });
 
   ArduinoOTA.begin();
 
