@@ -69,7 +69,6 @@ void setup()
   BOARD_ST_SERIAL_STREAM.begin(BOARD_ST_SERIAL_STREAM_BAUDRATE);
 #endif
   thisController = new SOLAR_TRACER_INSTANCE;
-  initSolarTracer();
 
   BOARD_DEBUG_SERIAL_STREAM.println(" ++ Setting up WIFI:");
   BOARD_DEBUG_SERIAL_STREAM.println("Connecting...");
@@ -298,73 +297,6 @@ BLYNK_WRITE(vPIN_CHARGE_DEVICE_ENABLED)
 // --------------------------------------------------------------------------------
 // SOLAR TRACER SETUP
 
-void initSolarTracer()
-{
-#ifdef vPIN_PV_POWER
-  thisController->setVariableEnable(SolarTracerVariables::PV_POWER, true);
-#endif
-#ifdef vPIN_PV_CURRENT
-  thisController->setVariableEnable(SolarTracerVariables::PV_CURRENT, true);
-#endif
-#ifdef vPIN_PV_VOLTAGE
-  thisController->setVariableEnable(SolarTracerVariables::PV_VOLTAGE, true);
-#endif
-#ifdef vPIN_LOAD_CURRENT
-  thisController->setVariableEnable(SolarTracerVariables::LOAD_CURRENT, true);
-#endif
-#ifdef vPIN_LOAD_POWER
-  thisController->setVariableEnable(SolarTracerVariables::LOAD_POWER, true);
-#endif
-#ifdef vPIN_BATT_TEMP
-  thisController->setVariableEnable(SolarTracerVariables::BATTERY_TEMP, true);
-#endif
-#ifdef vPIN_BATT_VOLTAGE
-  thisController->setVariableEnable(SolarTracerVariables::BATTERY_VOLTAGE, true);
-#endif
-#ifdef vPIN_BATT_REMAIN
-  thisController->setVariableEnable(SolarTracerVariables::BATTERY_SOC, true);
-#endif
-#ifdef vPIN_CONTROLLER_TEMP
-  thisController->setVariableEnable(SolarTracerVariables::CONTROLLER_TEMP, true);
-#endif
-#ifdef vPIN_BATTERY_CHARGE_CURRENT
-  thisController->setVariableEnable(SolarTracerVariables::BATTERY_CHARGE_CURRENT, true);
-#endif
-#ifdef vPIN_BATTERY_CHARGE_POWER
-  thisController->setVariableEnable(SolarTracerVariables::BATTERY_CHARGE_POWER, true);
-#endif
-#ifdef vPIN_BATTERY_OVERALL_CURRENT
-  thisController->setVariableEnable(SolarTracerVariables::BATTERY_OVERALL_CURRENT, true);
-#endif
-#ifdef vPIN_LOAD_ENABLED
-  thisController->setVariableEnable(SolarTracerVariables::LOAD_MANUAL_ONOFF, true);
-#endif
-#ifdef vPIN_CHARGE_DEVICE_ENABLED
-  thisController->setVariableEnable(SolarTracerVariables::CHARGING_DEVICE_ONOFF, true);
-#endif
-#ifdef vPIN_BATTERY_STATUS_TEXT
-  thisController->setVariableEnable(SolarTracerVariables::BATTERY_STATUS_TEXT, true);
-#endif
-#ifdef vPIN_CHARGING_EQUIPMENT_STATUS_TEXT
-  thisController->setVariableEnable(SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT, true);
-#endif
-#ifdef vPIN_DISCHARGING_EQUIPMENT_STATUS_TEXT
-  thisController->setVariableEnable(SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT, true);
-#endif
-#ifdef vPIN_STAT_ENERGY_GENERATED_TODAY
-  thisController->setVariableEnable(SolarTracerVariables::GENERATED_ENERGY_TODAY, true);
-#endif
-#ifdef vPIN_STAT_ENERGY_GENERATED_THIS_MONTH
-  thisController->setVariableEnable(SolarTracerVariables::GENERATED_ENERGY_MONTH, true);
-#endif
-#ifdef vPIN_STAT_ENERGY_GENERATED_THIS_YEAR
-  thisController->setVariableEnable(SolarTracerVariables::GENERATED_ENERGY_YEAR, true);
-#endif
-#ifdef vPIN_STAT_ENERGY_GENERATED_TOTAL
-  thisController->setVariableEnable(SolarTracerVariables::GENERATED_ENERGY_TOTAL, true);
-#endif
-}
-
 void updateSolarController()
 {
 
@@ -450,4 +382,3 @@ void uploadStatsToBlynk()
   Blynk.virtualWrite(vPIN_STAT_ENERGY_GENERATED_TOTAL, thisController->getFloatValue(SolarTracerVariables::GENERATED_ENERGY_TOTAL));
 #endif
 }
-

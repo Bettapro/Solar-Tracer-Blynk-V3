@@ -26,6 +26,29 @@ EPEVERSolarTracer::EPEVERSolarTracer(Stream &SerialCom, uint8_t slave)
   this->max485_re_neg = this->max485_de = 0;
 
   this->rs485readSuccess = true;
+
+  // set enabled variables
+  this->setVariableEnabled(SolarTracerVariables::PV_POWER);
+  this->setVariableEnabled(SolarTracerVariables::PV_CURRENT);
+  this->setVariableEnabled(SolarTracerVariables::PV_VOLTAGE);
+  this->setVariableEnabled(SolarTracerVariables::LOAD_CURRENT);
+  this->setVariableEnabled(SolarTracerVariables::LOAD_POWER);
+  this->setVariableEnabled(SolarTracerVariables::BATTERY_TEMP);
+  this->setVariableEnabled(SolarTracerVariables::BATTERY_VOLTAGE);
+  this->setVariableEnabled(SolarTracerVariables::BATTERY_SOC);
+  this->setVariableEnabled(SolarTracerVariables::CONTROLLER_TEMP);
+  this->setVariableEnabled(SolarTracerVariables::BATTERY_CHARGE_CURRENT);
+  this->setVariableEnabled(SolarTracerVariables::BATTERY_CHARGE_POWER);
+  this->setVariableEnabled(SolarTracerVariables::BATTERY_OVERALL_CURRENT);
+  this->setVariableEnabled(SolarTracerVariables::LOAD_MANUAL_ONOFF);
+  this->setVariableEnabled(SolarTracerVariables::CHARGING_DEVICE_ONOFF);
+  this->setVariableEnabled(SolarTracerVariables::BATTERY_STATUS_TEXT);
+  this->setVariableEnabled(SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT);
+  this->setVariableEnabled(SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT);
+  this->setVariableEnabled(SolarTracerVariables::GENERATED_ENERGY_TODAY);
+  this->setVariableEnabled(SolarTracerVariables::GENERATED_ENERGY_MONTH);
+  this->setVariableEnabled(SolarTracerVariables::GENERATED_ENERGY_YEAR);
+  this->setVariableEnabled(SolarTracerVariables::GENERATED_ENERGY_TOTAL);
 }
 
 bool EPEVERSolarTracer::syncRealtimeClock(struct tm *ti)

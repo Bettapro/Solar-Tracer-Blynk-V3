@@ -42,9 +42,17 @@ public:
   {
     this->variableEnables = new bool[SolarTracerVariables::VARIABLES_COUNT + 1]();
 
-    this->setVariableEnable(SolarTracerVariables::VARIABLES_COUNT, false);
+    // make sure all variables are disabled
+    for(uint16_t i = 0; i <= SolarTracerVariables::VARIABLES_COUNT; i++ ){
+      this->variableEnables[i] = false;
+    }
+    
   }
 
+  void setVariableEnabled(SolarTracerVariables variable)
+  {
+    this->setVariableEnable(variable, true);
+  }
   void setVariableEnable(SolarTracerVariables variable, bool enable)
   {
     if (variable < SolarTracerVariables::VARIABLES_COUNT)
