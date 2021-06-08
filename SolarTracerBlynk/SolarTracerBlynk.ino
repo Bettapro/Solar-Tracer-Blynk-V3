@@ -16,7 +16,6 @@
 #include "board/board_config.h"
 #include "solartracer/solartracer_config.h"
 
-
 // removes the intellisens error for setenv,tzset
 // see: https://community.platformio.org/t/identifier-is-undefined-setenv-tzset/16162
 _VOID _EXFUN(tzset, (_VOID));
@@ -49,50 +48,15 @@ SolarTracer *thisController;
 SimpleTimer timer;
 
 // ****************************************************************************
+// SETUP and LOOP
 
-void updateSolarController()
+void loop()
 {
-
-  if (thisController->updateRun())
-  {
-    BOARD_DEBUG_SERIAL_STREAM.println("Update Solar-Tracer SUCCESS!");
-  }
-  else
-  {
-    BOARD_DEBUG_SERIAL_STREAM.println("Update Solar-Tracer FAILED!");
-  }
-}
-
-// upload values
-void uploadRealtimeToBlynk()
-{
-  Blynk.virtualWrite(vPIN_PV_POWER, thisController->getFloatValue(SolarTracerVariables::PV_POWER));
-  Blynk.virtualWrite(vPIN_PV_CURRENT, thisController->getFloatValue(SolarTracerVariables::PV_CURRENT));
-  Blynk.virtualWrite(vPIN_PV_VOLTAGE, thisController->getFloatValue(SolarTracerVariables::PV_VOLTAGE));
-  Blynk.virtualWrite(vPIN_LOAD_CURRENT, thisController->getFloatValue(SolarTracerVariables::LOAD_CURRENT));
-  Blynk.virtualWrite(vPIN_LOAD_POWER, thisController->getFloatValue(SolarTracerVariables::LOAD_POWER));
-  Blynk.virtualWrite(vPIN_BATT_TEMP, thisController->getFloatValue(SolarTracerVariables::BATTERY_TEMP));
-  Blynk.virtualWrite(vPIN_BATT_VOLTAGE, thisController->getFloatValue(SolarTracerVariables::BATTERY_VOLTAGE));
-  Blynk.virtualWrite(vPIN_BATT_REMAIN, thisController->getFloatValue(SolarTracerVariables::BATTERY_SOC));
-  Blynk.virtualWrite(vPIN_CONTROLLER_TEMP, thisController->getFloatValue(SolarTracerVariables::CONTROLLER_TEMP));
-  Blynk.virtualWrite(vPIN_BATTERY_CHARGE_CURRENT, thisController->getFloatValue(SolarTracerVariables::BATTERY_CHARGE_CURRENT));
-  Blynk.virtualWrite(vPIN_BATTERY_CHARGE_POWER, thisController->getFloatValue(SolarTracerVariables::BATTERY_CHARGE_POWER));
-  Blynk.virtualWrite(vPIN_BATTERY_OVERALL_CURRENT, thisController->getFloatValue(SolarTracerVariables::BATTERY_OVERALL_CURRENT));
-  Blynk.virtualWrite(vPIN_LOAD_ENABLED, thisController->getFloatValue(SolarTracerVariables::LOAD_MANUAL_ONOFF));
-  Blynk.virtualWrite(vPIN_CHARGE_DEVICE_ENABLED, thisController->getFloatValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF));
-
-  Blynk.virtualWrite(vPIN_BATTERY_STATUS_TEXT, thisController->getStringValue(SolarTracerVariables::BATTERY_STATUS_TEXT));
-  Blynk.virtualWrite(vPIN_CHARGING_EQUIPMENT_STATUS_TEXT, thisController->getStringValue(SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT));
-  Blynk.virtualWrite(vPIN_DISCHARGING_EQUIPMENT_STATUS_TEXT, thisController->getStringValue(SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT));
-}
-
-// upload values
-void uploadStatsToBlynk()
-{
-  Blynk.virtualWrite(vPIN_STAT_ENERGY_GENERATED_TODAY, thisController->getFloatValue(SolarTracerVariables::GENERATED_ENERGY_TODAY));
-  Blynk.virtualWrite(vPIN_STAT_ENERGY_GENERATED_THIS_MONTH, thisController->getFloatValue(SolarTracerVariables::GENERATED_ENERGY_MONTH));
-  Blynk.virtualWrite(vPIN_STAT_ENERGY_GENERATED_THIS_YEAR, thisController->getFloatValue(SolarTracerVariables::GENERATED_ENERGY_YEAR));
-  Blynk.virtualWrite(vPIN_STAT_ENERGY_GENERATED_TOTAL, thisController->getFloatValue(SolarTracerVariables::GENERATED_ENERGY_TOTAL));
+  Blynk.run();
+#ifdef USE_OTA_UPDATE
+  ArduinoOTA.handle();
+#endif
+  timer.run();
 }
 
 void setup()
@@ -105,6 +69,7 @@ void setup()
   BOARD_ST_SERIAL_STREAM.begin(BOARD_ST_SERIAL_STREAM_BAUDRATE);
 #endif
   thisController = new SOLAR_TRACER_INSTANCE;
+  initSolarTracer();
 
   BOARD_DEBUG_SERIAL_STREAM.println(" ++ Setting up WIFI:");
   BOARD_DEBUG_SERIAL_STREAM.println("Connecting...");
@@ -261,7 +226,9 @@ void setup()
 }
 
 // -------------------------------------------------------------------------------
+// MISC
 
+#ifdef SYNC_ST_TIME
 void getTimeFromServer()
 {
   struct tm *ti;
@@ -273,10 +240,12 @@ void getTimeFromServer()
   ti = localtime(&tnow);
   thisController->syncRealtimeClock(ti);
 }
+#endif
 
 // --------------------------------------------------------------------------------
+// BLYNK CALLBACKS
 
-// callback to on/off button state changes from the Blynk app
+#ifdef vPIN_LOAD_ENABLED
 BLYNK_WRITE(vPIN_LOAD_ENABLED)
 {
   uint8_t newState = (uint8_t)param.asInt();
@@ -299,7 +268,9 @@ BLYNK_WRITE(vPIN_LOAD_ENABLED)
 
   uploadRealtimeToBlynk();
 }
+#endif
 
+#ifdef vPIN_CHARGE_DEVICE_ENABLED
 BLYNK_WRITE(vPIN_CHARGE_DEVICE_ENABLED)
 {
   uint8_t newState = (uint8_t)param.asInt();
@@ -322,12 +293,161 @@ BLYNK_WRITE(vPIN_CHARGE_DEVICE_ENABLED)
 
   uploadRealtimeToBlynk();
 }
-
-void loop()
-{
-  Blynk.run();
-#ifdef USE_OTA_UPDATE
-  ArduinoOTA.handle();
 #endif
-  timer.run();
+
+// --------------------------------------------------------------------------------
+// SOLAR TRACER SETUP
+
+void initSolarTracer()
+{
+#ifdef vPIN_PV_POWER
+  thisController->setVariableEnable(SolarTracerVariables::PV_POWER, true);
+#endif
+#ifdef vPIN_PV_CURRENT
+  thisController->setVariableEnable(SolarTracerVariables::PV_CURRENT, true);
+#endif
+#ifdef vPIN_PV_VOLTAGE
+  thisController->setVariableEnable(SolarTracerVariables::PV_VOLTAGE, true);
+#endif
+#ifdef vPIN_LOAD_CURRENT
+  thisController->setVariableEnable(SolarTracerVariables::LOAD_CURRENT, true);
+#endif
+#ifdef vPIN_LOAD_POWER
+  thisController->setVariableEnable(SolarTracerVariables::LOAD_POWER, true);
+#endif
+#ifdef vPIN_BATT_TEMP
+  thisController->setVariableEnable(SolarTracerVariables::BATTERY_TEMP, true);
+#endif
+#ifdef vPIN_BATT_VOLTAGE
+  thisController->setVariableEnable(SolarTracerVariables::BATTERY_VOLTAGE, true);
+#endif
+#ifdef vPIN_BATT_REMAIN
+  thisController->setVariableEnable(SolarTracerVariables::BATTERY_SOC, true);
+#endif
+#ifdef vPIN_CONTROLLER_TEMP
+  thisController->setVariableEnable(SolarTracerVariables::CONTROLLER_TEMP, true);
+#endif
+#ifdef vPIN_BATTERY_CHARGE_CURRENT
+  thisController->setVariableEnable(SolarTracerVariables::BATTERY_CHARGE_CURRENT, true);
+#endif
+#ifdef vPIN_BATTERY_CHARGE_POWER
+  thisController->setVariableEnable(SolarTracerVariables::BATTERY_CHARGE_POWER, true);
+#endif
+#ifdef vPIN_BATTERY_OVERALL_CURRENT
+  thisController->setVariableEnable(SolarTracerVariables::BATTERY_OVERALL_CURRENT, true);
+#endif
+#ifdef vPIN_LOAD_ENABLED
+  thisController->setVariableEnable(SolarTracerVariables::LOAD_MANUAL_ONOFF, true);
+#endif
+#ifdef vPIN_CHARGE_DEVICE_ENABLED
+  thisController->setVariableEnable(SolarTracerVariables::CHARGING_DEVICE_ONOFF, true);
+#endif
+#ifdef vPIN_BATTERY_STATUS_TEXT
+  thisController->setVariableEnable(SolarTracerVariables::BATTERY_STATUS_TEXT, true);
+#endif
+#ifdef vPIN_CHARGING_EQUIPMENT_STATUS_TEXT
+  thisController->setVariableEnable(SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT, true);
+#endif
+#ifdef vPIN_DISCHARGING_EQUIPMENT_STATUS_TEXT
+  thisController->setVariableEnable(SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT, true);
+#endif
+#ifdef vPIN_STAT_ENERGY_GENERATED_TODAY
+  thisController->setVariableEnable(SolarTracerVariables::GENERATED_ENERGY_TODAY, true);
+#endif
+#ifdef vPIN_STAT_ENERGY_GENERATED_THIS_MONTH
+  thisController->setVariableEnable(SolarTracerVariables::GENERATED_ENERGY_MONTH, true);
+#endif
+#ifdef vPIN_STAT_ENERGY_GENERATED_THIS_YEAR
+  thisController->setVariableEnable(SolarTracerVariables::GENERATED_ENERGY_YEAR, true);
+#endif
+#ifdef vPIN_STAT_ENERGY_GENERATED_TOTAL
+  thisController->setVariableEnable(SolarTracerVariables::GENERATED_ENERGY_TOTAL, true);
+#endif
 }
+
+void updateSolarController()
+{
+
+  if (thisController->updateRun())
+  {
+    BOARD_DEBUG_SERIAL_STREAM.println("Update Solar-Tracer SUCCESS!");
+  }
+  else
+  {
+    BOARD_DEBUG_SERIAL_STREAM.println("Update Solar-Tracer FAILED!");
+  }
+}
+
+// upload values
+void uploadRealtimeToBlynk()
+{
+#ifdef vPIN_PV_POWER
+  Blynk.virtualWrite(vPIN_PV_POWER, thisController->getFloatValue(SolarTracerVariables::PV_POWER));
+#endif
+#ifdef vPIN_PV_CURRENT
+  Blynk.virtualWrite(vPIN_PV_CURRENT, thisController->getFloatValue(SolarTracerVariables::PV_CURRENT));
+#endif
+#ifdef vPIN_PV_VOLTAGE
+  Blynk.virtualWrite(vPIN_PV_VOLTAGE, thisController->getFloatValue(SolarTracerVariables::PV_VOLTAGE));
+#endif
+#ifdef vPIN_LOAD_CURRENT
+  Blynk.virtualWrite(vPIN_LOAD_CURRENT, thisController->getFloatValue(SolarTracerVariables::LOAD_CURRENT));
+#endif
+#ifdef vPIN_LOAD_POWER
+  Blynk.virtualWrite(vPIN_LOAD_POWER, thisController->getFloatValue(SolarTracerVariables::LOAD_POWER));
+#endif
+#ifdef vPIN_BATT_TEMP
+  Blynk.virtualWrite(vPIN_BATT_TEMP, thisController->getFloatValue(SolarTracerVariables::BATTERY_TEMP));
+#endif
+#ifdef vPIN_BATT_VOLTAGE
+  Blynk.virtualWrite(vPIN_BATT_VOLTAGE, thisController->getFloatValue(SolarTracerVariables::BATTERY_VOLTAGE));
+#endif
+#ifdef vPIN_BATT_REMAIN
+  Blynk.virtualWrite(vPIN_BATT_REMAIN, thisController->getFloatValue(SolarTracerVariables::BATTERY_SOC));
+#endif
+#ifdef vPIN_CONTROLLER_TEMP
+  Blynk.virtualWrite(vPIN_CONTROLLER_TEMP, thisController->getFloatValue(SolarTracerVariables::CONTROLLER_TEMP));
+#endif
+#ifdef vPIN_BATTERY_CHARGE_CURRENT
+  Blynk.virtualWrite(vPIN_BATTERY_CHARGE_CURRENT, thisController->getFloatValue(SolarTracerVariables::BATTERY_CHARGE_CURRENT));
+#endif
+#ifdef vPIN_BATTERY_CHARGE_POWER
+  Blynk.virtualWrite(vPIN_BATTERY_CHARGE_POWER, thisController->getFloatValue(SolarTracerVariables::BATTERY_CHARGE_POWER));
+#endif
+#ifdef vPIN_BATTERY_OVERALL_CURRENT
+  Blynk.virtualWrite(vPIN_BATTERY_OVERALL_CURRENT, thisController->getFloatValue(SolarTracerVariables::BATTERY_OVERALL_CURRENT));
+#endif
+#ifdef vPIN_LOAD_ENABLED
+  Blynk.virtualWrite(vPIN_LOAD_ENABLED, thisController->getFloatValue(SolarTracerVariables::LOAD_MANUAL_ONOFF));
+#endif
+#ifdef vPIN_CHARGE_DEVICE_ENABLED
+  Blynk.virtualWrite(vPIN_CHARGE_DEVICE_ENABLED, thisController->getFloatValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF));
+#endif
+#ifdef vPIN_BATTERY_STATUS_TEXT
+  Blynk.virtualWrite(vPIN_BATTERY_STATUS_TEXT, thisController->getStringValue(SolarTracerVariables::BATTERY_STATUS_TEXT));
+#endif
+#ifdef vPIN_CHARGING_EQUIPMENT_STATUS_TEXT
+  Blynk.virtualWrite(vPIN_CHARGING_EQUIPMENT_STATUS_TEXT, thisController->getStringValue(SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT));
+#endif
+#ifdef vPIN_DISCHARGING_EQUIPMENT_STATUS_TEXT
+  Blynk.virtualWrite(vPIN_DISCHARGING_EQUIPMENT_STATUS_TEXT, thisController->getStringValue(SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT));
+#endif
+}
+
+// upload values
+void uploadStatsToBlynk()
+{
+#ifdef vPIN_STAT_ENERGY_GENERATED_TODAY
+  Blynk.virtualWrite(vPIN_STAT_ENERGY_GENERATED_TODAY, thisController->getFloatValue(SolarTracerVariables::GENERATED_ENERGY_TODAY));
+#endif
+#ifdef vPIN_STAT_ENERGY_GENERATED_THIS_MONTH
+  Blynk.virtualWrite(vPIN_STAT_ENERGY_GENERATED_THIS_MONTH, thisController->getFloatValue(SolarTracerVariables::GENERATED_ENERGY_MONTH));
+#endif
+#ifdef vPIN_STAT_ENERGY_GENERATED_THIS_YEAR
+  Blynk.virtualWrite(vPIN_STAT_ENERGY_GENERATED_THIS_YEAR, thisController->getFloatValue(SolarTracerVariables::GENERATED_ENERGY_YEAR));
+#endif
+#ifdef vPIN_STAT_ENERGY_GENERATED_TOTAL
+  Blynk.virtualWrite(vPIN_STAT_ENERGY_GENERATED_TOTAL, thisController->getFloatValue(SolarTracerVariables::GENERATED_ENERGY_TOTAL));
+#endif
+}
+

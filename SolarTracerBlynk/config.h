@@ -7,6 +7,8 @@
  *
  */
 
+#pragma once
+
 /**
  * DEBUG MESSAGES
  * 

@@ -1,13 +1,11 @@
 #include "EPEVERSolarTracer.h"
 
-EPEVERSolarTracer::EPEVERSolarTracer(Stream &SerialCom, uint8_t slave, uint8_t max485_de, uint8_t max485_re_neg) 
-: SolarTracer()
+EPEVERSolarTracer::EPEVERSolarTracer(Stream &SerialCom, uint8_t slave, uint8_t max485_de, uint8_t max485_re_neg)
+    : EPEVERSolarTracer(SerialCom, slave)
 {
-  this->node.begin(slave, SerialCom);
 
   this->max485_re_neg = max485_re_neg;
   this->max485_de = max485_de;
-  this->rs485readSuccess = true;
 
   pinMode(this->max485_re_neg, OUTPUT);
   pinMode(this->max485_de, OUTPUT);
@@ -19,13 +17,13 @@ EPEVERSolarTracer::EPEVERSolarTracer(Stream &SerialCom, uint8_t slave, uint8_t m
   this->node.setTransmissionCallable(this);
 }
 
-EPEVERSolarTracer::EPEVERSolarTracer(Stream &SerialCom, uint8_t slave) 
-: SolarTracer()
+EPEVERSolarTracer::EPEVERSolarTracer(Stream &SerialCom, uint8_t slave)
+    : SolarTracer()
 {
   this->node.begin(slave, SerialCom);
 
   // won't be used as it's not registering to trasmission callback
-  this->max485_re_neg =  this->max485_de = 0;
+  this->max485_re_neg = this->max485_de = 0;
 
   this->rs485readSuccess = true;
 }
@@ -65,6 +63,7 @@ bool EPEVERSolarTracer::updateRun()
   {
   case 360:
     // update statistics
+
     updateStats();
     globalUpdateCounter = 0;
     break;
@@ -134,6 +133,11 @@ bool EPEVERSolarTracer::fetchValue(SolarTracerVariables variable)
 
 bool EPEVERSolarTracer::writeBoolValue(SolarTracerVariables variable, bool value)
 {
+  if (!this->isVariableEnabled(variable))
+  {
+    return false;
+  }
+
   switch (variable)
   {
   case SolarTracerVariables::LOAD_FORCE_ONOFF:
