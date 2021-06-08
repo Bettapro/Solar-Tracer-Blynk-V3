@@ -389,7 +389,7 @@ void EPEVERSolarTracer::fetchAddressStatusVariables()
       switch ((chargingStatus >> 2) & 3)
       {
       case 0:
-        chargingStatusText = "Stanby";
+        chargingStatusText = "Standby";
         break;
       case 1:
         chargingStatusText = "Float";
@@ -398,8 +398,10 @@ void EPEVERSolarTracer::fetchAddressStatusVariables()
         chargingStatusText = "Boost";
         break;
       case 3:
-        chargingStatusText = "Equalisation";
+        chargingStatusText = "Equalization";
         break;
+      default:
+        chargingStatusText = "??";
       }
     }
 
