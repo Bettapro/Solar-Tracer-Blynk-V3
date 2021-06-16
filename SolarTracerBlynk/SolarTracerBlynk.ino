@@ -286,6 +286,7 @@ void updateSolarController()
 // upload values realtime
 void uploadRealtimeToBlynk()
 {
+  bool varNotReady = false;
   for (uint8_t index = 0; index < realTimeVirtualBlynkSolarVariablesCount; index++)
   {
     if (thisController->isVariableReadReady(realTimeVirtualBlynkSolarVariables[index].solarVariable))
@@ -302,12 +303,19 @@ void uploadRealtimeToBlynk()
         break;
       }
     }
+    else{
+      varNotReady = true;
+    }
+  }
+  if(varNotReady){
+    BOARD_DEBUG_SERIAL_STREAM.println("Some RT variables are not ready and not synced!");
   }
 }
 
 // upload values stats
 void uploadStatsToBlynk()
 {
+  bool varNotReady = false;
   for (uint8_t index = 0; index < statVirtualBlynkSolarVariablesCount; index++)
   {
     if (thisController->isVariableReadReady(statVirtualBlynkSolarVariables[index].solarVariable))
@@ -324,5 +332,11 @@ void uploadStatsToBlynk()
         break;
       }
     }
+    else{
+      varNotReady = true;
+    }
+  }
+  if(varNotReady){
+    BOARD_DEBUG_SERIAL_STREAM.println("Some ST variables are not ready and not synced!");
   }
 }

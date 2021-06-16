@@ -128,17 +128,15 @@ bool EPEVERSolarTracer::fetchValue(SolarTracerVariables variable)
   {
   case SolarTracerVariables::LOAD_FORCE_ONOFF:
     value = this->readControllerSingleCoil(MODBUS_ADDRESS_LOAD_FORCE_ONOFF);
-    if (rs485readSuccess)
-    {
-    }
+    this->setVariableReadReady(variable, rs485readSuccess);
     return rs485readSuccess;
-
   case SolarTracerVariables::LOAD_MANUAL_ONOFF:
     value = this->readControllerSingleCoil(MODBUS_ADDRESS_LOAD_MANUAL_ONOFF);
     if (rs485readSuccess)
     {
       loadOnOff = value;
     }
+    this->setVariableReadReady(variable, rs485readSuccess);
     return rs485readSuccess;
   case SolarTracerVariables::CHARGING_DEVICE_ONOFF:
     value = this->readControllerSingleCoil(MODBUS_ADDRESS_BATTERY_CHARGE_ONOFF);
@@ -146,6 +144,7 @@ bool EPEVERSolarTracer::fetchValue(SolarTracerVariables variable)
     {
       chargingDeviceOnOff = value;
     }
+    this->setVariableReadReady(variable, rs485readSuccess);
     return rs485readSuccess;
   default:
     break;

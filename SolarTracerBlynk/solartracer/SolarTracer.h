@@ -130,7 +130,7 @@ public:
 
     for (uint8_t i = 1; i <= count; i++)
     {
-      this->setVariableReadReady(va_arg(args, SolarTracerVariables), ready);
+      this->setVariableReadReady((SolarTracerVariables) va_arg(args, int), ready);
     }
 
     va_end(args);
