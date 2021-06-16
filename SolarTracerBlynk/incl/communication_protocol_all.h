@@ -1,1 +1,3 @@
+#pragma once
+
 #define COMMUNICATION_PROTOCOL_MODBUS_RTU 0x00001

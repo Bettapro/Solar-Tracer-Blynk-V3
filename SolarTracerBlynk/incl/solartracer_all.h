@@ -1,3 +1,4 @@
+#pragma once
 
 #define EPEVER_SOLAR_TRACER_A 0x0001
 #define EPEVER_SOLAR_TRACER_B 0x0002

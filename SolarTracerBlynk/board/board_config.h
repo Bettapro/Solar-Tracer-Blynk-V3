@@ -1,3 +1,5 @@
+#pragma once
+
 #if defined ESP32
 #include "esp32_config.h"
 #elif defined ESP8266

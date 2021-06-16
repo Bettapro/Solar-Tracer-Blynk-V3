@@ -3,6 +3,13 @@
 
 typedef enum
 {
+  UNDEFINED,
+  STRING,
+  FLOAT
+} SolarTracerVariablesDataType;
+
+typedef enum
+{
   PV_VOLTAGE,
   PV_POWER,
   PV_CURRENT,
@@ -41,12 +48,50 @@ public:
   SolarTracer()
   {
     this->variableEnables = new bool[SolarTracerVariables::VARIABLES_COUNT + 1]();
+    this->variableReadReady = new bool[SolarTracerVariables::VARIABLES_COUNT + 1]();
 
-    // make sure all variables are disabled
-    for(uint16_t i = 0; i <= SolarTracerVariables::VARIABLES_COUNT; i++ ){
-      this->variableEnables[i] = false;
+    // make sure all variables are disabled and not read ready
+    for (uint16_t i = 0; i <= SolarTracerVariables::VARIABLES_COUNT; i++)
+    {
+      this->variableEnables[i] = this->variableReadReady[i] = false;
     }
-    
+  }
+
+  static SolarTracerVariablesDataType getVariableDatatype(SolarTracerVariables variable)
+  {
+    switch (variable)
+    {
+    case SolarTracerVariables::PV_VOLTAGE:
+    case SolarTracerVariables::PV_POWER:
+    case SolarTracerVariables::PV_CURRENT:
+    case SolarTracerVariables::LOAD_CURRENT:
+    case SolarTracerVariables::LOAD_POWER:
+    case SolarTracerVariables::BATTERY_TEMP:
+    case SolarTracerVariables::BATTERY_VOLTAGE:
+    case SolarTracerVariables::BATTERY_SOC:
+    case SolarTracerVariables::CONTROLLER_TEMP:
+    case SolarTracerVariables::BATTERY_CHARGE_CURRENT:
+    case SolarTracerVariables::BATTERY_CHARGE_POWER:
+    case SolarTracerVariables::BATTERY_OVERALL_CURRENT:
+    case SolarTracerVariables::LOAD_MANUAL_ONOFF:
+    case SolarTracerVariables::CHARGING_DEVICE_ONOFF:
+    case SolarTracerVariables::GENERATED_ENERGY_TODAY:
+    case SolarTracerVariables::GENERATED_ENERGY_MONTH:
+    case SolarTracerVariables::GENERATED_ENERGY_YEAR:
+    case SolarTracerVariables::GENERATED_ENERGY_TOTAL:
+    case SolarTracerVariables::MAXIMUM_PV_VOLTAGE_TODAY:
+    case SolarTracerVariables::MINIMUM_PV_VOLTAGE_TODAY:
+    case SolarTracerVariables::MAXIMUM_BATTERY_VOLTAGE_TODAY:
+    case SolarTracerVariables::MINIMUM_BATTERY_VOLTAGE_TODAY:
+    case SolarTracerVariables::REMOTE_BATTERY_TEMP:
+      return SolarTracerVariablesDataType::FLOAT;
+    case SolarTracerVariables::BATTERY_STATUS_TEXT:
+    case SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT:
+    case SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT:
+      return SolarTracerVariablesDataType::STRING;
+    default:
+      return SolarTracerVariablesDataType::UNDEFINED;
+    }
   }
 
   void setVariableEnabled(SolarTracerVariables variable)
@@ -66,6 +111,36 @@ public:
     if (variable < SolarTracerVariables::VARIABLES_COUNT)
     {
       return this->variableEnables[variable];
+    }
+    return false;
+  }
+
+  void setVariableReadReady(SolarTracerVariables variable, bool enable)
+  {
+    if (variable < SolarTracerVariables::VARIABLES_COUNT)
+    {
+      this->variableReadReady[variable] = enable;
+    }
+  }
+
+  void setVariableReadReady(uint8_t count, bool ready, ...)
+  {
+    va_list args;
+    va_start(args, ready);
+
+    for (uint8_t i = 1; i <= count; i++)
+    {
+      this->setVariableReadReady(va_arg(args, SolarTracerVariables), ready);
+    }
+
+    va_end(args);
+  }
+
+  bool isVariableReadReady(SolarTracerVariables variable)
+  {
+    if (variable < SolarTracerVariables::VARIABLES_COUNT)
+    {
+      return this->variableReadReady[variable];
     }
     return false;
   }
@@ -168,6 +243,7 @@ protected:
 
 private:
   bool *variableEnables;
+  bool *variableReadReady;
 };
 
 #endif

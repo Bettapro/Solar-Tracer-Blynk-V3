@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef BOARD_DEBUG_SERIAL_STREAM
 #define BOARD_DEBUG_SERIAL_STREAM Serial
 #endif

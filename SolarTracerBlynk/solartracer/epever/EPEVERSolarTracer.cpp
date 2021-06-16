@@ -204,7 +204,8 @@ void EPEVERSolarTracer::AddressRegistry_3100()
 {
   uint8_t result = this->node.readInputRegisters(MODBUS_ADDRESS_PV_VOLTAGE, 6);
 
-  if (result == this->node.ku8MBSuccess)
+  rs485readSuccess = result == this->node.ku8MBSuccess;
+  if (rs485readSuccess)
   {
 
     pvvoltage = this->node.getResponseBuffer(0x00) / 100.0f;
@@ -213,82 +214,95 @@ void EPEVERSolarTracer::AddressRegistry_3100()
     bvoltage = this->node.getResponseBuffer(0x04) / 100.0f;
     battChargeCurrent = this->node.getResponseBuffer(0x05) / 100.0f;
   }
+
+  this->setVariableReadReady(5, rs485readSuccess,
+                             SolarTracerVariables::PV_VOLTAGE,
+                             SolarTracerVariables::PV_CURRENT,
+                             SolarTracerVariables::PV_POWER,
+                             SolarTracerVariables::BATTERY_VOLTAGE,
+                             SolarTracerVariables::BATTERY_CHARGE_CURRENT);
 }
 
 void EPEVERSolarTracer::AddressRegistry_3106()
 {
   uint8_t result = this->node.readInputRegisters(0x3106, 2);
 
-  if (result == this->node.ku8MBSuccess)
+  rs485readSuccess = result == this->node.ku8MBSuccess;
+  if (rs485readSuccess)
   {
     battChargePower = (this->node.getResponseBuffer(0x00) | this->node.getResponseBuffer(0x01) << 16) / 100.0f;
   }
+
+  this->setVariableReadReady(SolarTracerVariables::BATTERY_CHARGE_POWER, rs485readSuccess);
 }
 
 void EPEVERSolarTracer::AddressRegistry_310D()
 {
   uint8_t result = this->node.readInputRegisters(0x310D, 3);
 
-  if (result == this->node.ku8MBSuccess)
+  rs485readSuccess = result == this->node.ku8MBSuccess;
+  if (rs485readSuccess)
   {
     lcurrent = this->node.getResponseBuffer(0x00) / 100.0f;
     lpower = (this->node.getResponseBuffer(0x01) | this->node.getResponseBuffer(0x02) << 16) / 100.0f;
   }
-  else
-  {
-    rs485readSuccess = false;
-  }
+
+  this->setVariableReadReady(2, rs485readSuccess,
+                             SolarTracerVariables::LOAD_CURRENT,
+                             SolarTracerVariables::LOAD_POWER);
 }
 
 void EPEVERSolarTracer::AddressRegistry_3110()
 {
   uint8_t result = this->node.readInputRegisters(MODBUS_ADDRESS_BATT_TEMP, 2);
 
-  if (result == this->node.ku8MBSuccess)
+  rs485readSuccess = result == this->node.ku8MBSuccess;
+  if (rs485readSuccess)
   {
     btemp = this->node.getResponseBuffer(0x00) / 100.0f;
     ctemp = this->node.getResponseBuffer(0x01) / 100.0f;
   }
-  else
-  {
-    rs485readSuccess = false;
-  }
+
+  this->setVariableReadReady(2, rs485readSuccess,
+                             SolarTracerVariables::BATTERY_TEMP,
+                             SolarTracerVariables::CONTROLLER_TEMP);
 }
 
 void EPEVERSolarTracer::AddressRegistry_311A()
 {
   uint8_t result = this->node.readInputRegisters(MODBUS_ADDRESS_BATT_SOC, 2);
 
-  if (result == this->node.ku8MBSuccess)
+  rs485readSuccess = result == this->node.ku8MBSuccess;
+  if (rs485readSuccess)
   {
     bremaining = this->node.getResponseBuffer(0x00) / 1.0f;
     rtemp = this->node.getResponseBuffer(0x01) / 100.0f;
   }
-  else
-  {
-    rs485readSuccess = false;
-  }
+
+  this->setVariableReadReady(2, rs485readSuccess,
+                             SolarTracerVariables::BATTERY_SOC,
+                             SolarTracerVariables::REMOTE_BATTERY_TEMP);
 }
 
 void EPEVERSolarTracer::AddressRegistry_331B()
 {
   uint8_t result = this->node.readInputRegisters(0x331B, 2);
 
-  if (result == this->node.ku8MBSuccess)
+  rs485readSuccess = result == this->node.ku8MBSuccess;
+  if (rs485readSuccess)
   {
     battOverallCurrent = (this->node.getResponseBuffer(0x00) | this->node.getResponseBuffer(0x01) << 16) / 100.0f;
   }
-  else
-  {
-    rs485readSuccess = false;
-  }
+
+  this->setVariableReadReady(SolarTracerVariables::BATTERY_OVERALL_CURRENT, rs485readSuccess);
 }
 
 void EPEVERSolarTracer::fetchAddressStatusVariables()
 {
   uint8_t result = this->node.readInputRegisters(MODBUS_ADDRESS_BATTERY_STATUS, 3);
 
-  if (result == this->node.ku8MBSuccess)
+  rs485readSuccess = result == this->node.ku8MBSuccess;
+  if (rs485readSuccess)
   {
     uint16_t batteryStatus = node.getResponseBuffer(0x00);
     if (batteryStatus)
@@ -458,17 +472,19 @@ void EPEVERSolarTracer::fetchAddressStatusVariables()
       }
     }
   }
-  else
-  {
-    rs485readSuccess = false;
-  }
+
+  this->setVariableReadReady(3, rs485readSuccess,
+                             SolarTracerVariables::BATTERY_STATUS_TEXT,
+                             SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT,
+                             SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT);
 }
 
 void EPEVERSolarTracer::updateStats()
 {
   uint8_t result = this->node.readInputRegisters(MODBUS_ADDRESS_STAT_MAX_PV_VOLTAGE_TODAY, 29);
 
-  if (result == this->node.ku8MBSuccess)
+  rs485readSuccess = result == this->node.ku8MBSuccess;
+  if (rs485readSuccess)
   {
 
     stats_today_pv_volt_min = this->node.getResponseBuffer(0x00) / 100.0f;
@@ -481,6 +497,16 @@ void EPEVERSolarTracer::updateStats()
     stats_year_generated_energy = (this->node.getResponseBuffer(16) | this->node.getResponseBuffer(17) << 16) / 100.0f;
     stats_total_generated_energy = (this->node.getResponseBuffer(18) | this->node.getResponseBuffer(19) << 16) / 100.0f;
   }
+
+  this->setVariableReadReady(8, rs485readSuccess,
+                             SolarTracerVariables::MINIMUM_PV_VOLTAGE_TODAY,
+                             SolarTracerVariables::MAXIMUM_PV_VOLTAGE_TODAY,
+                             SolarTracerVariables::MINIMUM_BATTERY_VOLTAGE_TODAY,
+                             SolarTracerVariables::MAXIMUM_BATTERY_VOLTAGE_TODAY,
+                             SolarTracerVariables::GENERATED_ENERGY_TODAY,
+                             SolarTracerVariables::GENERATED_ENERGY_MONTH,
+                             SolarTracerVariables::GENERATED_ENERGY_YEAR,
+                             SolarTracerVariables::GENERATED_ENERGY_TOTAL);
 }
 
 void EPEVERSolarTracer::onModbusPreTransmission()

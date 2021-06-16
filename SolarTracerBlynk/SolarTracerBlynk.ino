@@ -7,40 +7,13 @@
 // With modifications by @bettapro
 //
 
-#include <Arduino.h>
-
-#include "incl/solartracer_all.h"
-#include "incl/communication_protocol_all.h"
-
-#include "config.h"
-#include "board/board_config.h"
-#include "solartracer/solartracer_config.h"
+#include "incl/project_config.h"
+#include "incl/variables_contains.h"
 
 // removes the intellisens error for setenv,tzset
 // see: https://community.platformio.org/t/identifier-is-undefined-setenv-tzset/16162
 _VOID _EXFUN(tzset, (_VOID));
 int _EXFUN(setenv, (const char *__string, const char *__value, int __overwrite));
-
-#if defined ESP32
-#define USE_WIFI_NINA false
-#define USE_WIFI101 false
-#include <WiFi.h>
-#include <BlynkSimpleEsp32.h>
-#elif defined ESP8266
-#include <ESP8266WiFi.h>
-#include <DNSServer.h>
-#include <ESP8266WebServer.h>
-#include <ESP8266mDNS.h>
-#include <WiFiUdp.h>
-#include <BlynkSimpleEsp8266.h>
-#endif
-
-#ifdef USE_OTA_UPDATE
-#include <ArduinoOTA.h>
-#endif
-
-#include "solartracer/SolarTracer.h"
-// should be include if tracer is epsolar/epever
 
 int timerTask1, timerTask2, timerTask3;
 
@@ -310,75 +283,46 @@ void updateSolarController()
   }
 }
 
-// upload values
+// upload values realtime
 void uploadRealtimeToBlynk()
 {
-#ifdef vPIN_PV_POWER
-  Blynk.virtualWrite(vPIN_PV_POWER, thisController->getFloatValue(SolarTracerVariables::PV_POWER));
-#endif
-#ifdef vPIN_PV_CURRENT
-  Blynk.virtualWrite(vPIN_PV_CURRENT, thisController->getFloatValue(SolarTracerVariables::PV_CURRENT));
-#endif
-#ifdef vPIN_PV_VOLTAGE
-  Blynk.virtualWrite(vPIN_PV_VOLTAGE, thisController->getFloatValue(SolarTracerVariables::PV_VOLTAGE));
-#endif
-#ifdef vPIN_LOAD_CURRENT
-  Blynk.virtualWrite(vPIN_LOAD_CURRENT, thisController->getFloatValue(SolarTracerVariables::LOAD_CURRENT));
-#endif
-#ifdef vPIN_LOAD_POWER
-  Blynk.virtualWrite(vPIN_LOAD_POWER, thisController->getFloatValue(SolarTracerVariables::LOAD_POWER));
-#endif
-#ifdef vPIN_BATT_TEMP
-  Blynk.virtualWrite(vPIN_BATT_TEMP, thisController->getFloatValue(SolarTracerVariables::BATTERY_TEMP));
-#endif
-#ifdef vPIN_BATT_VOLTAGE
-  Blynk.virtualWrite(vPIN_BATT_VOLTAGE, thisController->getFloatValue(SolarTracerVariables::BATTERY_VOLTAGE));
-#endif
-#ifdef vPIN_BATT_REMAIN
-  Blynk.virtualWrite(vPIN_BATT_REMAIN, thisController->getFloatValue(SolarTracerVariables::BATTERY_SOC));
-#endif
-#ifdef vPIN_CONTROLLER_TEMP
-  Blynk.virtualWrite(vPIN_CONTROLLER_TEMP, thisController->getFloatValue(SolarTracerVariables::CONTROLLER_TEMP));
-#endif
-#ifdef vPIN_BATTERY_CHARGE_CURRENT
-  Blynk.virtualWrite(vPIN_BATTERY_CHARGE_CURRENT, thisController->getFloatValue(SolarTracerVariables::BATTERY_CHARGE_CURRENT));
-#endif
-#ifdef vPIN_BATTERY_CHARGE_POWER
-  Blynk.virtualWrite(vPIN_BATTERY_CHARGE_POWER, thisController->getFloatValue(SolarTracerVariables::BATTERY_CHARGE_POWER));
-#endif
-#ifdef vPIN_BATTERY_OVERALL_CURRENT
-  Blynk.virtualWrite(vPIN_BATTERY_OVERALL_CURRENT, thisController->getFloatValue(SolarTracerVariables::BATTERY_OVERALL_CURRENT));
-#endif
-#ifdef vPIN_LOAD_ENABLED
-  Blynk.virtualWrite(vPIN_LOAD_ENABLED, thisController->getFloatValue(SolarTracerVariables::LOAD_MANUAL_ONOFF));
-#endif
-#ifdef vPIN_CHARGE_DEVICE_ENABLED
-  Blynk.virtualWrite(vPIN_CHARGE_DEVICE_ENABLED, thisController->getFloatValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF));
-#endif
-#ifdef vPIN_BATTERY_STATUS_TEXT
-  Blynk.virtualWrite(vPIN_BATTERY_STATUS_TEXT, thisController->getStringValue(SolarTracerVariables::BATTERY_STATUS_TEXT));
-#endif
-#ifdef vPIN_CHARGING_EQUIPMENT_STATUS_TEXT
-  Blynk.virtualWrite(vPIN_CHARGING_EQUIPMENT_STATUS_TEXT, thisController->getStringValue(SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT));
-#endif
-#ifdef vPIN_DISCHARGING_EQUIPMENT_STATUS_TEXT
-  Blynk.virtualWrite(vPIN_DISCHARGING_EQUIPMENT_STATUS_TEXT, thisController->getStringValue(SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT));
-#endif
+  for (uint8_t index = 0; index < realTimeVirtualBlynkSolarVariablesCount; index++)
+  {
+    if (thisController->isVariableReadReady(realTimeVirtualBlynkSolarVariables[index].solarVariable))
+    {
+      switch (SolarTracer::getVariableDatatype(realTimeVirtualBlynkSolarVariables[index].solarVariable))
+      {
+      case SolarTracerVariablesDataType::FLOAT:
+        Blynk.virtualWrite(realTimeVirtualBlynkSolarVariables[index].virtualPin, thisController->getFloatValue(realTimeVirtualBlynkSolarVariables[index].solarVariable));
+        break;
+      case SolarTracerVariablesDataType::STRING:
+        Blynk.virtualWrite(realTimeVirtualBlynkSolarVariables[index].virtualPin, thisController->getStringValue(realTimeVirtualBlynkSolarVariables[index].solarVariable));
+        break;
+      default:
+        break;
+      }
+    }
+  }
 }
 
-// upload values
+// upload values stats
 void uploadStatsToBlynk()
 {
-#ifdef vPIN_STAT_ENERGY_GENERATED_TODAY
-  Blynk.virtualWrite(vPIN_STAT_ENERGY_GENERATED_TODAY, thisController->getFloatValue(SolarTracerVariables::GENERATED_ENERGY_TODAY));
-#endif
-#ifdef vPIN_STAT_ENERGY_GENERATED_THIS_MONTH
-  Blynk.virtualWrite(vPIN_STAT_ENERGY_GENERATED_THIS_MONTH, thisController->getFloatValue(SolarTracerVariables::GENERATED_ENERGY_MONTH));
-#endif
-#ifdef vPIN_STAT_ENERGY_GENERATED_THIS_YEAR
-  Blynk.virtualWrite(vPIN_STAT_ENERGY_GENERATED_THIS_YEAR, thisController->getFloatValue(SolarTracerVariables::GENERATED_ENERGY_YEAR));
-#endif
-#ifdef vPIN_STAT_ENERGY_GENERATED_TOTAL
-  Blynk.virtualWrite(vPIN_STAT_ENERGY_GENERATED_TOTAL, thisController->getFloatValue(SolarTracerVariables::GENERATED_ENERGY_TOTAL));
-#endif
+  for (uint8_t index = 0; index < statVirtualBlynkSolarVariablesCount; index++)
+  {
+    if (thisController->isVariableReadReady(statVirtualBlynkSolarVariables[index].solarVariable))
+    {
+      switch (SolarTracer::getVariableDatatype(statVirtualBlynkSolarVariables[index].solarVariable))
+      {
+      case SolarTracerVariablesDataType::FLOAT:
+        Blynk.virtualWrite(statVirtualBlynkSolarVariables[index].virtualPin, thisController->getFloatValue(statVirtualBlynkSolarVariables[index].solarVariable));
+        break;
+      case SolarTracerVariablesDataType::STRING:
+        Blynk.virtualWrite(statVirtualBlynkSolarVariables[index].virtualPin, thisController->getStringValue(statVirtualBlynkSolarVariables[index].solarVariable));
+        break;
+      default:
+        break;
+      }
+    }
+  }
 }
