@@ -15,6 +15,9 @@
 #include "board/board_config.h"
 #include "solartracer/solartracer_config.h"
 
+// reducing Blynk footprint
+#define BLYNK_NO_BUILTIN   // Disable built-in analog & digital pin operations
+
 /**
  * Conditional includes depending on the BOARD
  */
