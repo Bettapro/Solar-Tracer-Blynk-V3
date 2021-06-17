@@ -144,3 +144,6 @@
 #define vPIN_CHARGING_EQUIPMENT_STATUS_TEXT             V24
 #define vPIN_DISCHARGING_EQUIPMENT_STATUS_TEXT          V25
 #define vPIN_CHARGE_DEVICE_ENABLED                      V26
+// internal
+#define vPIN_INTERNAL_STATUS                            V27
+

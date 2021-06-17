@@ -20,8 +20,6 @@ uint8_t pStatus = 0;
 int ledActTimer = -1;
 #endif
 
-
-
 // -------------------------------------------------------------------------------
 // MISC
 
@@ -113,6 +111,10 @@ void updateSolarController()
 // upload values realtime
 void uploadRealtimeToBlynk()
 {
+#ifdef vPIN_INTERNAL_STATUS
+  Blynk.virtualWrite(vPIN_INTERNAL_STATUS, pStatus);
+#endif
+
   bool varNotReady = false;
   for (uint8_t index = 0; index < realTimeVirtualBlynkSolarVariablesCount; index++)
   {
@@ -244,10 +246,9 @@ void notifyStatusLed(uint8_t newStatus)
 void ledTimerCallback()
 {
   digitalWrite(STATUS_LED_PIN, ledStatus);
-  ledStatus = ! ledStatus;
+  ledStatus = !ledStatus;
 }
 #endif
-
 
 // ****************************************************************************
 // SETUP and LOOP
