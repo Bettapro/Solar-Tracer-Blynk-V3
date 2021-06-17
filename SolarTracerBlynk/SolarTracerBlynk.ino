@@ -190,7 +190,7 @@ void setStatusError(uint8_t status)
   {
     uint8_t tStatus = pStatus + status;
 #ifdef USE_STATUS_LED
-    notifyStatusLed(status);
+    notifyStatusLed(tStatus);
 #endif
     pStatus = tStatus;
   }
@@ -202,7 +202,7 @@ void clearStatusError(uint8_t status)
   {
     uint8_t tStatus = pStatus - status;
 #ifdef USE_STATUS_LED
-    notifyStatusLed(status);
+    notifyStatusLed(tStatus);
 #endif
     pStatus = tStatus;
   }
@@ -216,31 +216,30 @@ bool ledStatus = true;
 
 void changeStatusLedTimerInterval(unsigned long newInterval)
 {
-  if (ledActTimer >= 0)
+  if (newInterval <= 0)
   {
-    timer.deleteTimer(ledActTimer);
+    if (ledActTimer >= 0)
+    {
+      timer.deleteTimer(ledActTimer);
+      digitalWrite(STATUS_LED_PIN, LOW);
+      ledActTimer = -1;
+    }
+    return;
   }
-  ledActTimer = timer.setInterval(newInterval, ledTimerCallback);
+
+  if (ledActTimer < 0)
+  {
+    ledActTimer = timer.setInterval(newInterval, ledTimerCallback);
+  }
+  else
+  {
+    timer.changeInterval(ledActTimer, newInterval);
+  }
 }
 
 void notifyStatusLed(uint8_t newStatus)
 {
-  if (newStatus != pStatus)
-  {
-    if (pStatus == 0)
-    {
-      // everything ok
-      changeStatusLedTimerInterval(5000);
-    }
-    else if ((pStatus & STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION) > 0)
-    {
-      changeStatusLedTimerInterval(500);
-    }
-    else if ((pStatus & STATUS_ERR_SOLAR_TRACER_NO_SYNC) > 0)
-    {
-      changeStatusLedTimerInterval(1000);
-    }
-  }
+  changeStatusLedTimerInterval(newStatus == 0 ? 2000 : 0);
 }
 
 void ledTimerCallback()
@@ -434,7 +433,6 @@ void setup()
 
 #ifdef USE_STATUS_LED
   digitalWrite(STATUS_LED_PIN, LOW);
-  ledActTimer = timer.setInterval(BLINK_SYNC_REALTIME_MS_PERIOD, uploadRealtimeToBlynk);
 #endif
 
   BOARD_DEBUG_SERIAL_STREAM.println("SETUP OK!");
