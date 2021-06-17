@@ -18,7 +18,11 @@
 //#define BOARD_DEBUG_SERIAL_STREAM Serial
 // set accordingly: monitor_speed in platformio.ini
 //#define BOARD_DEBUG_SERIAL_STREAM_BAUDRATE 115200
-
+//#define USE_STATUS_LED
+#ifdef USE_STATUS_LED
+  //specify pin number connected to the status led
+  #define STATUS_LED_PIN 2
+#endif
 
 /**
  * SOLAR CHARGE CONTROLLER 

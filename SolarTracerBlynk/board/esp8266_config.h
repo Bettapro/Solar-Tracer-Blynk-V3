@@ -8,16 +8,16 @@
 #define BOARD_DEBUG_SERIAL_STREAM_BAUDRATE 115200
 #endif
 
-#if defined(USE_SERIAL_STREAM) & !defined(BOARD_ST_SERIAL_STREAM)
+#if defined(USE_SERIAL_STREAM) && !defined(BOARD_ST_SERIAL_STREAM)
 #define BOARD_ST_SERIAL_STREAM Serial
 #endif
 
 
-#if defined(USE_SERIAL_MAX485) & !defined(MAX485_DE)
+#if defined(USE_SERIAL_MAX485) && !defined(MAX485_DE)
 #define MAX485_DE D1
 #endif
 
-#if defined(USE_SERIAL_MAX485) & !defined(MAX485_RE_NEG)
+#if defined(USE_SERIAL_MAX485) && !defined(MAX485_RE_NEG)
 #define MAX485_RE_NEG D1
 #endif
 

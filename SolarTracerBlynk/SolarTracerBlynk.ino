@@ -10,10 +10,244 @@
 #include "incl/project_config.h"
 #include "incl/variables_contains.h"
 
-
 SolarTracer *thisController;
 
 BlynkTimer timer;
+
+uint8_t pStatus = 0;
+
+#ifdef USE_STATUS_LED
+int ledActTimer = -1;
+#endif
+
+
+
+// -------------------------------------------------------------------------------
+// MISC
+
+#ifdef SYNC_ST_TIME
+void getTimeFromServer()
+{
+  struct tm *ti;
+  time_t tnow;
+  char strftime_buf[64];
+
+  tnow = time(nullptr) + 1;
+  strftime(strftime_buf, sizeof(strftime_buf), "%c", localtime(&tnow));
+  ti = localtime(&tnow);
+  thisController->syncRealtimeClock(ti);
+}
+#endif
+
+// --------------------------------------------------------------------------------
+// BLYNK CALLBACKS
+
+#ifdef vPIN_LOAD_ENABLED
+BLYNK_WRITE(vPIN_LOAD_ENABLED)
+{
+  uint8_t newState = (uint8_t)param.asInt();
+
+  BOARD_DEBUG_SERIAL_STREAM.print("Setting load state output coil to value: ");
+  BOARD_DEBUG_SERIAL_STREAM.println(newState);
+
+  if (thisController->writeBoolValue(SolarTracerVariables::LOAD_MANUAL_ONOFF,
+                                     newState > 0))
+  {
+    BOARD_DEBUG_SERIAL_STREAM.println("Write & Read suceeded.");
+  }
+  else
+  {
+    BOARD_DEBUG_SERIAL_STREAM.println("Write & Read failed.");
+  }
+  thisController->fetchValue(SolarTracerVariables::LOAD_MANUAL_ONOFF);
+
+  BOARD_DEBUG_SERIAL_STREAM.println("Uploading results to Blynk.");
+
+  uploadRealtimeToBlynk();
+}
+#endif
+
+#ifdef vPIN_CHARGE_DEVICE_ENABLED
+BLYNK_WRITE(vPIN_CHARGE_DEVICE_ENABLED)
+{
+  uint8_t newState = (uint8_t)param.asInt();
+
+  BOARD_DEBUG_SERIAL_STREAM.print("Setting load state output coil to value: ");
+  BOARD_DEBUG_SERIAL_STREAM.println(newState);
+
+  if (thisController->writeBoolValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF,
+                                     newState > 0))
+  {
+    BOARD_DEBUG_SERIAL_STREAM.println("Write & Read suceeded.");
+  }
+  else
+  {
+    BOARD_DEBUG_SERIAL_STREAM.println("Write & Read failed.");
+  }
+  thisController->fetchValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF);
+
+  BOARD_DEBUG_SERIAL_STREAM.println("Uploading results to Blynk.");
+
+  uploadRealtimeToBlynk();
+}
+#endif
+
+// --------------------------------------------------------------------------------
+// SOLAR TRACER SETUP
+
+void updateSolarController()
+{
+
+  if (thisController->updateRun())
+  {
+    BOARD_DEBUG_SERIAL_STREAM.println("Update Solar-Tracer SUCCESS!");
+    clearStatusError(STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION);
+  }
+  else
+  {
+    BOARD_DEBUG_SERIAL_STREAM.println("Update Solar-Tracer FAILED!");
+    setStatusError(STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION);
+  }
+}
+
+// upload values realtime
+void uploadRealtimeToBlynk()
+{
+  bool varNotReady = false;
+  for (uint8_t index = 0; index < realTimeVirtualBlynkSolarVariablesCount; index++)
+  {
+    if (thisController->isVariableReadReady(realTimeVirtualBlynkSolarVariables[index].solarVariable))
+    {
+      switch (SolarTracer::getVariableDatatype(realTimeVirtualBlynkSolarVariables[index].solarVariable))
+      {
+      case SolarTracerVariablesDataType::FLOAT:
+        Blynk.virtualWrite(realTimeVirtualBlynkSolarVariables[index].virtualPin, thisController->getFloatValue(realTimeVirtualBlynkSolarVariables[index].solarVariable));
+        break;
+      case SolarTracerVariablesDataType::STRING:
+        Blynk.virtualWrite(realTimeVirtualBlynkSolarVariables[index].virtualPin, thisController->getStringValue(realTimeVirtualBlynkSolarVariables[index].solarVariable));
+        break;
+      default:
+        break;
+      }
+    }
+    else
+    {
+      varNotReady = true;
+    }
+  }
+  if (varNotReady)
+  {
+    BOARD_DEBUG_SERIAL_STREAM.println("Some RT variables are not ready and not synced!");
+    setStatusError(STATUS_ERR_SOLAR_TRACER_NO_SYNC_RT);
+  }
+  else
+  {
+    clearStatusError(STATUS_ERR_SOLAR_TRACER_NO_SYNC_RT);
+  }
+}
+
+// upload values stats
+void uploadStatsToBlynk()
+{
+  bool varNotReady = false;
+  for (uint8_t index = 0; index < statVirtualBlynkSolarVariablesCount; index++)
+  {
+    if (thisController->isVariableReadReady(statVirtualBlynkSolarVariables[index].solarVariable))
+    {
+      switch (SolarTracer::getVariableDatatype(statVirtualBlynkSolarVariables[index].solarVariable))
+      {
+      case SolarTracerVariablesDataType::FLOAT:
+        Blynk.virtualWrite(statVirtualBlynkSolarVariables[index].virtualPin, thisController->getFloatValue(statVirtualBlynkSolarVariables[index].solarVariable));
+        break;
+      case SolarTracerVariablesDataType::STRING:
+        Blynk.virtualWrite(statVirtualBlynkSolarVariables[index].virtualPin, thisController->getStringValue(statVirtualBlynkSolarVariables[index].solarVariable));
+        break;
+      default:
+        break;
+      }
+    }
+    else
+    {
+      varNotReady = true;
+    }
+  }
+  if (varNotReady)
+  {
+    BOARD_DEBUG_SERIAL_STREAM.println("Some ST variables are not ready and not synced!");
+    setStatusError(STATUS_ERR_SOLAR_TRACER_NO_SYNC_ST);
+  }
+  else
+  {
+    clearStatusError(STATUS_ERR_SOLAR_TRACER_NO_SYNC_ST);
+  }
+}
+
+void setStatusError(uint8_t status)
+{
+  if ((pStatus & status) == 0)
+  {
+    uint8_t tStatus = pStatus + status;
+#ifdef USE_STATUS_LED
+    notifyStatusLed(status);
+#endif
+    pStatus = tStatus;
+  }
+}
+
+void clearStatusError(uint8_t status)
+{
+  if ((pStatus & status) > 0)
+  {
+    uint8_t tStatus = pStatus - status;
+#ifdef USE_STATUS_LED
+    notifyStatusLed(status);
+#endif
+    pStatus = tStatus;
+  }
+}
+
+//-----------------------------------------------------------------------------------
+// LED STATUS
+
+#ifdef USE_STATUS_LED
+bool ledStatus = true;
+
+void changeStatusLedTimerInterval(unsigned long newInterval)
+{
+  if (ledActTimer >= 0)
+  {
+    timer.deleteTimer(ledActTimer);
+  }
+  ledActTimer = timer.setInterval(newInterval, ledTimerCallback);
+}
+
+void notifyStatusLed(uint8_t newStatus)
+{
+  if (newStatus != pStatus)
+  {
+    if (pStatus == 0)
+    {
+      // everything ok
+      changeStatusLedTimerInterval(5000);
+    }
+    else if ((pStatus & STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION) > 0)
+    {
+      changeStatusLedTimerInterval(500);
+    }
+    else if ((pStatus & STATUS_ERR_SOLAR_TRACER_NO_SYNC) > 0)
+    {
+      changeStatusLedTimerInterval(1000);
+    }
+  }
+}
+
+void ledTimerCallback()
+{
+  digitalWrite(STATUS_LED_PIN, ledStatus);
+  ledStatus = ! ledStatus;
+}
+#endif
+
 
 // ****************************************************************************
 // SETUP and LOOP
@@ -29,17 +263,22 @@ void loop()
 
 void setup()
 {
+  setStatusError(STATUS_RUN_BOOTING);
+#ifdef USE_STATUS_LED
+  pinMode(STATUS_LED_PIN, OUTPUT);
+  digitalWrite(STATUS_LED_PIN, HIGH);
+#endif
+
   BOARD_DEBUG_SERIAL_STREAM.println(" ++ STARTING TRACER-RS485-MODBUS-BLYNK");
   BOARD_DEBUG_SERIAL_STREAM.begin(BOARD_DEBUG_SERIAL_STREAM_BAUDRATE);
 
 #ifdef USE_SERIAL_STREAM
 #if defined(BOARD_ST_SERIAL_PIN_MAPPING_RX) & defined(BOARD_ST_SERIAL_PIN_MAPPING_TX)
   BOARD_ST_SERIAL_STREAM.begin(BOARD_ST_SERIAL_STREAM_BAUDRATE, SERIAL_8N1, BOARD_ST_SERIAL_PIN_MAPPING_RX, BOARD_ST_SERIAL_PIN_MAPPING_TX);
-#else 
+#else
   BOARD_ST_SERIAL_STREAM.begin(BOARD_ST_SERIAL_STREAM_BAUDRATE);
 #endif
 #endif
-
 
   thisController = new SOLAR_TRACER_INSTANCE;
 
@@ -192,151 +431,14 @@ void setup()
   // periodically send REALTIME  value to blynk
   timer.setInterval(BLINK_SYNC_REALTIME_MS_PERIOD, uploadRealtimeToBlynk);
 
+#ifdef USE_STATUS_LED
+  digitalWrite(STATUS_LED_PIN, LOW);
+  ledActTimer = timer.setInterval(BLINK_SYNC_REALTIME_MS_PERIOD, uploadRealtimeToBlynk);
+#endif
+
   BOARD_DEBUG_SERIAL_STREAM.println("SETUP OK!");
   BOARD_DEBUG_SERIAL_STREAM.println("----------------------------");
   BOARD_DEBUG_SERIAL_STREAM.println();
-}
 
-// -------------------------------------------------------------------------------
-// MISC
-
-#ifdef SYNC_ST_TIME
-void getTimeFromServer()
-{
-  struct tm *ti;
-  time_t tnow;
-  char strftime_buf[64];
-
-  tnow = time(nullptr) + 1;
-  strftime(strftime_buf, sizeof(strftime_buf), "%c", localtime(&tnow));
-  ti = localtime(&tnow);
-  thisController->syncRealtimeClock(ti);
-}
-#endif
-
-// --------------------------------------------------------------------------------
-// BLYNK CALLBACKS
-
-#ifdef vPIN_LOAD_ENABLED
-BLYNK_WRITE(vPIN_LOAD_ENABLED)
-{
-  uint8_t newState = (uint8_t)param.asInt();
-
-  BOARD_DEBUG_SERIAL_STREAM.print("Setting load state output coil to value: ");
-  BOARD_DEBUG_SERIAL_STREAM.println(newState);
-
-  if (thisController->writeBoolValue(SolarTracerVariables::LOAD_MANUAL_ONOFF,
-                                     newState > 0))
-  {
-    BOARD_DEBUG_SERIAL_STREAM.println("Write & Read suceeded.");
-  }
-  else
-  {
-    BOARD_DEBUG_SERIAL_STREAM.println("Write & Read failed.");
-  }
-  thisController->fetchValue(SolarTracerVariables::LOAD_MANUAL_ONOFF);
-
-  BOARD_DEBUG_SERIAL_STREAM.println("Uploading results to Blynk.");
-
-  uploadRealtimeToBlynk();
-}
-#endif
-
-#ifdef vPIN_CHARGE_DEVICE_ENABLED
-BLYNK_WRITE(vPIN_CHARGE_DEVICE_ENABLED)
-{
-  uint8_t newState = (uint8_t)param.asInt();
-
-  BOARD_DEBUG_SERIAL_STREAM.print("Setting load state output coil to value: ");
-  BOARD_DEBUG_SERIAL_STREAM.println(newState);
-
-  if (thisController->writeBoolValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF,
-                                     newState > 0))
-  {
-    BOARD_DEBUG_SERIAL_STREAM.println("Write & Read suceeded.");
-  }
-  else
-  {
-    BOARD_DEBUG_SERIAL_STREAM.println("Write & Read failed.");
-  }
-  thisController->fetchValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF);
-
-  BOARD_DEBUG_SERIAL_STREAM.println("Uploading results to Blynk.");
-
-  uploadRealtimeToBlynk();
-}
-#endif
-
-// --------------------------------------------------------------------------------
-// SOLAR TRACER SETUP
-
-void updateSolarController()
-{
-
-  if (thisController->updateRun())
-  {
-    BOARD_DEBUG_SERIAL_STREAM.println("Update Solar-Tracer SUCCESS!");
-  }
-  else
-  {
-    BOARD_DEBUG_SERIAL_STREAM.println("Update Solar-Tracer FAILED!");
-  }
-}
-
-// upload values realtime
-void uploadRealtimeToBlynk()
-{
-  bool varNotReady = false;
-  for (uint8_t index = 0; index < realTimeVirtualBlynkSolarVariablesCount; index++)
-  {
-    if (thisController->isVariableReadReady(realTimeVirtualBlynkSolarVariables[index].solarVariable))
-    {
-      switch (SolarTracer::getVariableDatatype(realTimeVirtualBlynkSolarVariables[index].solarVariable))
-      {
-      case SolarTracerVariablesDataType::FLOAT:
-        Blynk.virtualWrite(realTimeVirtualBlynkSolarVariables[index].virtualPin, thisController->getFloatValue(realTimeVirtualBlynkSolarVariables[index].solarVariable));
-        break;
-      case SolarTracerVariablesDataType::STRING:
-        Blynk.virtualWrite(realTimeVirtualBlynkSolarVariables[index].virtualPin, thisController->getStringValue(realTimeVirtualBlynkSolarVariables[index].solarVariable));
-        break;
-      default:
-        break;
-      }
-    }
-    else{
-      varNotReady = true;
-    }
-  }
-  if(varNotReady){
-    BOARD_DEBUG_SERIAL_STREAM.println("Some RT variables are not ready and not synced!");
-  }
-}
-
-// upload values stats
-void uploadStatsToBlynk()
-{
-  bool varNotReady = false;
-  for (uint8_t index = 0; index < statVirtualBlynkSolarVariablesCount; index++)
-  {
-    if (thisController->isVariableReadReady(statVirtualBlynkSolarVariables[index].solarVariable))
-    {
-      switch (SolarTracer::getVariableDatatype(statVirtualBlynkSolarVariables[index].solarVariable))
-      {
-      case SolarTracerVariablesDataType::FLOAT:
-        Blynk.virtualWrite(statVirtualBlynkSolarVariables[index].virtualPin, thisController->getFloatValue(statVirtualBlynkSolarVariables[index].solarVariable));
-        break;
-      case SolarTracerVariablesDataType::STRING:
-        Blynk.virtualWrite(statVirtualBlynkSolarVariables[index].virtualPin, thisController->getStringValue(statVirtualBlynkSolarVariables[index].solarVariable));
-        break;
-      default:
-        break;
-      }
-    }
-    else{
-      varNotReady = true;
-    }
-  }
-  if(varNotReady){
-    BOARD_DEBUG_SERIAL_STREAM.println("Some ST variables are not ready and not synced!");
-  }
+  clearStatusError(STATUS_RUN_BOOTING);
 }
