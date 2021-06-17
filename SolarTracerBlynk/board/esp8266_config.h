@@ -20,3 +20,7 @@
 #if defined(USE_SERIAL_MAX485) & !defined(MAX485_RE_NEG)
 #define MAX485_RE_NEG D1
 #endif
+
+#if defined(BOARD_ST_SERIAL_PIN_MAPPING_RX) | defined(BOARD_ST_SERIAL_PIN_MAPPING_TX)
+#error "This board does not support HW serial pin mapping! [ disable BOARD_ST_SERIAL_PIN_MAPPING_RX, BOARD_ST_SERIAL_PIN_MAPPING_TX ]"
+#endif

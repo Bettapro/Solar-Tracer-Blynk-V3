@@ -21,3 +21,9 @@
 #define MAX485_RE_NEG 18
 #endif
 
+
+
+// removes the intellisens error for setenv,tzset
+// see: https://community.platformio.org/t/identifier-is-undefined-setenv-tzset/16162
+_VOID _EXFUN(tzset, (_VOID));
+int _EXFUN(setenv, (const char *__string, const char *__value, int __overwrite));

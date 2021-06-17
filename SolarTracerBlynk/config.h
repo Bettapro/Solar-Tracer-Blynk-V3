@@ -34,6 +34,11 @@
   // specify the baudrate to use (leave commented to use the correct based on you solar tracer)
   //#define BOARD_ST_SERIAL_STREAM_BAUDRATE 115200 
 
+  // specify your rx pin
+  //#define BOARD_ST_SERIAL_PIN_MAPPING_RX 16
+  // specify your tx pin
+  //#define BOARD_ST_SERIAL_PIN_MAPPING_TX 17
+
   #define USE_SERIAL_MAX485
   #ifdef USE_SERIAL_MAX485
     // specify the pin num. connected to DE
