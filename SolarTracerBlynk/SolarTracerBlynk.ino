@@ -15,10 +15,9 @@
 _VOID _EXFUN(tzset, (_VOID));
 int _EXFUN(setenv, (const char *__string, const char *__value, int __overwrite));
 
-int timerTask1, timerTask2, timerTask3;
-
 SolarTracer *thisController;
-SimpleTimer timer;
+
+BlynkTimer timer;
 
 // ****************************************************************************
 // SETUP and LOOP
@@ -186,11 +185,11 @@ void setup()
   BOARD_DEBUG_SERIAL_STREAM.println("Starting timed actions...");
 
   // periodically refresh tracer values
-  timerTask1 = timer.setInterval(CONTROLLER_UPDATE_MS_PERIOD, updateSolarController);
+  timer.setInterval(CONTROLLER_UPDATE_MS_PERIOD, updateSolarController);
   // periodically send STATS all value to blynk
-  timerTask2 = timer.setInterval(BLINK_SYNC_STATS_MS_PERIOD, uploadStatsToBlynk);
+  timer.setInterval(BLINK_SYNC_STATS_MS_PERIOD, uploadStatsToBlynk);
   // periodically send REALTIME  value to blynk
-  timerTask3 = timer.setInterval(BLINK_SYNC_REALTIME_MS_PERIOD, uploadRealtimeToBlynk);
+  timer.setInterval(BLINK_SYNC_REALTIME_MS_PERIOD, uploadRealtimeToBlynk);
 
   BOARD_DEBUG_SERIAL_STREAM.println("SETUP OK!");
   BOARD_DEBUG_SERIAL_STREAM.println("----------------------------");
