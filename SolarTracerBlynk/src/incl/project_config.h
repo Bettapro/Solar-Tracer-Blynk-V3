@@ -5,16 +5,16 @@
 /**
  *  Main defs
  */
-#include "incl/solartracer_all.h"
-#include "incl/communication_protocol_all.h"
-#include "incl/status_all.h"
+#include "solartracer_all.h"
+#include "communication_protocol_all.h"
+#include "status_all.h"
 
 /**
  * Include user + board + solar tracer configs
  */
-#include "config.h"
-#include "board/board_config.h"
-#include "solartracer/solartracer_config.h"
+#include "../../config.h"
+#include "../board/board_config.h"
+#include "../solartracer/solartracer_config.h"
 
 
 // reducing Blynk footprint
@@ -42,4 +42,4 @@
 #endif
 
 
-#include "solartracer/SolarTracer.h"
+#include "../solartracer/SolarTracer.h"

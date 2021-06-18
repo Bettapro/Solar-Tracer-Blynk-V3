@@ -7,8 +7,8 @@
 // With modifications by @bettapro
 //
 
-#include "incl/project_config.h"
-#include "incl/variables_contains.h"
+#include "src/incl/project_config.h"
+#include "src/incl/variables_contains.h"
 
 SolarTracer *thisController;
 
@@ -37,76 +37,8 @@ void getTimeFromServer()
 }
 #endif
 
-// --------------------------------------------------------------------------------
-// BLYNK CALLBACKS
-
-#ifdef vPIN_LOAD_ENABLED
-BLYNK_WRITE(vPIN_LOAD_ENABLED)
-{
-  uint8_t newState = (uint8_t)param.asInt();
-
-  BOARD_DEBUG_SERIAL_STREAM.print("Setting load state output coil to value: ");
-  BOARD_DEBUG_SERIAL_STREAM.println(newState);
-
-  if (thisController->writeBoolValue(SolarTracerVariables::LOAD_MANUAL_ONOFF,
-                                     newState > 0))
-  {
-    BOARD_DEBUG_SERIAL_STREAM.println("Write & Read suceeded.");
-  }
-  else
-  {
-    BOARD_DEBUG_SERIAL_STREAM.println("Write & Read failed.");
-  }
-  thisController->fetchValue(SolarTracerVariables::LOAD_MANUAL_ONOFF);
-
-  BOARD_DEBUG_SERIAL_STREAM.println("Uploading results to Blynk.");
-
-  uploadRealtimeToBlynk();
-}
-#endif
-
-#ifdef vPIN_CHARGE_DEVICE_ENABLED
-BLYNK_WRITE(vPIN_CHARGE_DEVICE_ENABLED)
-{
-  uint8_t newState = (uint8_t)param.asInt();
-
-  BOARD_DEBUG_SERIAL_STREAM.print("Setting load state output coil to value: ");
-  BOARD_DEBUG_SERIAL_STREAM.println(newState);
-
-  if (thisController->writeBoolValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF,
-                                     newState > 0))
-  {
-    BOARD_DEBUG_SERIAL_STREAM.println("Write & Read suceeded.");
-  }
-  else
-  {
-    BOARD_DEBUG_SERIAL_STREAM.println("Write & Read failed.");
-  }
-  thisController->fetchValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF);
-
-  BOARD_DEBUG_SERIAL_STREAM.println("Uploading results to Blynk.");
-
-  uploadRealtimeToBlynk();
-}
-#endif
-
-// --------------------------------------------------------------------------------
-// SOLAR TRACER SETUP
-
-void updateSolarController()
-{
-
-  if (thisController->updateRun())
-  {
-    BOARD_DEBUG_SERIAL_STREAM.println("Update Solar-Tracer SUCCESS!");
-    clearStatusError(STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION);
-  }
-  else
-  {
-    BOARD_DEBUG_SERIAL_STREAM.println("Update Solar-Tracer FAILED!");
-    setStatusError(STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION);
-  }
-}
+//---------------------------------------------------------------------------------
+// BLYNK UPLOAD/SYNC FUNCTIONS
 
 // upload values realtime
 void uploadRealtimeToBlynk()
@@ -183,6 +115,79 @@ void uploadStatsToBlynk()
     clearStatusError(STATUS_ERR_SOLAR_TRACER_NO_SYNC_ST);
   }
 }
+
+
+// --------------------------------------------------------------------------------
+// BLYNK CALLBACKS
+
+#ifdef vPIN_LOAD_ENABLED
+BLYNK_WRITE(vPIN_LOAD_ENABLED)
+{
+  uint8_t newState = (uint8_t)param.asInt();
+
+  BOARD_DEBUG_SERIAL_STREAM.print("Setting load state output coil to value: ");
+  BOARD_DEBUG_SERIAL_STREAM.println(newState);
+
+  if (thisController->writeBoolValue(SolarTracerVariables::LOAD_MANUAL_ONOFF,
+                                     newState > 0))
+  {
+    BOARD_DEBUG_SERIAL_STREAM.println("Write & Read suceeded.");
+  }
+  else
+  {
+    BOARD_DEBUG_SERIAL_STREAM.println("Write & Read failed.");
+  }
+  thisController->fetchValue(SolarTracerVariables::LOAD_MANUAL_ONOFF);
+
+  BOARD_DEBUG_SERIAL_STREAM.println("Uploading results to Blynk.");
+
+  uploadRealtimeToBlynk();
+}
+#endif
+
+#ifdef vPIN_CHARGE_DEVICE_ENABLED
+BLYNK_WRITE(vPIN_CHARGE_DEVICE_ENABLED)
+{
+  uint8_t newState = (uint8_t)param.asInt();
+
+  BOARD_DEBUG_SERIAL_STREAM.print("Setting load state output coil to value: ");
+  BOARD_DEBUG_SERIAL_STREAM.println(newState);
+
+  if (thisController->writeBoolValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF,
+                                     newState > 0))
+  {
+    BOARD_DEBUG_SERIAL_STREAM.println("Write & Read suceeded.");
+  }
+  else
+  {
+    BOARD_DEBUG_SERIAL_STREAM.println("Write & Read failed.");
+  }
+  thisController->fetchValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF);
+
+  BOARD_DEBUG_SERIAL_STREAM.println("Uploading results to Blynk.");
+
+  uploadRealtimeToBlynk();
+}
+#endif
+
+// --------------------------------------------------------------------------------
+// SOLAR TRACER SETUP
+
+void updateSolarController()
+{
+
+  if (thisController->updateRun())
+  {
+    BOARD_DEBUG_SERIAL_STREAM.println("Update Solar-Tracer SUCCESS!");
+    clearStatusError(STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION);
+  }
+  else
+  {
+    BOARD_DEBUG_SERIAL_STREAM.println("Update Solar-Tracer FAILED!");
+    setStatusError(STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION);
+  }
+}
+
 
 void setStatusError(uint8_t status)
 {

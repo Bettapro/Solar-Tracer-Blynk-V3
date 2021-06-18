@@ -1,10 +1,10 @@
+#ifndef EPEVERSolarTracer_h
+#define EPEVERSolarTracer_h
+
 #include <ModbusMaster_obj.h>
 #include <ModbusMasterCallable.h>
 #include "../SolarTracer.h"
 
-
-#ifndef EPEVERSolarTracer_h
-#define EPEVERSolarTracer_h
 
 class EPEVERSolarTracer : public SolarTracer, public ModbusMasterCallable {
   public:
@@ -87,5 +87,7 @@ class EPEVERSolarTracer : public SolarTracer, public ModbusMasterCallable {
     static const uint16_t MODBUS_ADDRESS_REMOTE_BATTERY_TEMP =    0x311B;
     static const uint16_t MODBUS_ADDRESS_REALTIME_CLOCK =    0x9013;
 };
+
+
 
 #endif

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "incl/project_config.h"
+#include "project_config.h"
 
 
 struct blynkSolarVariableMap{

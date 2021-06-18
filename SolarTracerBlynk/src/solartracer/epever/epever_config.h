@@ -24,7 +24,7 @@
 
 
 
-#include "solartracer/epever/EPEVERSolarTracer.h"
+#include "EPEVERSolarTracer.h"
 #ifdef USE_SERIAL_MAX485
     #define SOLAR_TRACER_INSTANCE EPEVERSolarTracer(BOARD_ST_SERIAL_STREAM, MODBUS_SLAVE_ID, MAX485_DE, MAX485_RE_NEG)
 #else
