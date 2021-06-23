@@ -65,7 +65,7 @@ Some details about some specific implementations:
 
 > I plan to add a default configs to make the setup easier
 > I'd make the values optional (you can choose the values to monitor)
-> I'd use external current sensor to measure high current absorbtion
+> I'd use external current sensor to measure high current absorption
 
 You are welcome for suggestions, bugreports, and of course any further improvements of this code.
 

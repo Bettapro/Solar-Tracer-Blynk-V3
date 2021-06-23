@@ -131,7 +131,7 @@ BLYNK_WRITE(vPIN_LOAD_ENABLED)
   if (thisController->writeBoolValue(SolarTracerVariables::LOAD_MANUAL_ONOFF,
                                      newState > 0))
   {
-    BOARD_DEBUG_SERIAL_STREAM.println("Write & Read suceeded.");
+    BOARD_DEBUG_SERIAL_STREAM.println("Write & Read succeeded.");
   }
   else
   {
@@ -156,7 +156,7 @@ BLYNK_WRITE(vPIN_CHARGE_DEVICE_ENABLED)
   if (thisController->writeBoolValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF,
                                      newState > 0))
   {
-    BOARD_DEBUG_SERIAL_STREAM.println("Write & Read suceeded.");
+    BOARD_DEBUG_SERIAL_STREAM.println("Write & Read succeeded.");
   }
   else
   {

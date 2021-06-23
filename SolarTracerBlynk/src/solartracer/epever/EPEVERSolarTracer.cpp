@@ -22,7 +22,7 @@ EPEVERSolarTracer::EPEVERSolarTracer(Stream &SerialCom, uint8_t slave)
 {
   this->node.begin(slave, SerialCom);
 
-  // won't be used as it's not registering to trasmission callback
+  // won't be used as it's not registering to transmission callback
   this->max485_re_neg = this->max485_de = 0;
 
   this->rs485readSuccess = true;
