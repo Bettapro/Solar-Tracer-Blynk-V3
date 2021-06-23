@@ -1,12 +1,14 @@
 name: Compile Arduino
 
-# Controls when the action will run. 
 on:
-  # Triggers the workflow on push or pull request events but only for the v3.x.x branch
   push:
-    branches: [ v3.x.x ]
+    paths:
+      - ".github/workflows/compile-arduino.yml"
+      - "SolarTracerBlynk/**"
   pull_request:
-    branches: [ v3.x.x ]
+    paths:
+      - ".github/workflows/compile-arduino.yml"
+      - "SolarTracerBlynk/**"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -17,17 +19,38 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    
+    env:
+      # libraries to install for all boards
+      shared_libraries: |
+        - name: ArduinoOTA
+        - name : WiFi
+        - name: Blynk
+          version: 1.0.0
+        - source-url : https://github.com/Bettapro/ModbusMaster.git
+      # sketch paths to compile (recursive) for all boards
+      sketch_paths: |
+        - SolarTracerBlynk
   
     strategy:
     
 
       matrix:
         board:
+          - fqbn: esp8266:esp8266:esp8266
+            type: esp8266
           - fqbn: esp32:esp32:esp32
             type: esp32
             
 
         include:
+          # ESP8266 boards
+          - board:
+              type: esp8266
+            platforms: |
+              - name: esp8266:esp8266
+                source-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
+            libraries:
           # ESP32 boards
           - board:
               type: esp32
@@ -37,20 +60,28 @@ jobs:
             libraries:
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: arduino/compile-sketches@v1
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Compile Sketches
+        uses: arduino/compile-sketches@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           platforms: ${{ matrix.platforms }}
           fqbn: ${{ matrix.board.fqbn }}
           sketch-paths: |
-             - SolarTracerBlynk
+            ${{ env.sketch_paths }}
           libraries: |
-            - name: ArduinoOTA
-            - name : WiFi
-            - name: Blynk
-              version: 1.0.0
-            - source-url : https://github.com/Bettapro/ModbusMaster.git
+            ${{ env.shared_libraries }}
+            ${{ matrix.libraries }}
+      - name: Report Arduino Sketch Size Deltas
+        # You may pin to the exact commit or the version.
+        # uses: arduino/report-size-deltas@a4d949978b5bb0c2c3fe6147b345d5bb8fa3f4fe
+        uses: arduino/report-size-deltas@v1.0.0
+        with:
+          # When run from scheduled workflow, name of the workflow artifact that contains sketches reports. When run from a pull request triggered workflow, path to the folder containing sketches reports.
+          sketches-reports-source: # optional, default is sketches-reports
+          # GitHub access token used to comment the memory usage comparison results to the PR thread
+          github-token: ${{ secrets.GITHUB_TOKEN }}
             
          
               
