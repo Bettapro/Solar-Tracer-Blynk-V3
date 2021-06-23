@@ -33,16 +33,13 @@ jobs:
         - SolarTracerBlynk
   
     strategy:
-    
-
       matrix:
         board:
-          - fqbn: esp8266:esp8266:esp8266
+          - fqbn: esp8266:esp8266:arduino-esp8266
             type: esp8266
           - fqbn: esp32:esp32:esp32
             type: esp32
             
-
         include:
           # ESP8266 boards
           - board:
@@ -73,13 +70,13 @@ jobs:
           libraries: |
             ${{ env.shared_libraries }}
             ${{ matrix.libraries }}
+          enable-deltas-report: "true"
+          sketches-report-path: sketches-reports
       - name: Report Arduino Sketch Size Deltas
-        # You may pin to the exact commit or the version.
-        # uses: arduino/report-size-deltas@a4d949978b5bb0c2c3fe6147b345d5bb8fa3f4fe
         uses: arduino/report-size-deltas@v1.0.0
         with:
           # When run from scheduled workflow, name of the workflow artifact that contains sketches reports. When run from a pull request triggered workflow, path to the folder containing sketches reports.
-          sketches-reports-source: # optional, default is sketches-reports
+          sketches-reports-source: sketches-reports
           # GitHub access token used to comment the memory usage comparison results to the PR thread
           github-token: ${{ secrets.GITHUB_TOKEN }}
             
