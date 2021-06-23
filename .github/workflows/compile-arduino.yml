@@ -35,7 +35,6 @@ jobs:
               - name: esp32:esp32
                 source-url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
             libraries:
-            sketch-paths:
 
     steps:
       - uses: actions/checkout@v2
@@ -44,12 +43,16 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           platforms: ${{ matrix.platforms }}
           fqbn: ${{ matrix.board.fqbn }}
+          sketch-paths: |
+             - SolarTracerBlynk
           libraries: |
             - name: ArduinoOTA
             - name : WiFi
             - name: Blynk
               version: 1.0.0
             - source-url : https://github.com/Bettapro/ModbusMaster.git
+            
+         
               
               
 
