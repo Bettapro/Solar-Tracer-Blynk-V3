@@ -19,18 +19,31 @@ jobs:
     runs-on: ubuntu-latest
   
     strategy:
+    
+
       matrix:
-        fqbn:
-          - esp32:esp32:esp32
+        board:
+          - fqbn: esp32:esp32:esp32
+            type: esp32
+            
+
+        include:
+          # ESP32 boards
+          - board:
+              type: esp32
+            platforms: |
+              - name: esp32:esp32
+                source-url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+            libraries:
+            sketch-paths:
+
     steps:
       - uses: actions/checkout@v2
       - uses: arduino/compile-sketches@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          fqbn: ${{ matrix.fqbn }}
-      - uses: arduino/compile-sketches@v1
-        with:
-          fqbn: 'esp32:esp32:esp32'
+          platforms: ${{ matrix.platforms }}
+          fqbn: ${{ matrix.board.fqbn }}
           libraries: |
             - name: ArduinoOTA
             - name : WiFi
