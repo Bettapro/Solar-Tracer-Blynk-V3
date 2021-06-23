@@ -14,11 +14,11 @@
 
 
 #if defined(USE_SERIAL_MAX485) && !defined(MAX485_DE)
-#define MAX485_DE D1
+#define MAX485_DE 5
 #endif
 
 #if defined(USE_SERIAL_MAX485) && !defined(MAX485_RE_NEG)
-#define MAX485_RE_NEG D1
+#define MAX485_RE_NEG 5
 #endif
 
 #if defined(BOARD_ST_SERIAL_PIN_MAPPING_RX) | defined(BOARD_ST_SERIAL_PIN_MAPPING_TX)
