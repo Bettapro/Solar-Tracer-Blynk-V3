@@ -1,0 +1,88 @@
+name: Compile Arduino
+
+on:
+  push:
+    paths:
+      - ".github/workflows/compile-arduino.yml"
+      - "SolarTracerBlynk/**"
+  pull_request:
+    paths:
+      - ".github/workflows/compile-arduino.yml"
+      - "SolarTracerBlynk/**"
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    
+    env:
+      # libraries to install for all boards
+      shared_libraries: |
+        - name: ArduinoOTA
+        - name : WiFi
+        - name: Blynk
+          version: 1.0.0
+        - source-url : https://github.com/Bettapro/ModbusMaster.git
+      # sketch paths to compile (recursive) for all boards
+      sketch_paths: |
+        - SolarTracerBlynk
+  
+    strategy:
+      matrix:
+        board:
+          - fqbn: esp8266:esp8266:arduino-esp8266
+            type: esp8266
+          - fqbn: esp32:esp32:esp32
+            type: esp32
+            
+        include:
+          # ESP8266 boards
+          - board:
+              type: esp8266
+            platforms: |
+              - name: esp8266:esp8266
+                source-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
+            libraries:
+          # ESP32 boards
+          - board:
+              type: esp32
+            platforms: |
+              - name: esp32:esp32
+                source-url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+            libraries:
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Compile Sketches
+        uses: arduino/compile-sketches@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          platforms: ${{ matrix.platforms }}
+          fqbn: ${{ matrix.board.fqbn }}
+          sketch-paths: |
+            ${{ env.sketch_paths }}
+          libraries: |
+            ${{ env.shared_libraries }}
+            ${{ matrix.libraries }}
+          enable-deltas-report: "true"
+          sketches-report-path: sketches-reports
+      - name: Report Arduino Sketch Size Deltas
+        uses: arduino/report-size-deltas@v1.0.0
+        with:
+          # When run from scheduled workflow, name of the workflow artifact that contains sketches reports. When run from a pull request triggered workflow, path to the folder containing sketches reports.
+          sketches-reports-source: sketches-reports
+          # GitHub access token used to comment the memory usage comparison results to the PR thread
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+            
+         
+              
+              
+
+          
+          
