@@ -1,6 +1,10 @@
 
 # Solar-tracer-Blynk-V3 
 
+[![Compile Arduino](https://github.com/Bettapro/Solar-Tracer-Blynk-V3/actions/workflows/compile-arduino.yml/badge.svg)](https://github.com/Bettapro/Solar-Tracer-Blynk-V3/actions/workflows/compile-arduino.yml)
+[![Spell Check](https://github.com/Bettapro/Solar-Tracer-Blynk-V3/actions/workflows/spell-check.yml/badge.svg)](https://github.com/Bettapro/Solar-Tracer-Blynk-V3/actions/workflows/spell-check.yml)
+
+
 ### An Arduino project to connect one MPPT Solar Controllers to an `ESP8266/ESP32` and monitor it using the `Blynk` mobile app!
 
 You can take a look to the previous version of this software:
