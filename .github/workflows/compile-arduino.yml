@@ -1,0 +1,44 @@
+name: Compile Arduino
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the v3.x.x branch
+  push:
+    branches: [ v3.x.x ]
+  pull_request:
+    branches: [ v3.x.x ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+  
+    strategy:
+      matrix:
+        fqbn:
+          - esp32:esp32:esp32
+    steps:
+      - uses: actions/checkout@v2
+      - uses: arduino/compile-sketches@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          fqbn: ${{ matrix.fqbn }}
+      - uses: arduino/compile-sketches@v1
+        with:
+          fqbn: 'esp32:esp32:esp32'
+          libraries: |
+            - name: ArduinoOTA
+            - name : WiFi
+            - name: Blynk
+              version: 1.0.0
+            - source-url : https://github.com/Bettapro/ModbusMaster.git
+              
+              
+
+          
+          
