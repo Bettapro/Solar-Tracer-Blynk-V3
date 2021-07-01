@@ -37,9 +37,28 @@
     #include <BlynkSimpleEsp8266.h>
 #endif
 
+
+
+
+#include "../incl/variables_contains.h"
+
+#ifdef USE_STATUS_LED
+#include "../feature/status_led.h"
+#endif
+
+#include "../core/status.h"
+#include "../core/debug.h"
+#include "../core/timer.h"
+#include "../core/controller.h"
+
+
+
 #ifdef USE_OTA_UPDATE
 #include <ArduinoOTA.h>
+#include "../feature/arduino_ota.h"
 #endif
+#include "../feature/blynk_sync.h"
+
 
 
 #include "../solartracer/SolarTracer.h"
