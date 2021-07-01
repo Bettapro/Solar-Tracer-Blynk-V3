@@ -134,7 +134,7 @@ void setup()
 
   debugPrint("ArduinoOTA running. ");
   debugPrint("IP address: ");
-  debugPrintln(WiFi.localIP());
+  debugPrintln(WiFi.localIP().toString());
 #endif
 
   debugPrintln(" ++ Setting up solar tracer:");
