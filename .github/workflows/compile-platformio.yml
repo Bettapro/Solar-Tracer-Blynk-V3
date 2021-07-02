@@ -23,7 +23,7 @@ jobs:
       matrix:
         test-platform:
         # Base Environments
-        - esp32
+        - esp32dev
         - esp8266
         
     steps:
@@ -57,7 +57,7 @@ jobs:
 
     - name: Run ${{ matrix.test-platform }} Tests
       run: |
-        make tests-single-ci TEST_TARGET=${{ matrix.test-platform }}
+        pio run -e ${{ matrix.test-platform }}
             
          
               
