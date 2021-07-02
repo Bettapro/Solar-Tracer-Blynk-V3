@@ -2,6 +2,7 @@
 # Solar-tracer-Blynk-V3 
 
 [![Compile Arduino](https://github.com/Bettapro/Solar-Tracer-Blynk-V3/actions/workflows/compile-arduino.yml/badge.svg)](https://github.com/Bettapro/Solar-Tracer-Blynk-V3/actions/workflows/compile-arduino.yml)
+[![Compile Platformio](https://github.com/Bettapro/Solar-Tracer-Blynk-V3/actions/workflows/compile-platformio.yml/badge.svg)](https://github.com/Bettapro/Solar-Tracer-Blynk-V3/actions/workflows/compile-platformio.yml)
 [![Spell Check](https://github.com/Bettapro/Solar-Tracer-Blynk-V3/actions/workflows/spell-check.yml/badge.svg)](https://github.com/Bettapro/Solar-Tracer-Blynk-V3/actions/workflows/spell-check.yml)
 
 
