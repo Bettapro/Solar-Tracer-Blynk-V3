@@ -16,10 +16,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
- test_builds:
-    name: Run All Tests
-    if: github.repository == 'MarlinFirmware/Marlin'
-
+ builds:
     runs-on: ubuntu-latest
 
     strategy:
@@ -28,10 +25,8 @@ jobs:
         # Base Environments
         - esp32
         - esp8266
- 
-
-   steps:
-
+        
+    steps:
     - name: Check out the PR
       uses: actions/checkout@v2
 
