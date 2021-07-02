@@ -1,0 +1,68 @@
+name: Compile Platformio
+
+on:
+  push:
+    paths:
+      - ".github/workflows/compile-arduino.yml"
+      - "SolarTracerBlynk/**"
+  pull_request:
+    paths:
+      - ".github/workflows/compile-arduino.yml"
+      - "SolarTracerBlynk/**"
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+ test_builds:
+    name: Run All Tests
+    if: github.repository == 'MarlinFirmware/Marlin'
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        test-platform:
+        # Base Environments
+        - esp32
+        - esp8266
+ 
+
+   steps:
+
+    - name: Check out the PR
+      uses: actions/checkout@v2
+
+    - name: Cache pip
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Cache PlatformIO
+      uses: actions/cache@v2
+      with:
+        path: ~/.platformio
+        key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
+
+    - name: Select Python 3.7
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.7' # Version range or exact version of a Python version to use, using semvers version range syntax.
+        architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
+
+    - name: Install PlatformIO
+      run: |
+        pip install -U https://github.com/platformio/platformio-core/archive/develop.zip
+        platformio update
+
+    - name: Run ${{ matrix.test-platform }} Tests
+      run: |
+        make tests-single-ci TEST_TARGET=${{ matrix.test-platform }}
+            
+         
+              
