@@ -66,12 +66,9 @@ void setup()
   debugPrintln("Connecting...");
 
   WiFi.mode(WIFI_STA);
+  WiFi.setAutoReconnect(true);
 
-#ifdef USE_BLYNK_LOCAL_SERVER
-  Blynk.begin(BLYNK_AUTH, WIFI_SSID, WIFI_PASS, BLYNK_SERVER, BLYNK_PORT);
-#else
-  Blynk.begin(BLYNK_AUTH, WIFI_SSID, WIFI_PASS);
-#endif
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
 
   while (WiFi.waitForConnectResult() != WL_CONNECTED)
   {
@@ -118,6 +115,12 @@ void setup()
 
   debugPrintln(" ++ Setting up Blynk:");
   debugPrint("Connecting...");
+
+#ifdef USE_BLYNK_LOCAL_SERVER
+  Blynk.config(BLYNK_AUTH, BLYNK_SERVER, BLYNK_PORT);
+#else
+  Blynk.config(BLYNK_AUTH);
+#endif
 
   while (!Blynk.connect())
   {
