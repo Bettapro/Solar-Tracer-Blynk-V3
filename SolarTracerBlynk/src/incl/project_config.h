@@ -9,6 +9,8 @@
 #include "communication_protocol_all.h"
 #include "status_all.h"
 
+#
+
 /**
  * Include user + board + solar tracer configs
  */
@@ -27,14 +29,22 @@
     #define USE_WIFI_NINA false
     #define USE_WIFI101 false
     #include <WiFi.h>
-    #include <BlynkSimpleEsp32.h>
+    #ifdef USE_UBIDOTS
+        #include <SimpleTimer.h>
+        #include <Ubidots.h>
+    #endif
+    #ifdef USE_BLYNK
+        #include <BlynkSimpleEsp32.h>
+    #endif
 #elif defined ESP8266
     #include <ESP8266WiFi.h>
     #include <DNSServer.h>
     #include <ESP8266WebServer.h>
     #include <ESP8266mDNS.h>
     #include <WiFiUdp.h>
-    #include <BlynkSimpleEsp8266.h>
+    #ifdef USE_BLYNK
+        #include <BlynkSimpleEsp8266.h>
+     #endif
 #endif
 
 
@@ -53,11 +63,19 @@
 
 
 
+
 #ifdef USE_OTA_UPDATE
 #include <ArduinoOTA.h>
 #include "../feature/arduino_ota.h"
 #endif
-#include "../feature/blynk_sync.h"
+
+#ifdef USE_UBIDOTS
+    #include "../feature/ubidots_sync.h"
+#endif
+#ifdef USE_BLYNK
+    #include "../feature/blynk_sync.h"
+#endif
+
 
 
 

@@ -3,4 +3,12 @@
 
 #include "../incl/project_config.h"
 
-BlynkTimer* mainTimer = new BlynkTimer();
+#ifdef USE_BLYNK
+    BlynkTimer* mainTimer = new BlynkTimer();
+#else
+    SimpleTimer * mainTimer = new SimpleTimer();
+#endif
+
+void setTimerInterval(){
+    
+}

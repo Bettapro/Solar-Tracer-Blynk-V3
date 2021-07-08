@@ -4,7 +4,12 @@
 
 
 struct blynkSolarVariableMap{
-    uint8_t virtualPin;
+#ifdef USE_BLYNK
+  uint8_t virtualPin;
+#elif defined USE_UBIDOTS
+  char* virtualPin;
+#endif
+    
     SolarTracerVariables solarVariable;
 };
 

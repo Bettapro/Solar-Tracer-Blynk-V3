@@ -1,9 +1,27 @@
- #pragma once
- #include "../incl/project_config.h"
+#pragma once
+#include "../incl/project_config.h"
 
- extern SolarTracer* thisController;
+extern SolarTracer *thisController;
 
- // upload values stats
+void blynkSetup()
+{
+#ifdef USE_BLYNK_LOCAL_SERVER
+  Blynk.config(BLYNK_AUTH, BLYNK_SERVER, BLYNK_PORT);
+#else
+  Blynk.config(BLYNK_AUTH);
+#endif
+ debugPrintln(" ++ Setting up Blynk:");
+  debugPrint("Connecting...");
+
+  while (!Blynk.connect())
+  {
+    debugPrint(".");
+    delay(100);
+  }
+
+}
+
+// upload values stats
 void uploadStatsToBlynk()
 {
   bool varNotReady = false;
@@ -39,7 +57,7 @@ void uploadStatsToBlynk()
   }
 }
 
- // upload values realtime
+// upload values realtime
 void uploadRealtimeToBlynk()
 {
 #ifdef vPIN_INTERNAL_STATUS
@@ -78,7 +96,6 @@ void uploadRealtimeToBlynk()
     clearStatusError(STATUS_ERR_SOLAR_TRACER_NO_SYNC_RT);
   }
 }
-
 
 #ifdef vPIN_LOAD_ENABLED
 BLYNK_WRITE(vPIN_LOAD_ENABLED)

@@ -9,8 +9,7 @@
 
 #include "src/incl/project_config.h"
 
-
-extern SimpleTimer* mainTimer;
+extern SimpleTimer *mainTimer;
 
 // -------------------------------------------------------------------------------
 // MISC
@@ -29,13 +28,29 @@ void getTimeFromServer()
 }
 #endif
 
+void uploadRealtimeAll()
+{
+#ifdef USE_UBIDOTS
+  uploadRealtimeToUbidots();
+#endif
+  //uploadRealtimeToBlynk();
+}
+void uploadStatsAll()
+{
+#ifdef USE_UBIDOTS
+  uploadStatsToUbidots();
+#endif
+  //uploadStatsToBlynk();
+}
 
 // ****************************************************************************
 // SETUP and LOOP
 
 void loop()
 {
+#ifdef USE_BLYNK
   Blynk.run();
+#endif
 #ifdef USE_OTA_UPDATE
   ArduinoOTA.handle();
 #endif
@@ -66,12 +81,9 @@ void setup()
   debugPrintln("Connecting...");
 
   WiFi.mode(WIFI_STA);
+  WiFi.setAutoConnect(true);
 
-#ifdef USE_BLYNK_LOCAL_SERVER
-  Blynk.begin(BLYNK_AUTH, WIFI_SSID, WIFI_PASS, BLYNK_SERVER, BLYNK_PORT);
-#else
-  Blynk.begin(BLYNK_AUTH, WIFI_SSID, WIFI_PASS);
-#endif
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
 
   while (WiFi.waitForConnectResult() != WL_CONNECTED)
   {
@@ -81,11 +93,16 @@ void setup()
   }
   debugPrintln("Connected.");
 
+#ifdef USE_UBIDOTS
+  ubidotsSetup();
+#endif
+  //blynkSetup();
+
 #ifdef USE_NTP_SERVER
   debugPrintln(" ++ Setting up Local Time:");
   debugPrint("Waiting for NTP time...");
-  configTime(0, 0, NTP_SERVER);
-  setenv("TZ", TIMEZONE, 3);
+  configTime(0, 0, NTP_SERVER_CONNECT_TO);
+  setenv("TZ", CURRENT_TIMEZONE, 3);
   tzset();
 
   while (time(nullptr) < 100000ul)
@@ -116,21 +133,11 @@ void setup()
 
 #endif
 
-  debugPrintln(" ++ Setting up Blynk:");
-  debugPrint("Connecting...");
-
-  while (!Blynk.connect())
-  {
-    debugPrint(".");
-    delay(100);
-  }
-
   debugPrintln();
   debugPrintln("Connected to Blynk.");
 
 #ifdef USE_OTA_UPDATE
   arduinoOtaSetup();
-  
 
   debugPrint("ArduinoOTA running. ");
   debugPrint("IP address: ");
@@ -147,8 +154,8 @@ void setup()
   thisController->fetchAllValues();
   delay(1000);
   debugPrintln("Send updates to Blynk");
-  uploadRealtimeToBlynk();
-  uploadStatsToBlynk();
+  uploadRealtimeAll();
+  uploadStatsAll();
   delay(1000);
 
   debugPrintln("Starting timed actions...");
@@ -156,9 +163,9 @@ void setup()
   // periodically refresh tracer values
   mainTimer->setInterval(CONTROLLER_UPDATE_MS_PERIOD, updateSolarController);
   // periodically send STATS all value to blynk
-  mainTimer->setInterval(BLINK_SYNC_STATS_MS_PERIOD, uploadStatsToBlynk);
+  mainTimer->setInterval(SYNC_STATS_MS_PERIOD, uploadStatsAll);
   // periodically send REALTIME  value to blynk
-  mainTimer->setInterval(BLINK_SYNC_REALTIME_MS_PERIOD, uploadRealtimeToBlynk);
+  mainTimer->setInterval(SYNC_REALTIME_MS_PERIOD, uploadRealtimeAll);
 
   debugPrintln("SETUP OK!");
   debugPrintln("----------------------------");
