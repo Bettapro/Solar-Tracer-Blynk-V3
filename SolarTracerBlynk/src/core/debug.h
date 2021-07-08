@@ -30,6 +30,16 @@ void debugPrint(const char *msgChar)
     BOARD_DEBUG_SERIAL_STREAM.print(msgChar);
 }
 
+void debugPrintln(const int num)
+{
+    BOARD_DEBUG_SERIAL_STREAM.println(num);
+}
+
+void debugPrint(const int num)
+{
+    BOARD_DEBUG_SERIAL_STREAM.print(num);
+}
+
 void debugPrintln(const unsigned char num)
 {
     BOARD_DEBUG_SERIAL_STREAM.println(num);
