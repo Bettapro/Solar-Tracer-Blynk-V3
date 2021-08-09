@@ -1,9 +1,9 @@
- #pragma once
- #include "../incl/project_config.h"
+#pragma once
+#include "../incl/project_config.h"
 
- extern SolarTracer* thisController;
+extern SolarTracer *thisController;
 
- // upload values stats
+// upload values stats
 void uploadStatsToBlynk()
 {
   bool varNotReady = false;
@@ -39,7 +39,7 @@ void uploadStatsToBlynk()
   }
 }
 
- // upload values realtime
+// upload values realtime
 void uploadRealtimeToBlynk()
 {
 #ifdef vPIN_INTERNAL_STATUS
@@ -79,7 +79,6 @@ void uploadRealtimeToBlynk()
   }
 }
 
-
 #ifdef vPIN_LOAD_ENABLED
 BLYNK_WRITE(vPIN_LOAD_ENABLED)
 {
@@ -111,5 +110,21 @@ BLYNK_WRITE(vPIN_CHARGE_DEVICE_ENABLED)
   }
   thisController->fetchValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF);
   uploadRealtimeToBlynk();
+}
+#endif
+
+#ifdef vPIN_UPDATE_ALL_CONTROLLER_DATA
+BLYNK_WRITE(vPIN_UPDATE_ALL_CONTROLLER_DATA)
+{
+  uint8_t newState = (uint8_t)param.asInt();
+  Blynk.virtualWrite(vPIN_UPDATE_ALL_CONTROLLER_DATA, newState);
+  if (newState > 0)
+  {
+    thisController->fetchAllValues();
+    uploadRealtimeToBlynk();
+    uploadStatsToBlynk();
+
+    Blynk.virtualWrite(vPIN_UPDATE_ALL_CONTROLLER_DATA, 0);
+  }
 }
 #endif

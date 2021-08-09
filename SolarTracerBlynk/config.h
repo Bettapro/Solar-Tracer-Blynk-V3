@@ -146,4 +146,6 @@
 #define vPIN_CHARGE_DEVICE_ENABLED                      V26
 // internal
 #define vPIN_INTERNAL_STATUS                            V27
+//action
+#define vPIN_UPDATE_ALL_CONTROLLER_DATA                 V28
 
