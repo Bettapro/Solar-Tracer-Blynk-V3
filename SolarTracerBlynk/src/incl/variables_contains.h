@@ -4,8 +4,8 @@
 
 
 struct blynkSolarVariableMap{
-    uint8_t virtualPin;
-    SolarTracerVariables solarVariable;
+  uint8_t virtualPin;
+  SolarTracerVariables solarVariable;
 };
 
 const blynkSolarVariableMap realTimeVirtualBlynkSolarVariables [] = {

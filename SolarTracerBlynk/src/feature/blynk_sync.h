@@ -3,6 +3,28 @@
 
 extern SolarTracer *thisController;
 
+void blynkSetup()
+{
+#ifdef USE_BLYNK_LOCAL_SERVER
+  Blynk.config(BLYNK_AUTH, BLYNK_SERVER, BLYNK_PORT);
+#else
+  Blynk.config(BLYNK_AUTH);
+#endif
+ debugPrintln(" ++ Setting up Blynk:");
+  debugPrint("Connecting...");
+
+  while (!Blynk.connect())
+  {
+    debugPrint(".");
+    delay(100);
+  }
+
+}
+
+void blynkLoop(){
+  Blynk.run();
+}
+
 // upload values stats
 void uploadStatsToBlynk()
 {

@@ -70,9 +70,9 @@
   // uncomment if the controller has to sync its time with the tracer at boot
   #define SYNC_ST_TIME
   // specify the preferred NTP server
-  #define NTP_SERVER "europe.pool.ntp.org"
+  #define NTP_SERVER_CONNECT_TO "europe.pool.ntp.org"
   // specify your timezone (refer to: https://sites.google.com/a/usapiens.com/opnode/time-zones )
-  #define TIMEZONE  "CET-1CEST-2,M3.5.0/02:00:00,M10.5.0/03:00:00"
+  #define CURRENT_TIMEZONE  "CET-1CEST-2,M3.5.0/02:00:00,M10.5.0/03:00:00"
 #endif
 
 
@@ -100,27 +100,34 @@
 #endif
 
 
+
+// How many ms between each realtime sync to blynk server
+#define SYNC_REALTIME_MS_PERIOD 2000L
+// How many ms between each stat sync to blynk server
+#define SYNC_STATS_MS_PERIOD 720000L
+
 /*
  * BLYNK
  * Specify how to connect to blynk server and when to sync the data from the tracer
  */
-// How many ms between each realtime sync to blynk server
-#define BLINK_SYNC_REALTIME_MS_PERIOD 2000L
-// How many ms between each stat sync to blynk server
-#define BLINK_SYNC_STATS_MS_PERIOD 720000L
+
 // Blynk API key
 #define BLYNK_AUTH "-blynk-aut-"
 
 // uncomment to us an user-defined blynk server
 //#define USE_BLYNK_LOCAL_SERVER
 #ifdef USE_BLYNK_LOCAL_SERVER
-	//address of blynk server (specify the hostname or the ip address eg: IPAddress(192, 168, 1, 78) )
-	#define BLYNK_SERVER                  ""
-	// port number of the blynk server (eg: 8080)
-	#define BLYNK_PORT                  8080
+  //address of blynk server (specify the hostname or the ip address eg: IPAddress(192, 168, 1, 78) )
+  #define BLYNK_SERVER                  ""
+  // port number of the blynk server (eg: 8080)
+  #define BLYNK_PORT                  8080
 #endif
 
+
+
 // virtual pins definition and mapping
+
+
 #define vPIN_PV_POWER                                   V1
 #define vPIN_PV_CURRENT                                 V2
 #define vPIN_PV_VOLTAGE                                 V3
