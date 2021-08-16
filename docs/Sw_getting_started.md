@@ -30,11 +30,11 @@ Open `SolarTracerBlynk\config.h`
 * Send yourself the generated auth code from the mobile app
 * Paste your auth code into `BLYNK_AUTH`
 
-You can customize further more modifing config.h (eg. status LED, ntp time sync, blynk serve ...), each option is documented on the config.h file.
-Please refer to the notes writtten on it.
+You can customize further more modifying config.h (eg. status LED, ntp time sync, blynk serve ...), each option is documented on the config.h file.
+Please refer to the notes written on it.
 
 
 ## 4. Edit `config.h` library
 Upload the sketch to your ESP8266 / ESP32, if you are using platformio you should edit `default_envs` accordingly (eg: *esp8266* to use a esp8266, *esp8266_ota* to update ESP8266 via OTA, *esp32dev* to use and ESP32, .... )
 
-Click PLAY on you mobile app, you should start receiving updates from yuor solar tracer!.
+Click PLAY on you mobile app, you should start receiving updates from your solar tracer!.
