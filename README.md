@@ -35,6 +35,13 @@ There is also a support forum on the Blynk community forums: http://community.bl
 
 ## Sample screenshot
 
+## V3
+![Realtime data screen v3](images/screenshot-blynk_v3_realtime.png)
+![Battery data screen v3](images/screenshot-blynk_v3_battery.png)
+![PV data screen v3](images/screenshot-blynk_v3_pv.png)
+![Settings screen v3](images/screenshot-blynk_v3_settings.png)
+
+## V2
 ![Live data on Blynk on Android screenshot](images/screenshot-blynk.png)
 
 
