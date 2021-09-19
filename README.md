@@ -66,9 +66,9 @@ Follow links to get them.
 
 Refer to [Sw_getting_started.md](docs/Sw_getting_started.md) 
 
-Some details about some specific implementations:
+Some details:
 - ESP8266 + MAX485 +  EPEVER Solar Tracer [HOW TO](docs/Esp8266_max485_epever_rj45.md)
-- ESP32 D1 MINI + MAX485 +  EPEVER Solar Tracer [HOW TO](docs/Esp32_d1_mini_max485_epever_rj45.md)
+- ESP32 + MAX485 +  EPEVER Solar Tracer [HOW TO](docs/Esp32_max485_epever_rj45.md)
 
 
 ## Reference
