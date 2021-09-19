@@ -19,6 +19,8 @@
  *
  */
 
+#include <time.h>
+
 #include "EPEVERSolarTracer.h"
 
 EPEVERSolarTracer::EPEVERSolarTracer(Stream &SerialCom, uint8_t slave, uint8_t max485_de, uint8_t max485_re_neg)
