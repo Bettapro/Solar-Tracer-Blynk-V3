@@ -27,9 +27,9 @@ extern SolarTracer *thisController;
 void blynkSetup()
 {
 #ifdef USE_BLYNK_LOCAL_SERVER
-  Blynk.config(BLYNK_AUTH, BLYNK_SERVER, BLYNK_PORT);
+  Blynk.config(envData.blynkAuth, envData.blynkServerHostname, envData.blynkServerPort);
 #else
-  Blynk.config(BLYNK_AUTH);
+  Blynk.config(envData.blynkAuth);
 #endif
  debugPrintln(" ++ Setting up Blynk:");
   debugPrint("Connecting...");
@@ -49,6 +49,11 @@ void blynkLoop(){
 // upload values stats
 void uploadStatsToBlynk()
 {
+  if(!Blynk.connected()){
+    setStatusError(STATUS_ERR_NO_BLYNK_CONNECTION);
+    return;
+  }
+  clearStatusError(STATUS_ERR_NO_BLYNK_CONNECTION);
   bool varNotReady = false;
   for (uint8_t index = 0; index < statVirtualBlynkSolarVariablesCount; index++)
   {
@@ -85,6 +90,12 @@ void uploadStatsToBlynk()
 // upload values realtime
 void uploadRealtimeToBlynk()
 {
+  if(!Blynk.connected()){
+    setStatusError(STATUS_ERR_NO_BLYNK_CONNECTION);
+    return;
+  }
+  clearStatusError(STATUS_ERR_NO_BLYNK_CONNECTION);
+
 #ifdef vPIN_INTERNAL_STATUS
   Blynk.virtualWrite(vPIN_INTERNAL_STATUS, internalStatus);
 #endif

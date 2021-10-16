@@ -23,6 +23,7 @@
 
 #include <Arduino.h>
 
+
 /**
  *  Main defs
  */
@@ -30,7 +31,6 @@
 #include "communication_protocol_all.h"
 #include "status_all.h"
 
-#
 
 /**
  * Include user + board + solar tracer configs
@@ -39,6 +39,7 @@
 #include "../board/board_config.h"
 #include "../solartracer/solartracer_config.h"
 
+#include "../core/environment.h"
 
 // reducing Blynk footprint
 #define BLYNK_NO_BUILTIN   // Disable built-in analog & digital pin operations
@@ -76,6 +77,12 @@
     #include "../feature/arduino_ota.h"
 #endif
 
+#if defined USE_WIFI_AP_CONFIGURATION
+    #include <WiFiManager.h> 
+    #include "../feature/wifi_manager.h"
+#endif
+
 #include "../feature/blynk_sync.h"
 
 #include "../solartracer/SolarTracer.h"
+

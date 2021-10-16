@@ -21,13 +21,35 @@
 
 #pragma once
 
-#define STATUS_ERR_SOLAR_TRACER_NO_SYNC_ST 1
-#define STATUS_ERR_SOLAR_TRACER_NO_SYNC_RT 2
-#define STATUS_ERR_SOLAR_TRACER_NO_SYNC 3
-#define STATUS_ERR_NO_CONNECTION 4
-#define STATUS_RUN_BOOTING 8
-#define STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION 16
-#define STATUS_ERR_NO_BLYNK_CONNECTION 32
-#define STATUS_ERR_NO_WIFI_CONNECTION 64
+struct environrmentData
+{
+    // wifi
+    char *wifiSSID;
+    char *wifiPassword;
+    // blynk
+    bool blynkLocalServer;
+    const char *blynkServerHostname;
+    uint16_t blynkServerPort;
+    const char *blynkAuth;
+};
 
+struct environrmentData envData;
+
+void loadEnvData()
+{
+    // default from config.h
+    envData.wifiSSID = strdup(WIFI_SSID);
+    envData.wifiPassword = strdup(WIFI_PASS);
+
+#ifdef USE_BLYNK_LOCAL_SERVER
+    envData.blynkLocalServer = true;
+    envData.blynkServerHostname = strdup(BLYNK_SERVER);
+    envData.blynkServerPort = BLYNK_PORT;
+#else
+    envData.blynkLocalServer = false;
+    envData.blynkServerHostname = nullptr;
+    envData.blynkServerPort = 0;
+#endif
+    envData.blynkAuth = strdup(BLYNK_AUTH);
+}
 

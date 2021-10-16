@@ -118,7 +118,11 @@
 	#define OTA_PASS "admin"
 #endif
 
-
+#define USE_WIFI_AP_CONFIGURATION
+#if defined USE_WIFI_AP_CONFIGURATION
+  #define WIFI_AP_CONFIGURATION_HOSTNAME "SolarTracerAP"
+  #define WIFI_AP_CONFIGURATION_PASSWORD "admin1234"
+#endif
 
 // How many ms between each realtime sync to blynk server
 #define SYNC_REALTIME_MS_PERIOD 2000L

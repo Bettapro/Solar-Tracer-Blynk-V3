@@ -24,6 +24,7 @@
 
 extern SimpleTimer* mainTimer;
 
+
 // -------------------------------------------------------------------------------
 // MISC
 
@@ -50,11 +51,23 @@ void uploadStatsAll()
   uploadStatsToBlynk();
 }
 
+#if defined USE_WIFI_AP_CONFIGURATION
+
+
+
+#endif
+
 // ****************************************************************************
 // SETUP and LOOP
 
 void loop()
 {
+  if(WiFi.isConnected()){
+    clearStatusError(STATUS_ERR_NO_WIFI_CONNECTION);
+  }
+  else{
+    setStatusError(STATUS_ERR_NO_WIFI_CONNECTION);
+  }
   blynkLoop();
 #ifdef USE_OTA_UPDATE
   ArduinoOTA.handle();
@@ -64,6 +77,9 @@ void loop()
 
 void setup()
 {
+  loadEnvData();
+
+
   setStatusError(STATUS_RUN_BOOTING);
 #ifdef USE_STATUS_LED
   ledSetupStart();
@@ -88,13 +104,19 @@ void setup()
   WiFi.mode(WIFI_STA);
   WiFi.setAutoConnect(true);
 
-  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  WiFi.begin(envData.wifiSSID, envData.wifiPassword);
 
-  while (WiFi.waitForConnectResult() != WL_CONNECTED)
+
+  if (WiFi.waitForConnectResult() != WL_CONNECTED)
   {
+    #if defined USE_WIFI_AP_CONFIGURATION
+      startWifiConfigurationAP();
+      ESP.restart();
+    #else
     debugPrintln("Connection Failed! Rebooting...");
     delay(5000);
     ESP.restart();
+    #endif
   }
   debugPrintln("Connected.");
 
@@ -179,3 +201,5 @@ void setup()
   ledSetupStop();
 #endif
 }
+
+
