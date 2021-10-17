@@ -26,11 +26,12 @@ extern SolarTracer *thisController;
 
 void blynkSetup()
 {
-#ifdef USE_BLYNK_LOCAL_SERVER
+if(envData.blynkLocalServer){
   Blynk.config(envData.blynkAuth, envData.blynkServerHostname, envData.blynkServerPort);
-#else
+}
+else{
   Blynk.config(envData.blynkAuth);
-#endif
+}
  debugPrintln(" ++ Setting up Blynk:");
   debugPrint("Connecting...");
 

@@ -25,36 +25,87 @@
 bool shouldSaveConfig = false;
 void saveConfigCallback()
 {
-    shouldSaveConfig = true;
+  shouldSaveConfig = true;
+  debugPrint("aaaaaaaaaaaaaaaaaa");
 }
+
+bool formatLittleFS()
+{
+  LittleFS.end();
+  LittleFS.begin();
+  LittleFS.format();
+  return LittleFS.begin();
+}
+
 
 void startWifiConfigurationAP()
 {
-    WiFiManager wifiManager;
-    wifiManager.setBreakAfterConfig(true);
-    wifiManager.setSaveConfigCallback(saveConfigCallback);
+  WiFiManager wifiManager;
+  wifiManager.setBreakAfterConfig(true);
+  wifiManager.setSaveConfigCallback(saveConfigCallback);
 
-    char customHtml[24] = "type=\"checkbox\"";
-    if (envData.blynkLocalServer)
+  //char customHtml[24] = "type=\"checkbox\"";
+  //if (envData.blynkLocalServer)
+  //{
+  //  strcat(customHtml, " checked");
+  //}
+
+  //WiFiManagerParameter customBlynkIsLocalServer("blynkIsLocalServer", "Blynk Local Server", "T", 2, customHtml);
+  WiFiManagerParameter customBlynkServerHostname("blynkServerHostname", "Blynk Server Hostname", envData.blynkServerHostname, 20);
+  WiFiManagerParameter custom_BlynkServerPort("blynkServerPort", "Blynk Server Port", String(envData.blynkServerPort).c_str(), 20);
+  WiFiManagerParameter custom_BlynkAuth("blynkAuth", "Blynk API key", envData.blynkAuth, 32);
+
+  //wifiManager.addParameter(&customBlynkIsLocalServer);
+  wifiManager.addParameter(&customBlynkServerHostname);
+  wifiManager.addParameter(&custom_BlynkServerPort);
+  wifiManager.addParameter(&custom_BlynkAuth);
+
+  wifiManager.startConfigPortal(WIFI_AP_CONFIGURATION_HOSTNAME, WIFI_AP_CONFIGURATION_PASSWORD);
+  wifiManager.setConfigPortalBlocking(true);
+
+  if (shouldSaveConfig)
+  {
+    debugPrintln("Saving wifimanager paramenters...");
+
+    envData.blynkLocalServer = strlen( customBlynkServerHostname.getValue()) > 0;
+    strcpy(envData.blynkServerHostname, !envData.blynkLocalServer ? "" : customBlynkServerHostname.getValue());
+    envData.blynkServerPort = !envData.blynkLocalServer ? 0 :  String(custom_BlynkServerPort.getValue()).toInt();
+    
+     strcpy(envData.blynkAuth, custom_BlynkAuth.getValue());
+
+    // if LittleFS is not usable
+    if (!LittleFS.begin())
     {
-        strcat(customHtml, " checked");
+      debugPrintln("--> Failed to mount file system");
+      if (!formatLittleFS())
+      {
+        debugPrintln("--> Failed to format file system - hardware issues!");
+      }
     }
 
-    WiFiManagerParameter customBlynkIsLocalServer("blynkIsLocalServer", "Blynk Local Server", "T", 2, customHtml);
-    WiFiManagerParameter customBlynkServerHostname("blynkServerHostname", "Blynk Server Hostname", envData.blynkServerHostname, 20);
-    WiFiManagerParameter custom_BlynkServerPort("blynkServerPort", "Blynk Server Port", String(envData.blynkServerPort).c_str(), 20);
-    WiFiManagerParameter custom_BlynkAuth("blynkAuth", "Blynk API key", String(envData.blynkAuth).c_str(), 32);
+    DynamicJsonDocument doc(2048);
 
+    doc[CONFIG_PERSISTENCE_WIFI_SSID] = WiFi.SSID();
+    doc[CONFIG_PERSISTENCE_WIFI_PASSWORD] = WiFi.psk();
+    doc[CONFIG_PERSISTENCE_WIFI_BLYNK_AUTH] = envData.blynkAuth;
+    doc[CONFIG_PERSISTENCE_WIFI_BLYNK_IS_LOCAL] = envData.blynkLocalServer;
+    doc[CONFIG_PERSISTENCE_WIFI_BLYNK_HOSTNAME] = envData.blynkServerHostname;
+    doc[CONFIG_PERSISTENCE_WIFI_BLYNK_PORT] = envData.blynkServerPort;
 
-    wifiManager.addParameter(&customBlynkIsLocalServer);
-    wifiManager.addParameter(&customBlynkServerHostname);
-    wifiManager.addParameter(&custom_BlynkServerPort);
-    wifiManager.addParameter(&custom_BlynkAuth);
-
-    wifiManager.setParamsPage(true);
-
-    wifiManager.startConfigPortal(WIFI_AP_CONFIGURATION_HOSTNAME, WIFI_AP_CONFIGURATION_PASSWORD);
-    wifiManager.setConfigPortalBlocking(true);
-
+    File configFile = LittleFS.open(CONFIG_PERSISTENCE, "w");
+    if (!configFile)
+    {
+      LittleFS.end();
+    }
+    else
+    {
+      serializeJson(doc, configFile);
+      //serializeJson(doc, Serial);
+      configFile.flush();
+      configFile.close();
+      LittleFS.end();
+      debugPrintln("-> SAVED");
+    }
+  }
 }
 

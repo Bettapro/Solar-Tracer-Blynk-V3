@@ -21,35 +21,83 @@
 
 #pragma once
 
+#include "../incl/project_config.h"
+
 struct environrmentData
 {
     // wifi
-    char *wifiSSID;
-    char *wifiPassword;
+    char wifiSSID[10];
+    char wifiPassword[20];
     // blynk
     bool blynkLocalServer;
-    const char *blynkServerHostname;
+    char blynkServerHostname[20];
     uint16_t blynkServerPort;
-    const char *blynkAuth;
+    char blynkAuth[33 * 2];
 };
 
 struct environrmentData envData;
 
+
 void loadEnvData()
 {
     // default from config.h
-    envData.wifiSSID = strdup(WIFI_SSID);
-    envData.wifiPassword = strdup(WIFI_PASS);
+    strcpy(envData.wifiSSID, WIFI_SSID);
+    strcpy(envData.wifiPassword, WIFI_PASS);
 
 #ifdef USE_BLYNK_LOCAL_SERVER
     envData.blynkLocalServer = true;
-    envData.blynkServerHostname = strdup(BLYNK_SERVER);
+    strcpy(envData.blynkServerHostname, BLYNK_SERVER);
     envData.blynkServerPort = BLYNK_PORT;
 #else
     envData.blynkLocalServer = false;
-    envData.blynkServerHostname = nullptr;
     envData.blynkServerPort = 0;
 #endif
-    envData.blynkAuth = strdup(BLYNK_AUTH);
-}
+    strcpy(envData.blynkAuth, BLYNK_AUTH);
 
+#if defined USE_WIFI_AP_CONFIGURATION
+    LittleFS.begin();
+    // load from file
+    if (!LittleFS.exists(CONFIG_PERSISTENCE))
+    {
+        // no file found
+        debugPrintln("No configuration file found");
+    }
+    else
+    {
+        debugPrintln("Restoring configuration from file");
+        // file exists, reading and loading
+        File configFile = LittleFS.open(CONFIG_PERSISTENCE, "r");
+        if (!configFile)
+        {
+            debugPrintln("ERROR: cannot open config file");
+        }
+        else
+        {
+            size_t size = configFile.size();
+            DynamicJsonDocument doc(size * 3);
+            DeserializationError error = deserializeJson(doc, configFile);
+            if (error)
+            {
+                debugPrintln("ERROR: Cannot deserialize settings from file");
+                debugPrintln(error.c_str());
+            }
+            else
+            {
+                if (doc.containsKey(CONFIG_PERSISTENCE_WIFI_SSID))
+                    strcpy(envData.wifiSSID, doc[CONFIG_PERSISTENCE_WIFI_SSID]);
+                if (doc.containsKey(CONFIG_PERSISTENCE_WIFI_PASSWORD))
+                    strcpy(envData.wifiPassword, doc[CONFIG_PERSISTENCE_WIFI_PASSWORD]);
+                if (doc.containsKey(CONFIG_PERSISTENCE_WIFI_BLYNK_AUTH))
+                    strcpy(envData.blynkAuth, doc[CONFIG_PERSISTENCE_WIFI_BLYNK_AUTH]);
+                if (doc.containsKey(CONFIG_PERSISTENCE_WIFI_BLYNK_IS_LOCAL))
+                    envData.blynkLocalServer = doc[CONFIG_PERSISTENCE_WIFI_BLYNK_IS_LOCAL];
+                if (doc.containsKey(CONFIG_PERSISTENCE_WIFI_BLYNK_HOSTNAME))
+                    strcpy(envData.blynkServerHostname, doc[CONFIG_PERSISTENCE_WIFI_BLYNK_HOSTNAME]);
+                if (doc.containsKey(CONFIG_PERSISTENCE_WIFI_BLYNK_PORT))
+                    envData.blynkServerPort = doc[CONFIG_PERSISTENCE_WIFI_BLYNK_PORT];
+            }
+        }
+    }
+    LittleFS.end();
+#endif
+}

@@ -19,11 +19,9 @@
  *
  */
 
-
 #include "src/incl/project_config.h"
 
-extern SimpleTimer* mainTimer;
-
+extern SimpleTimer *mainTimer;
 
 // -------------------------------------------------------------------------------
 // MISC
@@ -53,8 +51,6 @@ void uploadStatsAll()
 
 #if defined USE_WIFI_AP_CONFIGURATION
 
-
-
 #endif
 
 // ****************************************************************************
@@ -62,10 +58,12 @@ void uploadStatsAll()
 
 void loop()
 {
-  if(WiFi.isConnected()){
+  if (WiFi.isConnected())
+  {
     clearStatusError(STATUS_ERR_NO_WIFI_CONNECTION);
   }
-  else{
+  else
+  {
     setStatusError(STATUS_ERR_NO_WIFI_CONNECTION);
   }
   blynkLoop();
@@ -77,16 +75,17 @@ void loop()
 
 void setup()
 {
-  loadEnvData();
+  BOARD_DEBUG_SERIAL_STREAM.begin(BOARD_DEBUG_SERIAL_STREAM_BAUDRATE);
 
+#
+
+  debugPrintln(" ++ STARTING TRACER-RS485-MODBUS-BLYNK");
+  loadEnvData();
 
   setStatusError(STATUS_RUN_BOOTING);
 #ifdef USE_STATUS_LED
   ledSetupStart();
 #endif
-
-  debugPrintln(" ++ STARTING TRACER-RS485-MODBUS-BLYNK");
-  BOARD_DEBUG_SERIAL_STREAM.begin(BOARD_DEBUG_SERIAL_STREAM_BAUDRATE);
 
 #ifdef USE_SERIAL_STREAM
 #if defined(BOARD_ST_SERIAL_PIN_MAPPING_RX) & defined(BOARD_ST_SERIAL_PIN_MAPPING_TX)
@@ -102,24 +101,27 @@ void setup()
   debugPrintln("Connecting...");
 
   WiFi.mode(WIFI_STA);
-  WiFi.setAutoConnect(true);
 
   WiFi.begin(envData.wifiSSID, envData.wifiPassword);
 
-
   if (WiFi.waitForConnectResult() != WL_CONNECTED)
   {
-    #if defined USE_WIFI_AP_CONFIGURATION
-      startWifiConfigurationAP();
+#if defined USE_WIFI_AP_CONFIGURATION
+    startWifiConfigurationAP();
+    if(!WiFi.isConnected()){
       ESP.restart();
-    #else
+    }
+#else
     debugPrintln("Connection Failed! Rebooting...");
     delay(5000);
     ESP.restart();
-    #endif
+#endif
   }
-  debugPrintln("Connected.");
+  WiFi.setAutoConnect(true);
+  WiFi.setAutoReconnect(true);
 
+
+  debugPrintln("Connected.");
 
   blynkSetup();
 
@@ -201,5 +203,3 @@ void setup()
   ledSetupStop();
 #endif
 }
-
-
