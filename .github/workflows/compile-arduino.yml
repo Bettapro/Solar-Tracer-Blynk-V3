@@ -27,6 +27,7 @@ jobs:
         - name : WiFi
         - name: Blynk
           version: 1.0.0
+        - name: WiFiManager 
         - source-url : https://github.com/Bettapro/ModbusMaster.git
       # sketch paths to compile (recursive) for all boards
       sketch_paths: |

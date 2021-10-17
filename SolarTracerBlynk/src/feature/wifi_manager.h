@@ -65,7 +65,7 @@ void startWifiConfigurationAP()
 
   if (shouldSaveConfig)
   {
-    debugPrintln("Saving wifimanager paramenters...");
+    debugPrintln("Saving wifimanager parameters...");
 
     envData.blynkLocalServer = strlen( customBlynkServerHostname.getValue()) > 0;
     strcpy(envData.blynkServerHostname, !envData.blynkLocalServer ? "" : customBlynkServerHostname.getValue());
