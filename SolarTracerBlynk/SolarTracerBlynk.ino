@@ -76,11 +76,28 @@ void loop()
 void setup()
 {
   BOARD_DEBUG_SERIAL_STREAM.begin(BOARD_DEBUG_SERIAL_STREAM_BAUDRATE);
-
-#
-
   debugPrintln(" ++ STARTING TRACER-RS485-MODBUS-BLYNK");
-  loadEnvData();
+
+   loadEnvData();
+
+#if defined(USE_HALL_AP_CONFIGURATION_TRIGGER)
+  for (uint8_t readCount = 3; readCount >= 0; readCount--)
+  {
+    delay(500);
+    int hallDiff = hallRead() - HALL_AP_CONFIGURATION_BASE_VALUE;
+    if (hallDiff < HALL_AP_CONFIGURATION_THR_VALUE && hallDiff > -HALL_AP_CONFIGURATION_THR_VALUE)
+    {
+      break;
+    }
+    if (readCount == 0)
+    {
+      debugPrintln(" ++ Start AP configuration");
+      startWifiConfigurationAP();
+    }
+  }
+#endif
+
+ 
 
   setStatusError(STATUS_RUN_BOOTING);
 #ifdef USE_STATUS_LED
@@ -108,7 +125,8 @@ void setup()
   {
 #if defined USE_WIFI_AP_CONFIGURATION
     startWifiConfigurationAP();
-    if(!WiFi.isConnected()){
+    if (!WiFi.isConnected())
+    {
       ESP.restart();
     }
 #else
@@ -119,7 +137,6 @@ void setup()
   }
   WiFi.setAutoConnect(true);
   WiFi.setAutoReconnect(true);
-
 
   debugPrintln("Connected.");
 

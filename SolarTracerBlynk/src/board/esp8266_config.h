@@ -42,6 +42,10 @@
 #define MAX485_RE_NEG 5
 #endif
 
+#if defined(USE_HALL_AP_CONFIGURATION_TRIGGER)
+#error "This board has no hall sensor to use! [ disable USE_HALL_AP_CONFIGURATION_TRIGGER ]"
+#endif
+
 #if defined(BOARD_ST_SERIAL_PIN_MAPPING_RX) | defined(BOARD_ST_SERIAL_PIN_MAPPING_TX)
 #error "This board does not support HW serial pin mapping! [ disable BOARD_ST_SERIAL_PIN_MAPPING_RX, BOARD_ST_SERIAL_PIN_MAPPING_TX ]"
 #endif

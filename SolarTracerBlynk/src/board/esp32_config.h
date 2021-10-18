@@ -42,6 +42,15 @@
 #define MAX485_RE_NEG 18
 #endif
 
+#if defined(USE_WIFI_AP_CONFIGURATION) && defined(USE_HALL_AP_CONFIGURATION_TRIGGER)
+  #if !defined(HALL_AP_CONFIGURATION_BASE_VALUE)
+    #define HALL_AP_CONFIGURATION_BASE_VALUE 75
+  #endif
+  #if !defined(HALL_AP_CONFIGURATION_THR_VALUE)
+    #define HALL_AP_CONFIGURATION_THR_VALUE 30
+  #endif
+#endif
+
 
 
 // removes the intellisens error for setenv,tzset

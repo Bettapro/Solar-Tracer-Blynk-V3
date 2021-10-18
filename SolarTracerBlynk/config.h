@@ -122,6 +122,12 @@
 #if defined USE_WIFI_AP_CONFIGURATION
   #define WIFI_AP_CONFIGURATION_HOSTNAME "SolarTracerAP"
   #define WIFI_AP_CONFIGURATION_PASSWORD "admin1234"
+
+  #define USE_HALL_AP_CONFIGURATION_TRIGGER
+  #if defined USE_HALL_AP_CONFIGURATION_TRIGGER
+    //#define HALL_AP_CONFIGURATION_BASE_VALUE 75
+    //#define HALL_AP_CONFIGURATION_THR_VALUE 30
+  #endif
 #endif
 
 // How many ms between each realtime sync to blynk server
