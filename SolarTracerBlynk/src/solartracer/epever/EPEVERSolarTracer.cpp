@@ -19,6 +19,8 @@
  *
  */
 
+#include <time.h>
+
 #include "EPEVERSolarTracer.h"
 
 #include <time.h>
