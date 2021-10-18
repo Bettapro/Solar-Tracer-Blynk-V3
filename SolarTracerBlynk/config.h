@@ -37,6 +37,13 @@
 //#define BOARD_DEBUG_SERIAL_STREAM Serial
 // set accordingly: monitor_speed in platformio.ini
 //#define BOARD_DEBUG_SERIAL_STREAM_BAUDRATE 115200
+
+/**
+ * STATUS
+ * 
+ * Define how/if the board should notify an error
+ */
+// bink a led when errors occour
 #define USE_STATUS_LED
 #ifdef USE_STATUS_LED
   //specify pin number connected to the status led
@@ -49,7 +56,9 @@
  * Define the communication parameters for the
  * solar tracer
  */
+// solar tracer model
 #define SOLAR_TRACER_MODEL EPEVER_SOLAR_TRACER_A
+// use serial as comunication interfce
 #define USE_SERIAL_STREAM
 #ifdef USE_SERIAL_STREAM
   // specify the serial port to use 
@@ -78,7 +87,6 @@
 
 // How many ms between each refresh request 
 //#define CONTROLLER_UPDATE_MS_PERIOD 2000L
-
 
  /*
   * TIME SYNC
@@ -118,15 +126,37 @@
 	#define OTA_PASS "admin"
 #endif
 
+/**
+ *  SETTING SETUP OVER WEB PAGE
+ * 
+ *  The board will enter in this mode if:
+ *    - it cannot connect to wifi network
+ *    - USE_HALL_AP_CONFIGURATION_TRIGGER is enabled and magnet is near to ESP module
+ *    - USE_PIN_AP_CONFIGURATION_TRIGGER is enabled and the pin is HIGH (or LOW)
+ */
 #define USE_WIFI_AP_CONFIGURATION
 #if defined USE_WIFI_AP_CONFIGURATION
+  // ap name
   #define WIFI_AP_CONFIGURATION_HOSTNAME "SolarTracerAP"
+  // ap password
   #define WIFI_AP_CONFIGURATION_PASSWORD "admin1234"
 
-  #define USE_HALL_AP_CONFIGURATION_TRIGGER
+  // use hall sensor to trigger ap mode
+  //#define USE_HALL_AP_CONFIGURATION_TRIGGER
   #if defined USE_HALL_AP_CONFIGURATION_TRIGGER
+    // standard value (no interaction)
     //#define HALL_AP_CONFIGURATION_BASE_VALUE 75
+    // threshoold to detect interraction
     //#define HALL_AP_CONFIGURATION_THR_VALUE 30
+  #endif
+
+  // use pin state to trigger ap mode
+  #define USE_PIN_AP_CONFIGURATION_TRIGGER
+  #if defined USE_PIN_AP_CONFIGURATION_TRIGGER
+    // pin number to use
+    #define PIN_AP_TRIGGER_PIN 19
+    // value to consider the pin "triggered"
+    #define PIN_AP_TRIGGER_VALUE HIGH
   #endif
 #endif
 
