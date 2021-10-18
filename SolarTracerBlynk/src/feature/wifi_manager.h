@@ -26,7 +26,6 @@ bool shouldSaveConfig = false;
 void saveConfigCallback()
 {
   shouldSaveConfig = true;
-  debugPrint("aaaaaaaaaaaaaaaaaa");
 }
 
 bool formatLittleFS()
@@ -44,13 +43,6 @@ void startWifiConfigurationAP()
   wifiManager.setBreakAfterConfig(true);
   wifiManager.setSaveConfigCallback(saveConfigCallback);
 
-  //char customHtml[24] = "type=\"checkbox\"";
-  //if (envData.blynkLocalServer)
-  //{
-  //  strcat(customHtml, " checked");
-  //}
-
-  //WiFiManagerParameter customBlynkIsLocalServer("blynkIsLocalServer", "Blynk Local Server", "T", 2, customHtml);
   WiFiManagerParameter customBlynkServerHostname("blynkServerHostname", "Blynk Server Hostname", envData.blynkServerHostname, CONFIG_PERSISTENCE_WIFI_BLYNK_HOSTNAME_LEN);
   WiFiManagerParameter custom_BlynkServerPort("blynkServerPort", "Blynk Server Port", String(envData.blynkServerPort).c_str(), 5, "type=\"number\" min=\"0\"");
   WiFiManagerParameter custom_BlynkAuth("blynkAuth", "Blynk API key", envData.blynkAuth, CONFIG_PERSISTENCE_WIFI_BLYNK_AUTH_LEN);
@@ -60,7 +52,6 @@ void startWifiConfigurationAP()
   WiFiManagerParameter custom_blynkLocalServerText("<p><b>BLYNK LOCAL SERVER ONLY:</b></p>");
   WiFiManagerParameter custom_wmText("<p><b>CONFIGURATION OVER WIFI:</b></p>");
 
-  //wifiManager.addParameter(&customBlynkIsLocalServer);
   wifiManager.addParameter(&custom_BlynkAuth);
   wifiManager.addParameter(&custom_blynkLocalServerText);
   wifiManager.addParameter(&customBlynkServerHostname);
