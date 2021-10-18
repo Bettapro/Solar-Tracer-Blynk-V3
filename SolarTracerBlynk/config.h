@@ -158,6 +158,15 @@
     // value to consider the pin "triggered"
     #define PIN_AP_TRIGGER_VALUE HIGH
   #endif
+
+  // use pin to reset settings
+  #define USE_PIN_RESET_CONFIGURATION_TRIGGER
+  #if defined USE_PIN_RESET_CONFIGURATION_TRIGGER
+    // pin number to use
+    #define PIN_RESET_TRIGGER_PIN 18
+    // value to consider the pin "triggered"
+    #define PIN_RESET_TRIGGER_VALUE HIGH
+  #endif
 #endif
 
 // How many ms between each realtime sync to blynk server

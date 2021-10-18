@@ -112,6 +112,23 @@ void setup()
     }
   }
 #endif
+#if defined(USE_PIN_RESET_CONFIGURATION_TRIGGER)
+  pinMode(PIN_RESET_TRIGGER_PIN, INPUT);
+  for (uint8_t readCount = 3; readCount >= 0; readCount--)
+  {
+    delay(500);
+    if (digitalRead(PIN_RESET_TRIGGER_PIN) != PIN_RESET_TRIGGER_VALUE)
+    {
+      break;
+    }
+    if (readCount == 0)
+    {
+      debugPrintln(" ++ Reset configuration");
+      resetEnvData();
+      ESP.restart();
+    }
+  }
+#endif
 
  
 
