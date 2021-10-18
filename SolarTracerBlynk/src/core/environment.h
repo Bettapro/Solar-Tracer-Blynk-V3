@@ -26,8 +26,13 @@
 struct environrmentData
 {
     // wifi
-    char wifiSSID[CONFIG_PERSISTENCE_WIFI_SSID_LEN + 1] ;
+    char wifiSSID[CONFIG_PERSISTENCE_WIFI_SSID_LEN + 1];
     char wifiPassword[CONFIG_PERSISTENCE_WIFI_PASSWORD_LEN + 1];
+    // wifi manager
+#ifdef USE_WIFI_AP_CONFIGURATION
+    char wmApSSID[CONFIG_PERSISTENCE_WM_AP_SSID_LEN + 1];
+    char wmApPassword[CONFIG_PERSISTENCE_WM_AP_PASSWORD_LEN + 1];
+#endif
     // blynk
     bool blynkLocalServer;
     char blynkServerHostname[CONFIG_PERSISTENCE_WIFI_BLYNK_HOSTNAME_LEN + 1];
@@ -37,12 +42,16 @@ struct environrmentData
 
 struct environrmentData envData;
 
-
 void loadEnvData()
 {
     // default from config.h
     strcpy(envData.wifiSSID, WIFI_SSID);
     strcpy(envData.wifiPassword, WIFI_PASS);
+
+#ifdef USE_WIFI_AP_CONFIGURATION
+    strcpy(envData.wmApSSID, WIFI_AP_CONFIGURATION_HOSTNAME);
+    strcpy(envData.wmApPassword, WIFI_AP_CONFIGURATION_PASSWORD);
+#endif
 
 #ifdef USE_BLYNK_LOCAL_SERVER
     envData.blynkLocalServer = true;
@@ -95,9 +104,30 @@ void loadEnvData()
                     strcpy(envData.blynkServerHostname, doc[CONFIG_PERSISTENCE_WIFI_BLYNK_HOSTNAME]);
                 if (doc.containsKey(CONFIG_PERSISTENCE_WIFI_BLYNK_PORT))
                     envData.blynkServerPort = doc[CONFIG_PERSISTENCE_WIFI_BLYNK_PORT];
+#ifdef USE_WIFI_AP_CONFIGURATION
+                if (doc.containsKey(WIFI_AP_CONFIGURATION_HOSTNAME))
+                    strcpy(envData.wmApSSID, doc[WIFI_AP_CONFIGURATION_HOSTNAME]);
+                if (doc.containsKey(WIFI_AP_CONFIGURATION_PASSWORD))
+                    strcpy(envData.wmApPassword, doc[WIFI_AP_CONFIGURATION_PASSWORD]);
+#endif
             }
         }
     }
     LittleFS.end();
 #endif
+}
+
+void resetEnvData(){
+    LittleFS.begin();
+    // load from file
+    if (!LittleFS.exists(CONFIG_PERSISTENCE))
+    {
+        // no file found
+        debugPrintln("No configuration file found");
+    }
+    else
+    {
+        LittleFS.remove(CONFIG_PERSISTENCE);
+    }
+    LittleFS.end();
 }

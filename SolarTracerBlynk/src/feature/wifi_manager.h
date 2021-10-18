@@ -37,10 +37,10 @@ bool formatLittleFS()
   return LittleFS.begin();
 }
 
-
 void startWifiConfigurationAP()
 {
   WiFiManager wifiManager;
+  wifiManager.setTitle("Solar-tracer-Blynk-V3");
   wifiManager.setBreakAfterConfig(true);
   wifiManager.setSaveConfigCallback(saveConfigCallback);
 
@@ -52,26 +52,35 @@ void startWifiConfigurationAP()
 
   //WiFiManagerParameter customBlynkIsLocalServer("blynkIsLocalServer", "Blynk Local Server", "T", 2, customHtml);
   WiFiManagerParameter customBlynkServerHostname("blynkServerHostname", "Blynk Server Hostname", envData.blynkServerHostname, CONFIG_PERSISTENCE_WIFI_BLYNK_HOSTNAME_LEN);
-  WiFiManagerParameter custom_BlynkServerPort("blynkServerPort", "Blynk Server Port", String(envData.blynkServerPort).c_str(), 5);
+  WiFiManagerParameter custom_BlynkServerPort("blynkServerPort", "Blynk Server Port", String(envData.blynkServerPort).c_str(), 5, "type=\"number\" min=\"0\"");
   WiFiManagerParameter custom_BlynkAuth("blynkAuth", "Blynk API key", envData.blynkAuth, CONFIG_PERSISTENCE_WIFI_BLYNK_AUTH_LEN);
+  WiFiManagerParameter custom_wmSSID("wmApSSID", "Access Point SSID", envData.wmApSSID, CONFIG_PERSISTENCE_WM_AP_SSID_LEN);
+  WiFiManagerParameter custom_wmPassword("wmApPassword", "Access Point Password", envData.wmApPassword, CONFIG_PERSISTENCE_WM_AP_PASSWORD_LEN);
+
+  WiFiManagerParameter custom_blynkLocalServerText("<p><b>BLYNK LOCAL SERVER ONLY:</b></p>");
+  WiFiManagerParameter custom_wmText("<p><b>CONFIGURATION OVER WIFI:</b></p>");
 
   //wifiManager.addParameter(&customBlynkIsLocalServer);
+  wifiManager.addParameter(&custom_BlynkAuth);
+  wifiManager.addParameter(&custom_blynkLocalServerText);
   wifiManager.addParameter(&customBlynkServerHostname);
   wifiManager.addParameter(&custom_BlynkServerPort);
-  wifiManager.addParameter(&custom_BlynkAuth);
+  wifiManager.addParameter(&custom_wmText);
+  wifiManager.addParameter(&custom_wmSSID);
+  wifiManager.addParameter(&custom_wmPassword);
 
-  wifiManager.startConfigPortal(WIFI_AP_CONFIGURATION_HOSTNAME, WIFI_AP_CONFIGURATION_PASSWORD);
+  wifiManager.startConfigPortal(envData.wmApSSID, envData.wmApPassword);
   wifiManager.setConfigPortalBlocking(true);
 
   if (shouldSaveConfig)
   {
     debugPrintln("Saving wifimanager parameters...");
 
-    envData.blynkLocalServer = strlen( customBlynkServerHostname.getValue()) > 0;
+    envData.blynkLocalServer = strlen(customBlynkServerHostname.getValue()) > 0;
     strcpy(envData.blynkServerHostname, !envData.blynkLocalServer ? "" : customBlynkServerHostname.getValue());
-    envData.blynkServerPort = !envData.blynkLocalServer ? 0 :  String(custom_BlynkServerPort.getValue()).toInt();
-    
-     strcpy(envData.blynkAuth, custom_BlynkAuth.getValue());
+    envData.blynkServerPort = !envData.blynkLocalServer ? 0 : String(custom_BlynkServerPort.getValue()).toInt();
+
+    strcpy(envData.blynkAuth, custom_BlynkAuth.getValue());
 
     // if LittleFS is not usable
     if (!LittleFS.begin())
@@ -91,6 +100,8 @@ void startWifiConfigurationAP()
     doc[CONFIG_PERSISTENCE_WIFI_BLYNK_IS_LOCAL] = envData.blynkLocalServer;
     doc[CONFIG_PERSISTENCE_WIFI_BLYNK_HOSTNAME] = envData.blynkServerHostname;
     doc[CONFIG_PERSISTENCE_WIFI_BLYNK_PORT] = envData.blynkServerPort;
+    doc[CONFIG_PERSISTENCE_WM_AP_SSID] = envData.wmApSSID;
+    doc[CONFIG_PERSISTENCE_WM_AP_PASSWORD] = envData.wmApPassword;
 
     File configFile = LittleFS.open(CONFIG_PERSISTENCE, "w");
     if (!configFile)
@@ -108,4 +119,3 @@ void startWifiConfigurationAP()
     }
   }
 }
-
