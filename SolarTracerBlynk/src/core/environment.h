@@ -26,13 +26,13 @@
 struct environrmentData
 {
     // wifi
-    char wifiSSID[10];
-    char wifiPassword[20];
+    char wifiSSID[CONFIG_PERSISTENCE_WIFI_SSID_LEN + 1] ;
+    char wifiPassword[CONFIG_PERSISTENCE_WIFI_PASSWORD_LEN + 1];
     // blynk
     bool blynkLocalServer;
-    char blynkServerHostname[20];
+    char blynkServerHostname[CONFIG_PERSISTENCE_WIFI_BLYNK_HOSTNAME_LEN + 1];
     uint16_t blynkServerPort;
-    char blynkAuth[33 * 2];
+    char blynkAuth[CONFIG_PERSISTENCE_WIFI_BLYNK_AUTH_LEN + 1];
 };
 
 struct environrmentData envData;

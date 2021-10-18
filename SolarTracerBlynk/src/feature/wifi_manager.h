@@ -51,9 +51,9 @@ void startWifiConfigurationAP()
   //}
 
   //WiFiManagerParameter customBlynkIsLocalServer("blynkIsLocalServer", "Blynk Local Server", "T", 2, customHtml);
-  WiFiManagerParameter customBlynkServerHostname("blynkServerHostname", "Blynk Server Hostname", envData.blynkServerHostname, 20);
-  WiFiManagerParameter custom_BlynkServerPort("blynkServerPort", "Blynk Server Port", String(envData.blynkServerPort).c_str(), 20);
-  WiFiManagerParameter custom_BlynkAuth("blynkAuth", "Blynk API key", envData.blynkAuth, 32);
+  WiFiManagerParameter customBlynkServerHostname("blynkServerHostname", "Blynk Server Hostname", envData.blynkServerHostname, CONFIG_PERSISTENCE_WIFI_BLYNK_HOSTNAME_LEN);
+  WiFiManagerParameter custom_BlynkServerPort("blynkServerPort", "Blynk Server Port", String(envData.blynkServerPort).c_str(), 5);
+  WiFiManagerParameter custom_BlynkAuth("blynkAuth", "Blynk API key", envData.blynkAuth, CONFIG_PERSISTENCE_WIFI_BLYNK_AUTH_LEN);
 
   //wifiManager.addParameter(&customBlynkIsLocalServer);
   wifiManager.addParameter(&customBlynkServerHostname);
