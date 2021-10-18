@@ -43,7 +43,7 @@
  * 
  * Define how/if the board should notify an error
  */
-// bink a led when errors occour
+// bink a led when errors occur
 #define USE_STATUS_LED
 #ifdef USE_STATUS_LED
   //specify pin number connected to the status led
@@ -58,7 +58,7 @@
  */
 // solar tracer model
 #define SOLAR_TRACER_MODEL EPEVER_SOLAR_TRACER_A
-// use serial as comunication interfce
+// use serial as communication interfce
 #define USE_SERIAL_STREAM
 #ifdef USE_SERIAL_STREAM
   // specify the serial port to use 
