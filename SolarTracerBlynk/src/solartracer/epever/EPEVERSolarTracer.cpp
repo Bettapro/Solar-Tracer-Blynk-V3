@@ -238,7 +238,7 @@ void EPEVERSolarTracer::AddressRegistry_3100()
 
   }
 
-  this->setVariableReadReady(5, rs485readSuccess,
+  this->setVariableReadReady(6, rs485readSuccess,
                              SolarTracerVariables::PV_VOLTAGE,
                              SolarTracerVariables::PV_CURRENT,
                              SolarTracerVariables::PV_POWER,
@@ -275,7 +275,7 @@ void EPEVERSolarTracer::AddressRegistry_3110()
     htemp = this->node.getResponseBuffer(0x02) / 100.0f;
   }
 
-  this->setVariableReadReady(2, rs485readSuccess,
+  this->setVariableReadReady(3, rs485readSuccess,
                              SolarTracerVariables::BATTERY_TEMP,
                              SolarTracerVariables::CONTROLLER_TEMP,
                              SolarTracerVariables::HEATSINK_TEMP);

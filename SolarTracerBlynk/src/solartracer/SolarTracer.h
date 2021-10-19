@@ -234,7 +234,7 @@ public:
       return stats_year_generated_energy;
     case SolarTracerVariables::GENERATED_ENERGY_TOTAL:
       return stats_total_generated_energy;
-      case SolarTracerVariables::HEATSINK_TEMP:
+    case SolarTracerVariables::HEATSINK_TEMP:
       return htemp;
     case SolarTracerVariables::MAXIMUM_PV_VOLTAGE_TODAY:
       return stats_today_pv_volt_max;
