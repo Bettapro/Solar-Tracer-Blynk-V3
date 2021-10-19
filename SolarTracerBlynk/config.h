@@ -219,6 +219,7 @@
 #define vPIN_CHARGING_EQUIPMENT_STATUS_TEXT             V24
 #define vPIN_DISCHARGING_EQUIPMENT_STATUS_TEXT          V25
 #define vPIN_CHARGE_DEVICE_ENABLED                      V26
+#define vPIN_CONTROLLER_HEATSINK_TEMP                   V29
 // internal
 #define vPIN_INTERNAL_STATUS                            V27
 //action

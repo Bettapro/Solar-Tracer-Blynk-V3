@@ -74,6 +74,8 @@ EPEVERSolarTracer::EPEVERSolarTracer(Stream &SerialCom, uint8_t slave)
   this->setVariableEnabled(SolarTracerVariables::GENERATED_ENERGY_MONTH);
   this->setVariableEnabled(SolarTracerVariables::GENERATED_ENERGY_YEAR);
   this->setVariableEnabled(SolarTracerVariables::GENERATED_ENERGY_TOTAL);
+  this->setVariableEnabled(SolarTracerVariables::HEATSINK_TEMP);
+
 }
 
 bool EPEVERSolarTracer::syncRealtimeClock(struct tm *ti)
@@ -96,7 +98,6 @@ void EPEVERSolarTracer::fetchAllValues()
 {
   updateStats();
   this->AddressRegistry_3100();
-  this->AddressRegistry_3106();
   this->AddressRegistry_310D();
   this->AddressRegistry_3110();
   this->AddressRegistry_311A();
@@ -111,7 +112,6 @@ bool EPEVERSolarTracer::updateRun()
   {
   case 360:
     // update statistics
-
     updateStats();
     globalUpdateCounter = 0;
     break;
@@ -124,19 +124,16 @@ bool EPEVERSolarTracer::updateRun()
       this->AddressRegistry_3100();
       break;
     case 1:
-      this->AddressRegistry_3106();
-      break;
-    case 2:
       this->AddressRegistry_310D();
       break;
-    case 3:
+    case 2:
       this->AddressRegistry_3110();
       this->AddressRegistry_311A();
       break;
-    case 4:
+    case 3:
       this->AddressRegistry_331B();
       break;
-    case 5:
+    case 4:
       this->fetchValue(SolarTracerVariables::LOAD_MANUAL_ONOFF);
       this->fetchValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF);
       this->fetchAddressStatusVariables();
@@ -226,7 +223,7 @@ bool EPEVERSolarTracer::writeControllerSingleCoil(uint16_t address, bool value)
 
 void EPEVERSolarTracer::AddressRegistry_3100()
 {
-  uint8_t result = this->node.readInputRegisters(MODBUS_ADDRESS_PV_VOLTAGE, 6);
+  uint8_t result = this->node.readInputRegisters(MODBUS_ADDRESS_PV_VOLTAGE, 8);
 
   rs485readSuccess = result == this->node.ku8MBSuccess;
   if (rs485readSuccess)
@@ -237,6 +234,8 @@ void EPEVERSolarTracer::AddressRegistry_3100()
     pvpower = (this->node.getResponseBuffer(0x02) | this->node.getResponseBuffer(0x03) << 16) / 100.0f;
     bvoltage = this->node.getResponseBuffer(0x04) / 100.0f;
     battChargeCurrent = this->node.getResponseBuffer(0x05) / 100.0f;
+    battChargePower = (this->node.getResponseBuffer(0x06) | this->node.getResponseBuffer(0x07) << 16) / 100.0f;
+
   }
 
   this->setVariableReadReady(5, rs485readSuccess,
@@ -244,20 +243,8 @@ void EPEVERSolarTracer::AddressRegistry_3100()
                              SolarTracerVariables::PV_CURRENT,
                              SolarTracerVariables::PV_POWER,
                              SolarTracerVariables::BATTERY_VOLTAGE,
-                             SolarTracerVariables::BATTERY_CHARGE_CURRENT);
-}
-
-void EPEVERSolarTracer::AddressRegistry_3106()
-{
-  uint8_t result = this->node.readInputRegisters(0x3106, 2);
-
-  rs485readSuccess = result == this->node.ku8MBSuccess;
-  if (rs485readSuccess)
-  {
-    battChargePower = (this->node.getResponseBuffer(0x00) | this->node.getResponseBuffer(0x01) << 16) / 100.0f;
-  }
-
-  this->setVariableReadReady(SolarTracerVariables::BATTERY_CHARGE_POWER, rs485readSuccess);
+                             SolarTracerVariables::BATTERY_CHARGE_CURRENT,
+                             SolarTracerVariables::BATTERY_CHARGE_POWER);
 }
 
 void EPEVERSolarTracer::AddressRegistry_310D()
@@ -278,18 +265,20 @@ void EPEVERSolarTracer::AddressRegistry_310D()
 
 void EPEVERSolarTracer::AddressRegistry_3110()
 {
-  uint8_t result = this->node.readInputRegisters(MODBUS_ADDRESS_BATT_TEMP, 2);
+  uint8_t result = this->node.readInputRegisters(MODBUS_ADDRESS_BATT_TEMP, 3);
 
   rs485readSuccess = result == this->node.ku8MBSuccess;
   if (rs485readSuccess)
   {
     btemp = this->node.getResponseBuffer(0x00) / 100.0f;
     ctemp = this->node.getResponseBuffer(0x01) / 100.0f;
+    htemp = this->node.getResponseBuffer(0x02) / 100.0f;
   }
 
   this->setVariableReadReady(2, rs485readSuccess,
                              SolarTracerVariables::BATTERY_TEMP,
-                             SolarTracerVariables::CONTROLLER_TEMP);
+                             SolarTracerVariables::CONTROLLER_TEMP,
+                             SolarTracerVariables::HEATSINK_TEMP);
 }
 
 void EPEVERSolarTracer::AddressRegistry_311A()

@@ -81,6 +81,9 @@ const blynkSolarVariableMap realTimeVirtualBlynkSolarVariables [] = {
 #ifdef vPIN_DISCHARGING_EQUIPMENT_STATUS_TEXT
   {vPIN_DISCHARGING_EQUIPMENT_STATUS_TEXT, SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT},
 #endif
+#ifdef vPIN_CONTROLLER_HEATSINK_TEMP
+  {vPIN_CONTROLLER_HEATSINK_TEMP, SolarTracerVariables::HEATSINK_TEMP},
+#endif
 };
 
 const uint8_t  realTimeVirtualBlynkSolarVariablesCount = sizeof(realTimeVirtualBlynkSolarVariables) / sizeof(blynkSolarVariableMap);

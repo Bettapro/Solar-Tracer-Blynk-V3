@@ -49,10 +49,6 @@ void uploadStatsAll()
   uploadStatsToBlynk();
 }
 
-#if defined USE_WIFI_AP_CONFIGURATION
-
-#endif
-
 // ****************************************************************************
 // SETUP and LOOP
 

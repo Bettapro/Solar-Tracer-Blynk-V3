@@ -59,6 +59,7 @@ typedef enum
   CHARGING_EQUIPMENT_STATUS_TEXT,
   DISCHARGING_EQUIPMENT_STATUS_TEXT,
   CHARGING_DEVICE_ONOFF,
+  HEATSINK_TEMP,
   //----------------
   VARIABLES_COUNT
 } SolarTracerVariables;
@@ -105,6 +106,7 @@ public:
     case SolarTracerVariables::MAXIMUM_BATTERY_VOLTAGE_TODAY:
     case SolarTracerVariables::MINIMUM_BATTERY_VOLTAGE_TODAY:
     case SolarTracerVariables::REMOTE_BATTERY_TEMP:
+    case SolarTracerVariables::HEATSINK_TEMP:
       return SolarTracerVariablesDataType::FLOAT;
     case SolarTracerVariables::BATTERY_STATUS_TEXT:
     case SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT:
@@ -232,6 +234,8 @@ public:
       return stats_year_generated_energy;
     case SolarTracerVariables::GENERATED_ENERGY_TOTAL:
       return stats_total_generated_energy;
+      case SolarTracerVariables::HEATSINK_TEMP:
+      return htemp;
     case SolarTracerVariables::MAXIMUM_PV_VOLTAGE_TODAY:
       return stats_today_pv_volt_max;
     case SolarTracerVariables::MINIMUM_PV_VOLTAGE_TODAY:
@@ -256,7 +260,7 @@ public:
 
 protected:
   float battChargeCurrent, battDischargeCurrent, battOverallCurrent, battChargePower;
-  float bvoltage, rtemp, ctemp, btemp, bremaining, lpower, lcurrent, pvvoltage, pvcurrent, pvpower;
+  float bvoltage, rtemp, ctemp, btemp, htemp, bremaining, lpower, lcurrent, pvvoltage, pvcurrent, pvpower;
   float stats_today_pv_volt_min, stats_today_pv_volt_max, stats_today_bat_volt_min, stats_today_bat_volt_max, stats_today_generated_energy, stats_month_generated_energy, stats_year_generated_energy, stats_total_generated_energy;
   float loadOnOff, chargingDeviceOnOff;
 
