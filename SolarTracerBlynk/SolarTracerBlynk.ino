@@ -74,7 +74,36 @@ void setup()
   BOARD_DEBUG_SERIAL_STREAM.begin(BOARD_DEBUG_SERIAL_STREAM_BAUDRATE);
   debugPrintln(" ++ STARTING TRACER-RS485-MODBUS-BLYNK");
   loadEnvData();
-  delay(2000);
+
+#if defined(USE_PIN_RESET_CONFIGURATION_TRIGGER)
+  pinMode(PIN_RESET_TRIGGER_PIN, INPUT);
+  for (uint8_t readCount = 3; readCount >= 0; readCount--)
+  {
+    delay(500);
+    if (digitalRead(PIN_RESET_TRIGGER_PIN) != PIN_RESET_TRIGGER_VALUE)
+    {
+      break;
+    }
+    if (readCount == 0)
+    {
+      debugPrintln(" ++ Reset configuration");
+      resetEnvData();
+      ESP.restart();
+    }
+  }
+#endif
+
+  setStatusError(STATUS_RUN_BOOTING);
+#ifdef USE_STATUS_LED
+  ledSetupStart();
+#endif
+
+  debugPrintln(" ++ Setting up WIFI:");
+  debugPrintln("Connecting...");
+
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(envData.wifiSSID, envData.wifiPassword);
+
 #if defined(USE_HALL_AP_CONFIGURATION_TRIGGER)
   for (uint8_t readCount = 3; readCount >= 0; readCount--)
   {
@@ -108,47 +137,6 @@ void setup()
     }
   }
 #endif
-#if defined(USE_PIN_RESET_CONFIGURATION_TRIGGER)
-  pinMode(PIN_RESET_TRIGGER_PIN, INPUT);
-  for (uint8_t readCount = 3; readCount >= 0; readCount--)
-  {
-    delay(500);
-    if (digitalRead(PIN_RESET_TRIGGER_PIN) != PIN_RESET_TRIGGER_VALUE)
-    {
-      break;
-    }
-    if (readCount == 0)
-    {
-      debugPrintln(" ++ Reset configuration");
-      resetEnvData();
-      ESP.restart();
-    }
-  }
-#endif
-
- 
-
-  setStatusError(STATUS_RUN_BOOTING);
-#ifdef USE_STATUS_LED
-  ledSetupStart();
-#endif
-
-#ifdef USE_SERIAL_STREAM
-#if defined(BOARD_ST_SERIAL_PIN_MAPPING_RX) & defined(BOARD_ST_SERIAL_PIN_MAPPING_TX)
-  BOARD_ST_SERIAL_STREAM.begin(BOARD_ST_SERIAL_STREAM_BAUDRATE, SERIAL_8N1, BOARD_ST_SERIAL_PIN_MAPPING_RX, BOARD_ST_SERIAL_PIN_MAPPING_TX);
-#else
-  BOARD_ST_SERIAL_STREAM.begin(BOARD_ST_SERIAL_STREAM_BAUDRATE);
-#endif
-#endif
-
-  controllerSetup();
-
-  debugPrintln(" ++ Setting up WIFI:");
-  debugPrintln("Connecting...");
-
-  WiFi.mode(WIFI_STA);
-
-  WiFi.begin(envData.wifiSSID, envData.wifiPassword);
 
   if (WiFi.waitForConnectResult() != WL_CONNECTED)
   {
@@ -166,10 +154,24 @@ void setup()
   }
   WiFi.setAutoConnect(true);
   WiFi.setAutoReconnect(true);
-
   debugPrintln("Connected.");
 
-  blynkSetup();
+#ifdef USE_OTA_UPDATE
+  arduinoOtaSetup();
+
+  debugPrint("ArduinoOTA is running. ");
+  debugPrint("IP address: ");
+  debugPrintln(WiFi.localIP().toString());
+#endif
+
+#ifdef USE_SERIAL_STREAM
+#if defined(BOARD_ST_SERIAL_PIN_MAPPING_RX) & defined(BOARD_ST_SERIAL_PIN_MAPPING_TX)
+  BOARD_ST_SERIAL_STREAM.begin(BOARD_ST_SERIAL_STREAM_BAUDRATE, SERIAL_8N1, BOARD_ST_SERIAL_PIN_MAPPING_RX, BOARD_ST_SERIAL_PIN_MAPPING_TX);
+#else
+  BOARD_ST_SERIAL_STREAM.begin(BOARD_ST_SERIAL_STREAM_BAUDRATE);
+#endif
+#endif
+  controllerSetup();
 
 #ifdef USE_NTP_SERVER
   debugPrintln(" ++ Setting up Local Time:");
@@ -206,16 +208,8 @@ void setup()
 
 #endif
 
-  debugPrintln();
+  blynkSetup();
   debugPrintln("Connected to Blynk.");
-
-#ifdef USE_OTA_UPDATE
-  arduinoOtaSetup();
-
-  debugPrint("ArduinoOTA running. ");
-  debugPrint("IP address: ");
-  debugPrintln(WiFi.localIP().toString());
-#endif
 
   debugPrintln(" ++ Setting up solar tracer:");
 #ifdef SYNC_ST_TIME
