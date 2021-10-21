@@ -86,7 +86,7 @@ bool EPEVERSolarTracer::syncRealtimeClock(struct tm *ti)
 
   uint8_t result = node.writeMultipleRegisters(MODBUS_ADDRESS_REALTIME_CLOCK, 3);
 
-  if (result == this->node.ku8MBSuccess)
+  if (node.writeMultipleRegisters(MODBUS_ADDRESS_REALTIME_CLOCK, 3) == this->node.ku8MBSuccess)
   {
     this->node.getResponseBuffer(0x00);
     return true;
@@ -321,41 +321,40 @@ void EPEVERSolarTracer::fetchAddressStatusVariables()
     if (batteryStatus)
     {
       // fault
-      batteryStatusText = "!";
       switch (batteryStatus & 3)
       {
       case 1:
-        batteryStatusText += " OVER VOLT";
+        strcpy(batteryStatusText, "! OVER VOLT");
         break;
       case 2:
-        batteryStatusText += " UNDER VOLT";
+        strcpy(batteryStatusText, "! UNDER VOLT");
         break;
       case 3:
-        batteryStatusText += " LOW VOLT";
+       strcpy( batteryStatusText, "! LOW VOLT");
         break;
       case 4:
-        batteryStatusText += " FAULT";
+        strcpy(batteryStatusText, "! FAULT");
         break;
       }
 
       switch ((batteryStatus >> 4) & 3)
       {
       case 1:
-        batteryStatusText += " OVER TEMP";
+        strcpy(batteryStatusText, "! OVER TEMP");
         break;
       case 2:
-        batteryStatusText += " LOW TEMP";
+        strcpy(batteryStatusText, "! LOW TEMP");
         break;
       }
 
       if (batteryStatus >> 8)
       {
-        batteryStatusText += " ABN BATT. RESIST.";
+        strcpy(batteryStatusText, "! ABN BATT. RESIST.");
       }
     }
     else
     {
-      batteryStatusText = "Normal";
+      strcpy(batteryStatusText, "Normal");
     }
 
     uint16_t chargingStatus = node.getResponseBuffer(0x01);
@@ -368,47 +367,47 @@ void EPEVERSolarTracer::fetchAddressStatusVariables()
       // chargingStatus & 0xFF0 == 0 means no fault
       if (chargingStatus & 16)
       {
-        chargingStatusText = "! PV INPUT SHORT";
+        strcpy(chargingStatusText ,"! PV INPUT SHORT");
       }
       else if (chargingStatus & 32)
       {
-        chargingStatusText = "! ?? D5"; // not specified in doc
+        strcpy(chargingStatusText, "! ?? D5"); // not specified in doc
       }
       else if (chargingStatus & 64)
       {
-        chargingStatusText = "! ?? D6"; // not specified in doc
+        strcpy(chargingStatusText, "! ?? D6"); // not specified in doc
       }
       else if (chargingStatus & 128)
       {
-        chargingStatusText = "! LOAD MOS. SHORT";
+        strcpy(chargingStatusText, "! LOAD MOS. SHORT");
       }
       else if (chargingStatus & 256)
       {
-        chargingStatusText = "! LOAD SHORT";
+        strcpy(chargingStatusText, "! LOAD SHORT");
       }
       else if (chargingStatus & 512)
       {
-        chargingStatusText = "! LOAD OVER CURR.";
+        strcpy(chargingStatusText , "! LOAD OVER CURR.");
       }
       else if (chargingStatus & 1024)
       {
-        chargingStatusText = "! INPUT OVER CURR.";
+        strcpy(chargingStatusText, "! INPUT OVER CURR.");
       }
       else if (chargingStatus & 2048)
       {
-        chargingStatusText = "! ANTI REV. MOS. SHORT";
+        strcpy(chargingStatusText , "! ANTI REV. MOS. SHORT");
       }
       else if (chargingStatus & 4096)
       {
-        chargingStatusText = "! CHRG./ ANTI REV. MOS. SHORT";
+        strcpy(chargingStatusText, "! CHRG./ ANTI REV. MOS. SHORT");
       }
       else if (chargingStatus & 8192)
       {
-        chargingStatusText = "! CHRG. MOS SHORT";
+        strcpy(chargingStatusText, "! CHRG. MOS SHORT");
       }
       else
       {
-        chargingStatusText = "! ??";
+        strcpy(chargingStatusText , "! ??");
       }
     }
     else
@@ -416,19 +415,19 @@ void EPEVERSolarTracer::fetchAddressStatusVariables()
       switch ((chargingStatus >> 2) & 3)
       {
       case 0:
-        chargingStatusText = "Standby";
+        strcpy(chargingStatusText, "Standby");
         break;
       case 1:
-        chargingStatusText = "Float";
+        strcpy(chargingStatusText, "Float");
         break;
       case 2:
-        chargingStatusText = "Boost";
+        strcpy(chargingStatusText, "Boost");
         break;
       case 3:
-        chargingStatusText = "Equalization";
+        strcpy(chargingStatusText, "Equalization");
         break;
       default:
-        chargingStatusText = "??";
+        strcpy(chargingStatusText, "??");
       }
     }
 
@@ -438,50 +437,50 @@ void EPEVERSolarTracer::fetchAddressStatusVariables()
       // fault
       if (dischargingStatus & 16)
       {
-        dischargingStatusText = "! OUT OVER VOLT.";
+        strcpy(dischargingStatusText, "! OUT OVER VOLT.");
       }
       else if (dischargingStatus & 32)
       {
-        dischargingStatusText = "! BOOST OVER VOLT";
+        strcpy(dischargingStatusText, "! BOOST OVER VOLT");
       }
       else if (dischargingStatus & 64)
       {
-        dischargingStatusText = "! HV SIDE SHORT";
+       strcpy( dischargingStatusText, "! HV SIDE SHORT");
       }
       else if (dischargingStatus & 128)
       {
-        dischargingStatusText = "! INPUT OVER VOLT.";
+        strcpy(dischargingStatusText, "! INPUT OVER VOLT.");
       }
       else if (dischargingStatus & 256)
       {
-        dischargingStatusText = "! OUT VOLT. ABN";
+        strcpy(dischargingStatusText, "! OUT VOLT. ABN");
       }
       else if (dischargingStatus & 512)
       {
-        dischargingStatusText = "! UNABLE STOP DISC.";
+        strcpy(dischargingStatusText, "! UNABLE STOP DISC.");
       }
       else if (dischargingStatus & 1024)
       {
-        dischargingStatusText = "! UNABLE DISC.";
+        strcpy(dischargingStatusText, "! UNABLE DISC.");
       }
       else if (dischargingStatus & 2048)
       {
-        dischargingStatusText = "! SHORT";
+        strcpy(dischargingStatusText, "! SHORT");
       }
       else
       {
-        dischargingStatusText = "! ??";
+        strcpy(dischargingStatusText, "! ??");
       }
     }
     else
     {
       if (dischargingStatus & 1)
       {
-        dischargingStatusText = "Running";
+        strcpy(dischargingStatusText, "Running");
       }
       else
       {
-        dischargingStatusText = "Standby";
+        strcpy(dischargingStatusText, "Standby");
       }
     }
   }

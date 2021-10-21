@@ -72,7 +72,7 @@ class EPEVERSolarTracer : public SolarTracer, public ModbusMasterCallable {
     virtual void onModbusPostTransmission();
 
   protected:
-    uint16_t max485_re_neg, max485_de;
+    uint8_t max485_re_neg, max485_de;
 
     bool rs485readSuccess;
 
