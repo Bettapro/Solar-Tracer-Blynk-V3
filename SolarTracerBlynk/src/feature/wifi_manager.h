@@ -36,8 +36,14 @@ bool formatLittleFS()
   return LittleFS.begin();
 }
 
-void startWifiConfigurationAP()
+void startWifiConfigurationAP(bool tryConnection)
 {
+  // making sure to be connected to wifi from settings to get WiFi.SSID and WiFi.psk
+  if (tryConnection)
+  {
+    WiFi.waitForConnectResult();
+  }
+
   WiFiManager wifiManager;
   wifiManager.setTitle("Solar-tracer-Blynk-V3");
   wifiManager.setBreakAfterConfig(true);
