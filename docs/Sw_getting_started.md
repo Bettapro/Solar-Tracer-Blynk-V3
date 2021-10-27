@@ -3,7 +3,7 @@
 ## 1a. Flash a pre-built firmware
 Download the most recent version of the firmware https://github.com/Bettapro/Solar-Tracer-Blynk-V3/releases .
 
-Download the correct bif file dependeing on the board you're gonna use:
+Download the correct bif file depending on the board you're gonna use:
  - SolarTracerBlynk_3.x.x_esp32dev_FULL.bin - full bin file to use on a ESP32 (it includes all the bin needed eg: bootloader, firmware ...), use it on the very first setup.
  - SolarTracerBlynk_3.x.x_esp8266.bin - bin file to use on a ESP8266.
 

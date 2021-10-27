@@ -67,10 +67,10 @@ def main():
         help = 'Input folder path')
     parser.add_argument(
         '--bin_path',nargs='+',required=True,
-        help = 'List of bin path, same order as bin_address (space seperated)')
+        help = 'List of bin path, same order as bin_address (space separated)')
     parser.add_argument(
         '--bin_address',nargs='+',type=lambda x: int(x,0),required=True,
-        help = 'List of addr, same order as bin_path (space seperated)')
+        help = 'List of addr, same order as bin_path (space separated)')
     parser.add_argument
     args = parser.parse_args()
     mb = multiple_bin(args.output_name, args.output_folder)
