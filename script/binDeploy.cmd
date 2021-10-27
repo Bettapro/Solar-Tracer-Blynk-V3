@@ -2,7 +2,7 @@
 
 RMDIR "binFiles" /S /Q
 
-set VERSION_number="3.0.2"
+set VERSION_number="3.0.3"
 
 set CURRENT_ENV=esp32dev
 pio run -e %CURRENT_ENV%
