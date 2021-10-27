@@ -18,12 +18,13 @@ What you got with v3:
 3. automatic **time sync** between the ESP and the controller on each boot, using NTP time
 4. **platformio** support
 5. **ESP32** support
-6. possibility for future expansion (more solar charge controllers with different communication protocol/channel)
-
+6. **Configuration over wifi**, no needs to compile the code (if you don't want to)
+7. ready for future expansion (more solar charge controllers with different communication protocol/channel)
 
 Feel free to make pull requests if you wish to help improving.
 There is also a support forum on the Blynk community forums: http://community.blynk.cc/t/epsolar-tracer-2210a-charge-controller-blynk-epic-solar-monitor/10596
 
+You are welcome for suggestions, bugreports, and of course any further improvements of this code.
 
 ## Solar Controller Supported
 
@@ -32,35 +33,12 @@ There is also a support forum on the Blynk community forums: http://community.bl
 ![Tracer-AN](images/tracer-a.png)
 ![Tracer-BN](images/tracer-b.png)
 
-
 ## Sample screenshot
 
-## V3
 ![Realtime data screen v3](images/screenshot-blynk_v3_realtime.png)
 ![Battery data screen v3](images/screenshot-blynk_v3_battery.png)
 ![PV data screen v3](images/screenshot-blynk_v3_pv.png)
 ![Settings screen v3](images/screenshot-blynk_v3_settings.png)
-
-## V2
-![Live data on Blynk on Android screenshot](images/screenshot-blynk.png)
-
-
-## Software required
-
-* [Blynk](http://www.blynk.cc/) Mobile App ([iOS](https://itunes.apple.com/us/app/blynk-iot-for-arduino-rpi/id808760481?mt=8) & [Android](https://play.google.com/store/apps/details?id=cc.blynk&hl=en))
-* Arduino IDE 1.6.9+ or Platformio (visual studio code)
-* This project
-
-## Setup
-
-### Libraries [Arduino IDE only]
-
-Follow links to get them.
-
-* [Blynk Library](https://github.com/blynkkk/blynk-library)
-* [ArduinoOTA](https://github.com/esp8266/Arduino/tree/master/libraries/ArduinoOTA)
-* [SimpleTimer](https://github.com/schinken/SimpleTimer)
-* [ModbusMaster](https://github.com/4-20ma/ModbusMaster) - requires my ModbusMaster fork, available [here](https://github.com/Bettapro/ModbusMaster) 
 
 ## Tutorial
 
@@ -69,19 +47,6 @@ Refer to [Sw_getting_started.md](docs/Sw_getting_started.md)
 Some details:
 - ESP8266 + MAX485 +  EPEVER Solar Tracer [HOW TO](docs/Esp8266_max485_epever_rj45.md)
 - ESP32 + MAX485 +  EPEVER Solar Tracer [HOW TO](docs/Esp32_max485_epever_rj45.md)
-
-
-## Reference
-
-* [Tracer A/B Series MPPT Solar Controller - Modbus Protocol](images/1733_modbus_protocol.pdf)
-
-## Developing further
-
-> I plan to add a default configs to make the setup easier
-> I'd make the values optional (you can choose the values to monitor)
-> I'd use external current sensor to measure high current absorption
-
-You are welcome for suggestions, bugreports, and of course any further improvements of this code.
 
 ## Credits
 

@@ -3,3 +3,6 @@
 
 # Visual Studio Code.pio
 .vscode
+
+#build folder
+binFiles
