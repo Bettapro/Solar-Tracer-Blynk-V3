@@ -47,6 +47,29 @@ void blynkLoop(){
   Blynk.run();
 }
 
+
+bool uploadVariableToBlynk(const mqttSolarVariableMap* varDef){
+  if (thisController->isVariableReadReady(varDef->solarVariable))
+    {
+     if (thisController->isVariableReadReady(varDef->solarVariable))
+    {
+      switch (SolarTracer::getVariableDatatype(varDef->solarVariable))
+      {
+      case SolarTracerVariablesDataType::FLOAT:
+        Blynk.virtualWrite(varDef->virtualPin, thisController->getFloatValue(varDef->solarVariable));
+        break;
+      case SolarTracerVariablesDataType::STRING:
+        Blynk.virtualWrite(varDef->virtualPin, thisController->getStringValue(varDef->solarVariable));
+        break;
+      default:
+        break;
+      }
+    }
+      return true;
+    }
+    return false;
+}
+
 // upload values stats
 void uploadStatsToBlynk()
 {
@@ -58,24 +81,7 @@ void uploadStatsToBlynk()
   bool varNotReady = false;
   for (uint8_t index = 0; index < statVirtualBlynkSolarVariablesCount; index++)
   {
-    if (thisController->isVariableReadReady(statVirtualBlynkSolarVariables[index].solarVariable))
-    {
-      switch (SolarTracer::getVariableDatatype(statVirtualBlynkSolarVariables[index].solarVariable))
-      {
-      case SolarTracerVariablesDataType::FLOAT:
-        Blynk.virtualWrite(statVirtualBlynkSolarVariables[index].virtualPin, thisController->getFloatValue(statVirtualBlynkSolarVariables[index].solarVariable));
-        break;
-      case SolarTracerVariablesDataType::STRING:
-        Blynk.virtualWrite(statVirtualBlynkSolarVariables[index].virtualPin, thisController->getStringValue(statVirtualBlynkSolarVariables[index].solarVariable));
-        break;
-      default:
-        break;
-      }
-    }
-    else
-    {
-      varNotReady = true;
-    }
+    varNotReady |= ! uploadVariableToBlynk(&statTimeVirtualBlynkSolarVariables[index]);
   }
   if (varNotReady)
   {
@@ -104,24 +110,7 @@ void uploadRealtimeToBlynk()
   bool varNotReady = false;
   for (uint8_t index = 0; index < realTimeVirtualBlynkSolarVariablesCount; index++)
   {
-    if (thisController->isVariableReadReady(realTimeVirtualBlynkSolarVariables[index].solarVariable))
-    {
-      switch (SolarTracer::getVariableDatatype(realTimeVirtualBlynkSolarVariables[index].solarVariable))
-      {
-      case SolarTracerVariablesDataType::FLOAT:
-        Blynk.virtualWrite(realTimeVirtualBlynkSolarVariables[index].virtualPin, thisController->getFloatValue(realTimeVirtualBlynkSolarVariables[index].solarVariable));
-        break;
-      case SolarTracerVariablesDataType::STRING:
-        Blynk.virtualWrite(realTimeVirtualBlynkSolarVariables[index].virtualPin, thisController->getStringValue(realTimeVirtualBlynkSolarVariables[index].solarVariable));
-        break;
-      default:
-        break;
-      }
-    }
-    else
-    {
-      varNotReady = true;
-    }
+    varNotReady |= ! uploadVariableToBlynk(&realTimeVirtualBlynkSolarVariables[index]);
   }
   if (varNotReady)
   {

@@ -48,15 +48,21 @@
     #define USE_WIFI_NINA false
     #define USE_WIFI101 false
     #include <WiFi.h>
-    #include <BlynkSimpleEsp32.h>
+    #if defined USE_BLYNK
+        #include <BlynkSimpleEsp32.h>
+    #endif
 #elif defined ESP8266
     #include <ESP8266WiFi.h>
     #include <DNSServer.h>
     #include <ESP8266WebServer.h>
     #include <ESP8266mDNS.h>
     #include <WiFiUdp.h>
-    #include <BlynkSimpleEsp8266.h>
+    #if defined USE_BLYNK
+        #include <BlynkSimpleEsp8266.h>
+    #endif
 #endif
+
+ #include <SimpleTimer.h>
 
 #include "../incl/variables_contains.h"
 
@@ -89,7 +95,13 @@
     #include "../feature/wifi_manager.h"
 #endif
 
-#include "../feature/blynk_sync.h"
+#if defined USE_BLYNK
+    #include "../feature/blynk_sync.h"
+#endif
+#if defined USE_MQTT
+    #include <PubSubClient.h>
+    #include "../feature/mqtt_sync.h"
+#endif
 
 #include "../solartracer/SolarTracer.h"
 

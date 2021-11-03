@@ -61,7 +61,9 @@ void loadEnvData()
     envData.blynkLocalServer = false;
     envData.blynkServerPort = 0;
 #endif
+#if defined USE_BLYNK
     strcpy(envData.blynkAuth, BLYNK_AUTH);
+#endif
 
 #if defined USE_WIFI_AP_CONFIGURATION
     LittleFS.begin();
@@ -96,6 +98,7 @@ void loadEnvData()
                     strcpy(envData.wifiSSID, doc[CONFIG_PERSISTENCE_WIFI_SSID]);
                 if (doc.containsKey(CONFIG_PERSISTENCE_WIFI_PASSWORD))
                     strcpy(envData.wifiPassword, doc[CONFIG_PERSISTENCE_WIFI_PASSWORD]);
+#if defined USE_BLYNK
                 if (doc.containsKey(CONFIG_PERSISTENCE_WIFI_BLYNK_AUTH))
                     strcpy(envData.blynkAuth, doc[CONFIG_PERSISTENCE_WIFI_BLYNK_AUTH]);
                 if (doc.containsKey(CONFIG_PERSISTENCE_WIFI_BLYNK_IS_LOCAL))
@@ -104,6 +107,7 @@ void loadEnvData()
                     strcpy(envData.blynkServerHostname, doc[CONFIG_PERSISTENCE_WIFI_BLYNK_HOSTNAME]);
                 if (doc.containsKey(CONFIG_PERSISTENCE_WIFI_BLYNK_PORT))
                     envData.blynkServerPort = doc[CONFIG_PERSISTENCE_WIFI_BLYNK_PORT];
+#endif
 #ifdef USE_WIFI_AP_CONFIGURATION
                 if (doc.containsKey(WIFI_AP_CONFIGURATION_HOSTNAME))
                     strcpy(envData.wmApSSID, doc[WIFI_AP_CONFIGURATION_HOSTNAME]);

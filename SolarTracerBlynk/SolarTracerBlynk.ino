@@ -42,11 +42,21 @@ void getTimeFromServer()
 
 void uploadRealtimeAll()
 {
+#if defined USE_BLYNK
   uploadRealtimeToBlynk();
+#endif
+#if defined USE_MQTT
+  uploadRealtimeToMqtt();
+#endif
 }
 void uploadStatsAll()
 {
+#if defined USE_BLYNK
   uploadStatsToBlynk();
+#endif
+#if defined USE_MQTT
+  uploadStatsToMqtt();
+#endif
 }
 
 // ****************************************************************************
@@ -62,7 +72,13 @@ void loop()
   {
     setStatusError(STATUS_ERR_NO_WIFI_CONNECTION);
   }
+#if defined USE_BLYNK
   blynkLoop();
+#endif
+#if defined USE_MQTT
+  mqttLoop();
+#endif
+
 #ifdef USE_OTA_UPDATE
   ArduinoOTA.handle();
 #endif
@@ -207,9 +223,14 @@ void setup()
   debugPrintln(ti->tm_sec);
 
 #endif
-
+#if defined USE_BLYNK
   blynkSetup();
   debugPrintln("Connected to Blynk.");
+#endif
+#if defined USE_MQTT
+  mqttSetup();
+  debugPrintln("Connected to MQTT.");
+#endif
 
   debugPrintln(" ++ Setting up solar tracer:");
 #ifdef SYNC_ST_TIME

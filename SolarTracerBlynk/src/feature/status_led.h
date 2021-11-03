@@ -55,15 +55,10 @@ void changeStatusLedTimerInterval(unsigned long newInterval)
         }
         return;
     }
-
-    if (ledActTimer < 0)
-    {
-        ledActTimer = mainTimer->setInterval(newInterval, ledTimerCallback);
+    if(ledActTimer >= 0){
+         mainTimer->deleteTimer(ledActTimer);
     }
-    else
-    {
-        mainTimer->changeInterval(ledActTimer, newInterval);
-    }
+    ledActTimer = mainTimer->setInterval(newInterval, ledTimerCallback);
 }
 
 void notifyStatusLed(uint8_t newStatus)

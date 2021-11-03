@@ -24,5 +24,5 @@
 #include "../incl/project_config.h"
 
 
-BlynkTimer* mainTimer = new BlynkTimer();
+SimpleTimer* mainTimer = new SimpleTimer();
 

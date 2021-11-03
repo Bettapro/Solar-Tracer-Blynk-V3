@@ -174,54 +174,71 @@
 // How many ms between each stat sync to blynk server
 #define SYNC_STATS_MS_PERIOD 720000L
 
+
+
+
 /*
  * BLYNK
  * Specify how to connect to blynk server and when to sync the data from the tracer
  */
 
-// Blynk API key
-#define BLYNK_AUTH "-blynk-aut-"
+//#define USE_BLYNK
+#if defined (USE_BLYNK)
 
-// uncomment to us an user-defined blynk server
-//#define USE_BLYNK_LOCAL_SERVER
-#ifdef USE_BLYNK_LOCAL_SERVER
-  //address of blynk server (specify the hostname or the ip address eg: IPAddress(192, 168, 1, 78) )
-  #define BLYNK_SERVER                  ""
-  // port number of the blynk server (eg: 8080)
-  #define BLYNK_PORT                  8080
+  // Blynk API key
+  #define BLYNK_AUTH "-blynk-aut-"
+
+  // uncomment to us an user-defined blynk server
+  //#define USE_BLYNK_LOCAL_SERVER
+  #ifdef USE_BLYNK_LOCAL_SERVER
+    //address of blynk server (specify the hostname or the ip address eg: IPAddress(192, 168, 1, 78) )
+    #define BLYNK_SERVER                  ""
+    // port number of the blynk server (eg: 8080)
+    #define BLYNK_PORT                  8080
+  #endif
+
+  // virtual pins definition and mapping
+  #define vPIN_PV_POWER                                   V1
+  #define vPIN_PV_CURRENT                                 V2
+  #define vPIN_PV_VOLTAGE                                 V3
+  #define vPIN_LOAD_CURRENT                               V4
+  #define vPIN_LOAD_POWER                                 V5
+  #define vPIN_BATT_TEMP                                  V6
+  #define vPIN_BATT_VOLTAGE                               V7
+  #define vPIN_BATT_REMAIN                                V8
+  #define vPIN_CONTROLLER_TEMP                            V9
+  #define vPIN_BATTERY_CHARGE_CURRENT                     V10
+  #define vPIN_BATTERY_CHARGE_POWER                       V11
+  #define vPIN_BATTERY_OVERALL_CURRENT                    V12
+  #define vPIN_LOAD_ENABLED                               V14
+  #define vPIN_STAT_ENERGY_GENERATED_TODAY                V15
+  #define vPIN_STAT_ENERGY_GENERATED_THIS_MONTH           V16
+  #define vPIN_STAT_ENERGY_GENERATED_THIS_YEAR            V17
+  #define vPIN_STAT_ENERGY_GENERATED_TOTAL                V18
+  #define vPIN_MIN_BATTERY_VOLTAGE_TODAY                  V19
+  #define vPIN_MAX_BATTERY_VOLTAGE_TODAY                  V20
+  #define vPIN_BATTERY_STATUS_TEXT                        V23
+  #define vPIN_CHARGING_EQUIPMENT_STATUS_TEXT             V24
+  #define vPIN_DISCHARGING_EQUIPMENT_STATUS_TEXT          V25
+  #define vPIN_CHARGE_DEVICE_ENABLED                      V26
+  #define vPIN_CONTROLLER_HEATSINK_TEMP                   V29
+  // internal
+  #define vPIN_INTERNAL_STATUS                            V27
+  //action
+  #define vPIN_UPDATE_ALL_CONTROLLER_DATA                 V28
 #endif
 
+#define USE_MQTT
+#if defined (USE_MQTT)
+    //address of mqtt server (specify the hostname or the ip address eg: IPAddress(192, 168, 1, 78) )
+    #define MQTT_SERVER IPAddress(10, 147, 1, 1) 
+    // port number of the mqtt server (eg: 1883)
+    #define MQTT_PORT 1883
 
+    
+    #define MQTT_CLIENT_ID "clientID"
 
-// virtual pins definition and mapping
+     // virtual pins definition and mapping
+  #define MQTT_TOPIC_PV_POWER                                  "solarTracer3/pvPower"
 
-
-#define vPIN_PV_POWER                                   V1
-#define vPIN_PV_CURRENT                                 V2
-#define vPIN_PV_VOLTAGE                                 V3
-#define vPIN_LOAD_CURRENT                               V4
-#define vPIN_LOAD_POWER                                 V5
-#define vPIN_BATT_TEMP                                  V6
-#define vPIN_BATT_VOLTAGE                               V7
-#define vPIN_BATT_REMAIN                                V8
-#define vPIN_CONTROLLER_TEMP                            V9
-#define vPIN_BATTERY_CHARGE_CURRENT                     V10
-#define vPIN_BATTERY_CHARGE_POWER                       V11
-#define vPIN_BATTERY_OVERALL_CURRENT                    V12
-#define vPIN_LOAD_ENABLED                               V14
-#define vPIN_STAT_ENERGY_GENERATED_TODAY                V15
-#define vPIN_STAT_ENERGY_GENERATED_THIS_MONTH           V16
-#define vPIN_STAT_ENERGY_GENERATED_THIS_YEAR            V17
-#define vPIN_STAT_ENERGY_GENERATED_TOTAL                V18
-#define vPIN_MIN_BATTERY_VOLTAGE_TODAY                  V19
-#define vPIN_MAX_BATTERY_VOLTAGE_TODAY                  V20
-#define vPIN_BATTERY_STATUS_TEXT                        V23
-#define vPIN_CHARGING_EQUIPMENT_STATUS_TEXT             V24
-#define vPIN_DISCHARGING_EQUIPMENT_STATUS_TEXT          V25
-#define vPIN_CHARGE_DEVICE_ENABLED                      V26
-#define vPIN_CONTROLLER_HEATSINK_TEMP                   V29
-// internal
-#define vPIN_INTERNAL_STATUS                            V27
-//action
-#define vPIN_UPDATE_ALL_CONTROLLER_DATA                 V28
-
+#endif

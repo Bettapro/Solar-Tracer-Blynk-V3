@@ -23,14 +23,16 @@
 
 #include "project_config.h"
 
+#if defined USE_BLYNK
 
 struct blynkSolarVariableMap{
   uint8_t virtualPin;
   SolarTracerVariables solarVariable;
 };
 
+
 const blynkSolarVariableMap realTimeVirtualBlynkSolarVariables [] = {
- #ifdef vPIN_PV_POWER
+ #if defined vPIN_PV_POWER
   {vPIN_PV_POWER, SolarTracerVariables::PV_POWER},
 #endif
 #ifdef vPIN_PV_CURRENT
@@ -86,6 +88,7 @@ const blynkSolarVariableMap realTimeVirtualBlynkSolarVariables [] = {
 #endif
 };
 
+
 const uint8_t  realTimeVirtualBlynkSolarVariablesCount = sizeof(realTimeVirtualBlynkSolarVariables) / sizeof(blynkSolarVariableMap);
 
 const blynkSolarVariableMap statVirtualBlynkSolarVariables [] = {
@@ -104,3 +107,26 @@ const blynkSolarVariableMap statVirtualBlynkSolarVariables [] = {
 };
 
 const uint8_t  statVirtualBlynkSolarVariablesCount = sizeof(statVirtualBlynkSolarVariables) / sizeof(blynkSolarVariableMap);
+
+#endif
+
+
+#if defined USE_MQTT
+
+struct mqttSolarVariableMap{
+  const char* topic;
+  SolarTracerVariables solarVariable;
+};
+
+const mqttSolarVariableMap realTimeVirtualMqttSolarVariables [] = {
+ #if defined MQTT_TOPIC_PV_POWER
+  {MQTT_TOPIC_PV_POWER, SolarTracerVariables::PV_POWER},
+#endif
+};
+const mqttSolarVariableMap statVirtualMqttSolarVariables [] = {
+};
+
+const uint8_t  realTimeVirtualMqttkSolarVariablesCount = sizeof(realTimeVirtualMqttSolarVariables) / sizeof(mqttSolarVariableMap);
+const uint8_t  statVirtualMqttSolarVariablesCount = sizeof(statVirtualMqttSolarVariables) / sizeof(mqttSolarVariableMap);
+
+#endif
