@@ -33,11 +33,20 @@ struct environrmentData
     char wmApSSID[CONFIG_PERSISTENCE_WM_AP_SSID_LEN + 1];
     char wmApPassword[CONFIG_PERSISTENCE_WM_AP_PASSWORD_LEN + 1];
 #endif
-    // blynk
+// blynk
+#ifdef USE_BLYNK
     bool blynkLocalServer;
     char blynkServerHostname[CONFIG_PERSISTENCE_WIFI_BLYNK_HOSTNAME_LEN + 1];
     uint16_t blynkServerPort;
     char blynkAuth[CONFIG_PERSISTENCE_WIFI_BLYNK_AUTH_LEN + 1];
+#endif
+// mqtt
+#ifdef USE_MQTT
+    char mqttServerHostname[CONFIG_PERSISTENCE_WIFI_BLYNK_HOSTNAME_LEN + 1];
+    uint16_t mqttServerPort;
+    char mqttUsername[CONFIG_PERSISTENCE_WIFI_MQTT_USERNAME_LEN + 1];
+    char mqttPassword[CONFIG_PERSISTENCE_WIFI_MQTT_PASSWORD_LEN + 1];
+#endif
 };
 
 struct environrmentData envData;
@@ -53,6 +62,7 @@ void loadEnvData()
     strcpy(envData.wmApPassword, WIFI_AP_CONFIGURATION_PASSWORD);
 #endif
 
+#ifdef USE_BLYNK
 #ifdef USE_BLYNK_LOCAL_SERVER
     envData.blynkLocalServer = true;
     strcpy(envData.blynkServerHostname, BLYNK_SERVER);
@@ -63,6 +73,21 @@ void loadEnvData()
 #endif
 #if defined USE_BLYNK
     strcpy(envData.blynkAuth, BLYNK_AUTH);
+#endif
+#endif
+
+#ifdef USE_BLYNK
+#ifdef USE_BLYNK_LOCAL_SERVER
+    envData.blynkLocalServer = true;
+    strcpy(envData.blynkServerHostname, BLYNK_SERVER);
+    envData.blynkServerPort = BLYNK_PORT;
+#else
+    envData.blynkLocalServer = false;
+    envData.blynkServerPort = 0;
+#endif
+#if defined USE_BLYNK
+    strcpy(envData.blynkAuth, BLYNK_AUTH);
+#endif
 #endif
 
 #if defined USE_WIFI_AP_CONFIGURATION
@@ -121,7 +146,8 @@ void loadEnvData()
 #endif
 }
 
-void resetEnvData(){
+void resetEnvData()
+{
     LittleFS.begin();
     // load from file
     if (!LittleFS.exists(CONFIG_PERSISTENCE))

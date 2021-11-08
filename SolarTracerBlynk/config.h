@@ -230,15 +230,46 @@
 
 #define USE_MQTT
 #if defined (USE_MQTT)
-    //address of mqtt server (specify the hostname or the ip address eg: IPAddress(192, 168, 1, 78) )
-    #define MQTT_SERVER IPAddress(10, 147, 1, 1) 
-    // port number of the mqtt server (eg: 1883)
-    #define MQTT_PORT 1883
+  //address of mqtt server (specify the hostname or the ip address eg: IPAddress(192, 168, 1, 78) )
+  #define MQTT_SERVER "127.0.0.1"
+  // port number of the mqtt server (eg: 1883)
+  #define MQTT_PORT 1883
 
-    
-    #define MQTT_CLIENT_ID "clientID"
+  #define MQTT_USERNAME "testuser"
 
-     // virtual pins definition and mapping
-  #define MQTT_TOPIC_PV_POWER                                  "solarTracer3/pvPower"
+  #define MQTT_PASSWORD "testuser"
+
+  #define MQTT_CLIENT_ID "solarTracer"
+
+  // virtual pins definition and mapping
+  #define MQTT_TOPIC_PV_POWER                                   MQTT_CLIENT_ID  "/pv/power"
+  #define MQTT_TOPIC_PV_CURRENT                                 MQTT_CLIENT_ID  "/pv/current"
+  #define MQTT_TOPIC_PV_VOLTAGE                                 MQTT_CLIENT_ID  "/pv/voltage"
+  #define MQTT_TOPIC_LOAD_CURRENT                               MQTT_CLIENT_ID  "/load/current"
+  #define MQTT_TOPIC_LOAD_POWER                                 MQTT_CLIENT_ID  "/load/power"
+  #define MQTT_TOPIC_BATT_TEMP                                  MQTT_CLIENT_ID  "/battery/power"
+  #define MQTT_TOPIC_BATT_VOLTAGE                               MQTT_CLIENT_ID  "/battery/voltage"
+  #define MQTT_TOPIC_BATT_REMAIN                                MQTT_CLIENT_ID  "/battery/SOC"
+  #define MQTT_TOPIC_CONTROLLER_TEMP                            MQTT_CLIENT_ID  "/controller/temperature"
+  #define MQTT_TOPIC_BATTERY_CHARGE_CURRENT                     MQTT_CLIENT_ID  "/battery/chargeCurrent"
+  #define MQTT_TOPIC_BATTERY_CHARGE_POWER                       MQTT_CLIENT_ID  "/battery/chargePower"
+  #define MQTT_TOPIC_BATTERY_OVERALL_CURRENT                    MQTT_CLIENT_ID  "/battery/overallCurrent"
+  #define MQTT_TOPIC_LOAD_ENABLED                               MQTT_CLIENT_ID  "/controller/loadEnabled"
+  #define MQTT_TOPIC_STAT_ENERGY_GENERATED_TODAY                MQTT_CLIENT_ID  "/stats/production/day"
+  #define MQTT_TOPIC_STAT_ENERGY_GENERATED_THIS_MONTH           MQTT_CLIENT_ID  "/stats/production/month"
+  #define MQTT_TOPIC_STAT_ENERGY_GENERATED_THIS_YEAR            MQTT_CLIENT_ID  "/stats/production/year"
+  #define MQTT_TOPIC_STAT_ENERGY_GENERATED_TOTAL                MQTT_CLIENT_ID  "/stats/production/total"
+  #define MQTT_TOPIC_MIN_BATTERY_VOLTAGE_TODAY                  MQTT_CLIENT_ID  "/stats/battery/maxVoltage"
+  #define MQTT_TOPIC_MAX_BATTERY_VOLTAGE_TODAY                  MQTT_CLIENT_ID  "/stats/battery/minVoltage"
+  #define MQTT_TOPIC_BATTERY_STATUS_TEXT                        MQTT_CLIENT_ID  "/battery/statusText"
+  #define MQTT_TOPIC_CHARGING_EQUIPMENT_STATUS_TEXT             MQTT_CLIENT_ID  "/pv/statusText"
+  #define MQTT_TOPIC_DISCHARGING_EQUIPMENT_STATUS_TEXT          MQTT_CLIENT_ID  "/load/statusText"
+  #define MQTT_TOPIC_CHARGE_DEVICE_ENABLED                      MQTT_CLIENT_ID  "/controller/chargeEnabled"
+  #define MQTT_TOPIC_CONTROLLER_HEATSINK_TEMP                   MQTT_CLIENT_ID  "/controller/heatsinkTemperature"
+  // internal
+  #define MQTT_TOPIC_INTERNAL_STATUS                            MQTT_CLIENT_ID "/internal/status"
+  //action
+  #define MQTT_TOPIC_UPDATE_ALL_CONTROLLER_DATA                 MQTT_CLIENT_ID "/internal/updateAll"
+
 
 #endif
