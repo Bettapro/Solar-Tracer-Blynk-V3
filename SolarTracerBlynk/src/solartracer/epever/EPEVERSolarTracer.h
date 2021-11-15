@@ -22,7 +22,7 @@
 #ifndef EPEVERSolarTracer_h
 #define EPEVERSolarTracer_h
 
-#include <ModbusMaster_obj.h>
+#include <ModbusMaster.h>
 #include <ModbusMasterCallable.h>
 #include "../SolarTracer.h"
 
