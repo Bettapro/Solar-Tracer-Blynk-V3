@@ -31,7 +31,7 @@ boolean blynkConnect(){
   else{
     Blynk.config(envData.blynkAuth);
   }
-  return Blynk.connect()
+  return Blynk.connect();
 }
 
 void blynkSetup()
