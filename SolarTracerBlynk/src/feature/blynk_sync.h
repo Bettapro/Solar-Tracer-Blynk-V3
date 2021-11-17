@@ -42,8 +42,9 @@ void blynkSetup()
   while (!blynkConnect())
   {
     debugPrint(".");
-    delay(100);
+    delay(500);
   }
+  debugPrintln("OK");
   clearStatusError(STATUS_ERR_NO_BLYNK_CONNECTION);
 }
 

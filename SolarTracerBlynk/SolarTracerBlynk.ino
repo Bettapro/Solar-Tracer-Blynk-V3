@@ -99,7 +99,6 @@ void setup()
 #endif
 
   debugPrintln(" ++ Setting up WIFI:");
-  debugPrintln("Connecting...");
 
   WiFi.mode(WIFI_STA);
   WiFi.begin(envData.wifiSSID, envData.wifiPassword);
@@ -155,13 +154,12 @@ void setup()
   WiFi.setAutoConnect(true);
   WiFi.setAutoReconnect(true);
   debugPrintln("Connected.");
+  debugPrint("IP address: ");
+  debugPrintln(WiFi.localIP().toString());
 
 #ifdef USE_OTA_UPDATE
   arduinoOtaSetup();
-
-  debugPrint("ArduinoOTA is running. ");
-  debugPrint("IP address: ");
-  debugPrintln(WiFi.localIP().toString());
+  debugPrintln("ArduinoOTA is running. ");
 #endif
 
 #ifdef USE_SERIAL_STREAM
@@ -183,7 +181,7 @@ void setup()
     debugPrint(".");
     delay(500);
   }
-  debugPrintln(" time synced");
+  debugPrintln("OK");
 
   char strftime_buf[64];
 

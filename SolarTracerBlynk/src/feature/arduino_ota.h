@@ -24,8 +24,6 @@
 
 void arduinoOtaSetup()
 {
-    debugPrintln("Starting ArduinoOTA...");
-
     ArduinoOTA.setHostname(OTA_HOSTNAME);
     ArduinoOTA.setPassword((const char *)OTA_PASS);
 
