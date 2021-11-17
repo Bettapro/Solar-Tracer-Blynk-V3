@@ -176,14 +176,12 @@ void setup()
 #ifdef USE_NTP_SERVER
   debugPrintln(" ++ Setting up Local Time:");
   debugPrint("Waiting for NTP time...");
-  configTime(0, 0, NTP_SERVER_CONNECT_TO);
-  setenv("TZ", CURRENT_TIMEZONE, 3);
-  tzset();
+  configTzTime(CURRENT_TIMEZONE, NTP_SERVER_CONNECT_TO);
 
   while (time(nullptr) < 100000ul)
   {
     debugPrint(".");
-    delay(10);
+    delay(500);
   }
   debugPrintln(" time synced");
 

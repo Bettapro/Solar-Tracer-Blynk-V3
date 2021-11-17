@@ -25,7 +25,7 @@
 #include <ModbusMaster.h>
 #include <ModbusMasterCallable.h>
 #include "../SolarTracer.h"
-
+#include <time.h>
 
 class EPEVERSolarTracer : public SolarTracer, public ModbusMasterCallable {
   public:
