@@ -99,6 +99,9 @@
     #include "../feature/blynk_sync.h"
 #endif
 #if defined USE_MQTT
+    #if defined(USE_MQTT_RPC_SUBSCRIBE) || defined(USE_MQTT_JSON_PUBLISH)
+        #include <ArduinoJson.h>
+    #endif
     #include <PubSubClient.h>
     #include "../feature/mqtt_sync.h"
 #endif

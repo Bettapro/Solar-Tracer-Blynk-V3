@@ -29,24 +29,33 @@ PubSubClient mqttClient(espClient);
 
 char mqttPublishBuffer[20];
 
+void uploadRealtimeToMqtt();
+void uploadStatsToMqtt();
 
-void  uploadRealtimeToMqtt();
-void  uploadStatsToMqtt();
+#if defined(USE_MQTT_RPC_SUBSCRIBE) || defined(USE_MQTT_JSON_PUBLISH)
+DynamicJsonDocument json(1024);
+#endif;
 
-
-void mqttCallback( char* topic, uint8_t* bytes, unsigned int length)
+void mqttCallback(char *topic, uint8_t *bytes, unsigned int length)
 {
-
-  String messageTemp;
+  String payload;
   for (int i = 0; i < length; i++)
   {
-    messageTemp += (char)bytes[i];
+    payload += (char)bytes[i];
   }
 
+#ifdef USE_MQTT_RPC_SUBSCRIBE
+  deserializeJson(json, payload);
+  const char *constTopic = json["method"].as<const char *>();
+  payload = json["params"].as<String>();
+#else
+  const char *constTopic = topic;
+#endif
+
 #ifdef MQTT_TOPIC_LOAD_ENABLED
-  if (strcmp(MQTT_TOPIC_LOAD_ENABLED, topic) == 0)
+  if (strcmp(MQTT_TOPIC_LOAD_ENABLED, constTopic) == 0)
   {
-    uint8_t newState = (uint8_t)messageTemp.toInt();
+    uint8_t newState = (uint8_t)payload.toInt();
 
     debugPrint("Setting load state output coil to value: ");
     debugPrintln(newState);
@@ -61,9 +70,9 @@ void mqttCallback( char* topic, uint8_t* bytes, unsigned int length)
   }
 #endif
 #ifdef MQTT_TOPIC_UPDATE_ALL_CONTROLLER_DATA
-  if (strcmp(MQTT_TOPIC_UPDATE_ALL_CONTROLLER_DATA, topic) == 0)
+  if (strcmp(MQTT_TOPIC_UPDATE_ALL_CONTROLLER_DATA, constTopic) == 0)
   {
-    uint8_t newState = (uint8_t)messageTemp.toInt();
+    uint8_t newState = (uint8_t)payload.toInt();
     debugPrintln("Update all");
 
     if (newState > 0)
@@ -78,9 +87,9 @@ void mqttCallback( char* topic, uint8_t* bytes, unsigned int length)
   }
 #endif
 #ifdef MQTT_TOPIC_CHARGE_DEVICE_ENABLED
-  if (strcmp(MQTT_TOPIC_CHARGE_DEVICE_ENABLED, topic) == 0)
+  if (strcmp(MQTT_TOPIC_CHARGE_DEVICE_ENABLED, constTopic) == 0)
   {
-    uint8_t newState = (uint8_t)messageTemp.toInt();
+    uint8_t newState = (uint8_t)payload.toInt();
 
     debugPrint("Setting load state output coil to value: ");
     debugPrintln(newState);
@@ -120,7 +129,9 @@ void mqttSetup()
     debugPrint(".");
     delay(1000);
   }
-
+#ifdef USE_MQTT_RPC_SUBSCRIBE
+  mqttClient.subscribe(MQTT_RPC_SUBSCRIBE_TOPIC);
+#endif
 #ifdef MQTT_TOPIC_LOAD_ENABLED
   mqttClient.subscribe(MQTT_TOPIC_LOAD_ENABLED);
 #endif
@@ -135,24 +146,34 @@ void mqttSetup()
 void mqttLoop()
 {
   // must call mqttClient.connected() in order to get subscription updates
-  if (!mqttClient.connected()){
-   // mqttAttemptConnection();
+  if (!mqttClient.connected())
+  {
+    // mqttAttemptConnection();
   }
   mqttClient.loop();
 }
 
 bool uploadVariableToMqtt(const mqttSolarVariableMap *varDef)
 {
+
   if (thisController->isVariableReadReady(varDef->solarVariable))
   {
     switch (SolarTracer::getVariableDatatype(varDef->solarVariable))
     {
     case SolarTracerVariablesDataType::FLOAT:
+#ifdef USE_MQTT_JSON_PUBLISH
+      json[varDef->topic] = thisController->getFloatValue(varDef->solarVariable);
+#else
       dtostrf(thisController->getFloatValue(varDef->solarVariable), 0, 4, mqttPublishBuffer);
       mqttClient.publish(varDef->topic, mqttPublishBuffer, RETAIN_ALL_MSG);
+#endif
       break;
     case SolarTracerVariablesDataType::STRING:
+#ifdef USE_MQTT_JSON_PUBLISH
+      json[varDef->topic] = thisController->getStringValue(varDef->solarVariable);
+#else
       mqttClient.publish(varDef->topic, thisController->getStringValue(varDef->solarVariable), RETAIN_ALL_MSG);
+#endif
       break;
     default:
       break;
@@ -165,6 +186,7 @@ bool uploadVariableToMqtt(const mqttSolarVariableMap *varDef)
 // upload values stats
 void uploadStatsToMqtt()
 {
+  json.clear();
   if (!mqttClient.connected())
   {
     setStatusError(STATUS_ERR_NO_MQTT_CONNECTION);
@@ -185,12 +207,21 @@ void uploadStatsToMqtt()
   {
     clearStatusError(STATUS_ERR_SOLAR_TRACER_NO_SYNC_ST);
   }
+
+#ifdef USE_MQTT_JSON_PUBLISH
+  String output;
+  serializeJson(json, output);
+  if (json.size() > 0)
+  {
+    mqttClient.publish(MQTT_JSON_PUBLISH_TOPIC, output.c_str());
+  }
+#endif
 }
 
 // upload values realtime
 void uploadRealtimeToMqtt()
 {
-
+  json.clear();
   if (!mqttClient.connected())
   {
     setStatusError(STATUS_ERR_NO_MQTT_CONNECTION);
@@ -199,8 +230,12 @@ void uploadRealtimeToMqtt()
   clearStatusError(STATUS_ERR_NO_MQTT_CONNECTION);
 
 #ifdef MQTT_TOPIC_INTERNAL_STATUS
+#ifdef USE_MQTT_JSON_PUBLISH
+  json[MQTT_TOPIC_INTERNAL_STATUS] = internalStatus;
+#else
   dtostrf(internalStatus, 0, 4, mqttPublishBuffer);
   mqttClient.publish(MQTT_TOPIC_INTERNAL_STATUS, mqttPublishBuffer, RETAIN_ALL_MSG);
+#endif
 #endif
 
   bool varNotReady = false;
@@ -217,4 +252,13 @@ void uploadRealtimeToMqtt()
   {
     clearStatusError(STATUS_ERR_SOLAR_TRACER_NO_SYNC_RT);
   }
+
+#ifdef USE_MQTT_JSON_PUBLISH
+  String output;
+  serializeJson(json, output);
+  if (json.size() > 0)
+  {
+    mqttClient.publish(MQTT_JSON_PUBLISH_TOPIC, output.c_str());
+  }
+#endif
 }

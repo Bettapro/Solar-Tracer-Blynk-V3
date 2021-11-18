@@ -235,11 +235,21 @@
   // port number of the mqtt server (eg: 1883)
   #define MQTT_PORT 1883
 
-  #define MQTT_USERNAME "testuser"
+  #define MQTT_USERNAME "solartracer"
 
-  #define MQTT_PASSWORD "testuser"
+  #define MQTT_PASSWORD "solartracer"
 
-  #define MQTT_CLIENT_ID "solarTracer"
+  #define MQTT_CLIENT_ID "solarTracer1"
+
+  #define USE_MQTT_JSON_PUBLISH
+   #ifdef USE_MQTT_JSON_PUBLISH
+    #define MQTT_JSON_PUBLISH_TOPIC "v1/devices/me/telemetry"
+  #endif
+  
+  #define USE_MQTT_RPC_SUBSCRIBE
+  #ifdef USE_MQTT_RPC_SUBSCRIBE
+    #define MQTT_RPC_SUBSCRIBE_TOPIC "v1/devices/me/rpc/request/+"
+  #endif
 
   // virtual pins definition and mapping
   #define MQTT_TOPIC_PV_POWER                                   MQTT_CLIENT_ID  "/pv/power"
