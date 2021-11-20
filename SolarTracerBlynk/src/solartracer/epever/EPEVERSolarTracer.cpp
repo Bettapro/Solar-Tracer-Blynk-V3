@@ -71,7 +71,6 @@ EPEVERSolarTracer::EPEVERSolarTracer(Stream &SerialCom, uint8_t slave)
   this->setVariableEnabled(SolarTracerVariables::GENERATED_ENERGY_YEAR);
   this->setVariableEnabled(SolarTracerVariables::GENERATED_ENERGY_TOTAL);
   this->setVariableEnabled(SolarTracerVariables::HEATSINK_TEMP);
-
 }
 
 bool EPEVERSolarTracer::syncRealtimeClock(struct tm *ti)
@@ -92,11 +91,12 @@ bool EPEVERSolarTracer::syncRealtimeClock(struct tm *ti)
 
 void EPEVERSolarTracer::fetchAllValues()
 {
+  // STATS
   updateStats();
+  this->AddressRegistry_9003();
+  //REALTIME
   this->AddressRegistry_3100();
-  this->AddressRegistry_310D();
   this->AddressRegistry_3110();
-  this->AddressRegistry_311A();
   this->AddressRegistry_331B();
   this->fetchValue(SolarTracerVariables::LOAD_MANUAL_ONOFF);
   this->fetchAddressStatusVariables();
@@ -108,7 +108,8 @@ bool EPEVERSolarTracer::updateRun()
   {
   case 360:
     // update statistics
-    updateStats();
+    this->updateStats();
+    this->AddressRegistry_9003();
     globalUpdateCounter = 0;
     break;
   default:
@@ -120,16 +121,12 @@ bool EPEVERSolarTracer::updateRun()
       this->AddressRegistry_3100();
       break;
     case 1:
-      this->AddressRegistry_310D();
+      this->AddressRegistry_3110();
       break;
     case 2:
-      this->AddressRegistry_3110();
-      this->AddressRegistry_311A();
-      break;
-    case 3:
       this->AddressRegistry_331B();
       break;
-    case 4:
+    case 3:
       this->fetchValue(SolarTracerVariables::LOAD_MANUAL_ONOFF);
       this->fetchValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF);
       this->fetchAddressStatusVariables();
@@ -152,7 +149,7 @@ bool EPEVERSolarTracer::fetchValue(SolarTracerVariables variable)
     value = this->readControllerSingleCoil(MODBUS_ADDRESS_LOAD_MANUAL_ONOFF);
     if (rs485readSuccess)
     {
-      loadOnOff = value;
+      this->floatVars[SolarTracerVariables::LOAD_MANUAL_ONOFF] = value;
     }
     this->setVariableReadReady(variable, rs485readSuccess);
     return rs485readSuccess;
@@ -160,7 +157,7 @@ bool EPEVERSolarTracer::fetchValue(SolarTracerVariables variable)
     value = this->readControllerSingleCoil(MODBUS_ADDRESS_BATTERY_CHARGE_ONOFF);
     if (rs485readSuccess)
     {
-      chargingDeviceOnOff = value;
+      this->floatVars[SolarTracerVariables::CHARGING_DEVICE_ONOFF] = value;
     }
     this->setVariableReadReady(variable, rs485readSuccess);
     return rs485readSuccess;
@@ -219,76 +216,53 @@ bool EPEVERSolarTracer::writeControllerSingleCoil(uint16_t address, bool value)
 
 void EPEVERSolarTracer::AddressRegistry_3100()
 {
-  uint8_t result = this->node.readInputRegisters(MODBUS_ADDRESS_PV_VOLTAGE, 8);
+  uint8_t result = this->node.readInputRegisters(MODBUS_ADDRESS_PV_VOLTAGE, 16);
 
   rs485readSuccess = result == this->node.ku8MBSuccess;
   if (rs485readSuccess)
   {
 
-    pvvoltage = this->node.getResponseBuffer(0x00) / 100.0f;
-    pvcurrent = this->node.getResponseBuffer(0x01) / 100.0f;
-    pvpower = (this->node.getResponseBuffer(0x02) | this->node.getResponseBuffer(0x03) << 16) / 100.0f;
-    bvoltage = this->node.getResponseBuffer(0x04) / 100.0f;
-    battChargeCurrent = this->node.getResponseBuffer(0x05) / 100.0f;
-    battChargePower = (this->node.getResponseBuffer(0x06) | this->node.getResponseBuffer(0x07) << 16) / 100.0f;
+    this->floatVars[SolarTracerVariables::PV_VOLTAGE] = this->node.getResponseBuffer(0x00) / 100.0f;
+    this->floatVars[SolarTracerVariables::PV_CURRENT] = this->node.getResponseBuffer(0x01) / 100.0f;
+    this->floatVars[SolarTracerVariables::PV_POWER] = (this->node.getResponseBuffer(0x02) | this->node.getResponseBuffer(0x03) << 16) / 100.0f;
+    this->floatVars[SolarTracerVariables::BATTERY_VOLTAGE] = this->node.getResponseBuffer(0x04) / 100.0f;
+    this->floatVars[SolarTracerVariables::BATTERY_CHARGE_CURRENT] = this->node.getResponseBuffer(0x05) / 100.0f;
+    this->floatVars[SolarTracerVariables::BATTERY_CHARGE_POWER] = (this->node.getResponseBuffer(0x06) | this->node.getResponseBuffer(0x07) << 16) / 100.0f;
 
+    this->floatVars[SolarTracerVariables::LOAD_CURRENT] = this->node.getResponseBuffer(0x0D) / 100.0f;
+    this->floatVars[SolarTracerVariables::LOAD_POWER] = (this->node.getResponseBuffer(0x0E) | this->node.getResponseBuffer(0x02) << 16) / 100.0f;
   }
 
-  this->setVariableReadReady(6, rs485readSuccess,
+  this->setVariableReadReady(8, rs485readSuccess,
                              SolarTracerVariables::PV_VOLTAGE,
                              SolarTracerVariables::PV_CURRENT,
                              SolarTracerVariables::PV_POWER,
                              SolarTracerVariables::BATTERY_VOLTAGE,
                              SolarTracerVariables::BATTERY_CHARGE_CURRENT,
-                             SolarTracerVariables::BATTERY_CHARGE_POWER);
-}
-
-void EPEVERSolarTracer::AddressRegistry_310D()
-{
-  uint8_t result = this->node.readInputRegisters(0x310D, 3);
-
-  rs485readSuccess = result == this->node.ku8MBSuccess;
-  if (rs485readSuccess)
-  {
-    lcurrent = this->node.getResponseBuffer(0x00) / 100.0f;
-    lpower = (this->node.getResponseBuffer(0x01) | this->node.getResponseBuffer(0x02) << 16) / 100.0f;
-  }
-
-  this->setVariableReadReady(2, rs485readSuccess,
+                             SolarTracerVariables::BATTERY_CHARGE_POWER,
                              SolarTracerVariables::LOAD_CURRENT,
                              SolarTracerVariables::LOAD_POWER);
 }
 
 void EPEVERSolarTracer::AddressRegistry_3110()
 {
-  uint8_t result = this->node.readInputRegisters(MODBUS_ADDRESS_BATT_TEMP, 3);
+  uint8_t result = this->node.readInputRegisters(MODBUS_ADDRESS_BATT_TEMP, 12);
 
   rs485readSuccess = result == this->node.ku8MBSuccess;
   if (rs485readSuccess)
   {
-    btemp = this->node.getResponseBuffer(0x00) / 100.0f;
-    ctemp = this->node.getResponseBuffer(0x01) / 100.0f;
-    htemp = this->node.getResponseBuffer(0x02) / 100.0f;
+    this->floatVars[SolarTracerVariables::BATTERY_TEMP] = this->node.getResponseBuffer(0x00) / 100.0f;
+    this->floatVars[SolarTracerVariables::CONTROLLER_TEMP] = this->node.getResponseBuffer(0x01) / 100.0f;
+    this->floatVars[SolarTracerVariables::HEATSINK_TEMP] = this->node.getResponseBuffer(0x02) / 100.0f;
+
+    this->floatVars[SolarTracerVariables::BATTERY_SOC] = this->node.getResponseBuffer(0x0A) / 1.0f;
+    this->floatVars[SolarTracerVariables::REMOTE_BATTERY_TEMP] = this->node.getResponseBuffer(0x0B) / 100.0f;
   }
 
-  this->setVariableReadReady(3, rs485readSuccess,
+  this->setVariableReadReady(5, rs485readSuccess,
                              SolarTracerVariables::BATTERY_TEMP,
                              SolarTracerVariables::CONTROLLER_TEMP,
-                             SolarTracerVariables::HEATSINK_TEMP);
-}
-
-void EPEVERSolarTracer::AddressRegistry_311A()
-{
-  uint8_t result = this->node.readInputRegisters(MODBUS_ADDRESS_BATT_SOC, 2);
-
-  rs485readSuccess = result == this->node.ku8MBSuccess;
-  if (rs485readSuccess)
-  {
-    bremaining = this->node.getResponseBuffer(0x00) / 1.0f;
-    rtemp = this->node.getResponseBuffer(0x01) / 100.0f;
-  }
-
-  this->setVariableReadReady(2, rs485readSuccess,
+                             SolarTracerVariables::HEATSINK_TEMP,
                              SolarTracerVariables::BATTERY_SOC,
                              SolarTracerVariables::REMOTE_BATTERY_TEMP);
 }
@@ -300,10 +274,46 @@ void EPEVERSolarTracer::AddressRegistry_331B()
   rs485readSuccess = result == this->node.ku8MBSuccess;
   if (rs485readSuccess)
   {
-    battOverallCurrent = (this->node.getResponseBuffer(0x00) | this->node.getResponseBuffer(0x01) << 16) / 100.0f;
+    this->floatVars[SolarTracerVariables::BATTERY_OVERALL_CURRENT] = (this->node.getResponseBuffer(0x00) | this->node.getResponseBuffer(0x01) << 16) / 100.0f;
   }
 
   this->setVariableReadReady(SolarTracerVariables::BATTERY_OVERALL_CURRENT, rs485readSuccess);
+}
+
+void EPEVERSolarTracer::AddressRegistry_9003()
+{
+  uint8_t result = this->node.readInputRegisters(MODBUS_ADDRESS_BATTERY_OVERVOLTAGE_DISCONNECT, 12);
+
+  rs485readSuccess = result == this->node.ku8MBSuccess;
+  if (rs485readSuccess)
+  {
+    this->floatVars[SolarTracerVariables::BATTERY_OVER_VOLTAGE_DISCONNECT] = this->node.getResponseBuffer(0x00) / 100.0f;
+    this->floatVars[SolarTracerVariables::BATTERY_CHARGING_LIMIT_VOLTAGE] = this->node.getResponseBuffer(0x01) / 100.0f;
+    this->floatVars[SolarTracerVariables::BATTERY_OVER_VOLTAGE_CONNECT] = this->node.getResponseBuffer(0x02) / 100.0f;
+    this->floatVars[SolarTracerVariables::BATTERY_EQUALIZATION_VOLTAGE] = this->node.getResponseBuffer(0x03) / 100.0f;
+    this->floatVars[SolarTracerVariables::BATTERY_BOOST_VOLTAGE] = this->node.getResponseBuffer(0x04) / 100.0f;
+    this->floatVars[SolarTracerVariables::BATTERY_FLOAT_VOLTAGE] = this->node.getResponseBuffer(0x05) / 100.0f;
+    this->floatVars[SolarTracerVariables::BATTERY_FLOAT_MIN_VOLTAGE] = this->node.getResponseBuffer(0x06) / 100.0f;
+    this->floatVars[SolarTracerVariables::BATTERY_LOW_VOLTAGE_RECONNECT] = this->node.getResponseBuffer(0x07) / 100.0f;
+    this->floatVars[SolarTracerVariables::BATTERY_UNDER_VOLTAGE_RESET] = this->node.getResponseBuffer(0x08) / 100.0f;
+    this->floatVars[SolarTracerVariables::BATTERY_UNDER_VOLTAGE_SET] = this->node.getResponseBuffer(0x09) / 100.0f;
+    this->floatVars[SolarTracerVariables::BATTERY_LOW_VOLTAGE_DISCONNECT] = this->node.getResponseBuffer(0x0A) / 100.0f;
+    this->floatVars[SolarTracerVariables::BATTERY_DISCHARGING_LIMIT_VOLTAGE] = this->node.getResponseBuffer(0x0B) / 100.0f;
+  }
+
+  this->setVariableReadReady(12, rs485readSuccess,
+                             SolarTracerVariables::BATTERY_OVER_VOLTAGE_DISCONNECT,
+                             SolarTracerVariables::BATTERY_CHARGING_LIMIT_VOLTAGE,
+                             SolarTracerVariables::BATTERY_OVER_VOLTAGE_CONNECT,
+                             SolarTracerVariables::BATTERY_EQUALIZATION_VOLTAGE,
+                             SolarTracerVariables::BATTERY_BOOST_VOLTAGE,
+                             SolarTracerVariables::BATTERY_FLOAT_VOLTAGE,
+                             SolarTracerVariables::BATTERY_FLOAT_MIN_VOLTAGE,
+                             SolarTracerVariables::BATTERY_LOW_VOLTAGE_RECONNECT,
+                             SolarTracerVariables::BATTERY_UNDER_VOLTAGE_RESET,
+                             SolarTracerVariables::BATTERY_UNDER_VOLTAGE_SET,
+                             SolarTracerVariables::BATTERY_LOW_VOLTAGE_DISCONNECT,
+                             SolarTracerVariables::BATTERY_DISCHARGING_LIMIT_VOLTAGE);
 }
 
 void EPEVERSolarTracer::fetchAddressStatusVariables()
@@ -320,37 +330,37 @@ void EPEVERSolarTracer::fetchAddressStatusVariables()
       switch (batteryStatus & 3)
       {
       case 1:
-        strcpy(batteryStatusText, "! OVER VOLT");
+        strcpy(this->charVars[SolarTracerVariables::BATTERY_STATUS_TEXT], "! OVER VOLT");
         break;
       case 2:
-        strcpy(batteryStatusText, "! UNDER VOLT");
+        strcpy(this->charVars[SolarTracerVariables::BATTERY_STATUS_TEXT], "! UNDER VOLT");
         break;
       case 3:
-       strcpy( batteryStatusText, "! LOW VOLT");
+        strcpy(this->charVars[SolarTracerVariables::BATTERY_STATUS_TEXT], "! LOW VOLT");
         break;
       case 4:
-        strcpy(batteryStatusText, "! FAULT");
+        strcpy(this->charVars[SolarTracerVariables::BATTERY_STATUS_TEXT], "! FAULT");
         break;
       }
 
       switch ((batteryStatus >> 4) & 3)
       {
       case 1:
-        strcpy(batteryStatusText, "! OVER TEMP");
+        strcpy(this->charVars[SolarTracerVariables::BATTERY_STATUS_TEXT], "! OVER TEMP");
         break;
       case 2:
-        strcpy(batteryStatusText, "! LOW TEMP");
+        strcpy(this->charVars[SolarTracerVariables::BATTERY_STATUS_TEXT], "! LOW TEMP");
         break;
       }
 
       if (batteryStatus >> 8)
       {
-        strcpy(batteryStatusText, "! ABN BATT. RESIST.");
+        strcpy(this->charVars[SolarTracerVariables::BATTERY_STATUS_TEXT], "! ABN BATT. RESIST.");
       }
     }
     else
     {
-      strcpy(batteryStatusText, "Normal");
+      strcpy(this->charVars[SolarTracerVariables::BATTERY_STATUS_TEXT], "Normal");
     }
 
     uint16_t chargingStatus = node.getResponseBuffer(0x01);
@@ -363,47 +373,47 @@ void EPEVERSolarTracer::fetchAddressStatusVariables()
       // chargingStatus & 0xFF0 == 0 means no fault
       if (chargingStatus & 16)
       {
-        strcpy(chargingStatusText ,"! PV INPUT SHORT");
+        strcpy(this->charVars[SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT], "! PV INPUT SHORT");
       }
       else if (chargingStatus & 32)
       {
-        strcpy(chargingStatusText, "! ?? D5"); // not specified in doc
+        strcpy(this->charVars[SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT], "! ?? D5"); // not specified in doc
       }
       else if (chargingStatus & 64)
       {
-        strcpy(chargingStatusText, "! ?? D6"); // not specified in doc
+        strcpy(this->charVars[SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT], "! ?? D6"); // not specified in doc
       }
       else if (chargingStatus & 128)
       {
-        strcpy(chargingStatusText, "! LOAD MOS. SHORT");
+        strcpy(this->charVars[SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT], "! LOAD MOS. SHORT");
       }
       else if (chargingStatus & 256)
       {
-        strcpy(chargingStatusText, "! LOAD SHORT");
+        strcpy(this->charVars[SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT], "! LOAD SHORT");
       }
       else if (chargingStatus & 512)
       {
-        strcpy(chargingStatusText , "! LOAD OVER CURR.");
+        strcpy(this->charVars[SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT], "! LOAD OVER CURR.");
       }
       else if (chargingStatus & 1024)
       {
-        strcpy(chargingStatusText, "! INPUT OVER CURR.");
+        strcpy(this->charVars[SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT], "! INPUT OVER CURR.");
       }
       else if (chargingStatus & 2048)
       {
-        strcpy(chargingStatusText , "! ANTI REV. MOS. SHORT");
+        strcpy(this->charVars[SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT], "! ANTI REV. MOS. SHORT");
       }
       else if (chargingStatus & 4096)
       {
-        strcpy(chargingStatusText, "! CHRG./ ANTI REV. MOS. SHORT");
+        strcpy(this->charVars[SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT], "! CHRG./ ANTI REV. MOS. SHORT");
       }
       else if (chargingStatus & 8192)
       {
-        strcpy(chargingStatusText, "! CHRG. MOS SHORT");
+        strcpy(this->charVars[SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT], "! CHRG. MOS SHORT");
       }
       else
       {
-        strcpy(chargingStatusText , "! ??");
+        strcpy(this->charVars[SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT], "! ??");
       }
     }
     else
@@ -411,19 +421,19 @@ void EPEVERSolarTracer::fetchAddressStatusVariables()
       switch ((chargingStatus >> 2) & 3)
       {
       case 0:
-        strcpy(chargingStatusText, "Standby");
+        strcpy(this->charVars[SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT], "Standby");
         break;
       case 1:
-        strcpy(chargingStatusText, "Float");
+        strcpy(this->charVars[SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT], "Float");
         break;
       case 2:
-        strcpy(chargingStatusText, "Boost");
+        strcpy(this->charVars[SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT], "Boost");
         break;
       case 3:
-        strcpy(chargingStatusText, "Equalization");
+        strcpy(this->charVars[SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT], "Equalization");
         break;
       default:
-        strcpy(chargingStatusText, "??");
+        strcpy(this->charVars[SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT], "??");
       }
     }
 
@@ -433,50 +443,50 @@ void EPEVERSolarTracer::fetchAddressStatusVariables()
       // fault
       if (dischargingStatus & 16)
       {
-        strcpy(dischargingStatusText, "! OUT OVER VOLT.");
+        strcpy(this->charVars[SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT], "! OUT OVER VOLT.");
       }
       else if (dischargingStatus & 32)
       {
-        strcpy(dischargingStatusText, "! BOOST OVER VOLT");
+        strcpy(this->charVars[SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT], "! BOOST OVER VOLT");
       }
       else if (dischargingStatus & 64)
       {
-       strcpy( dischargingStatusText, "! HV SIDE SHORT");
+        strcpy(this->charVars[SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT], "! HV SIDE SHORT");
       }
       else if (dischargingStatus & 128)
       {
-        strcpy(dischargingStatusText, "! INPUT OVER VOLT.");
+        strcpy(this->charVars[SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT], "! INPUT OVER VOLT.");
       }
       else if (dischargingStatus & 256)
       {
-        strcpy(dischargingStatusText, "! OUT VOLT. ABN");
+        strcpy(this->charVars[SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT], "! OUT VOLT. ABN");
       }
       else if (dischargingStatus & 512)
       {
-        strcpy(dischargingStatusText, "! UNABLE STOP DISC.");
+        strcpy(this->charVars[SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT], "! UNABLE STOP DISC.");
       }
       else if (dischargingStatus & 1024)
       {
-        strcpy(dischargingStatusText, "! UNABLE DISC.");
+        strcpy(this->charVars[SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT], "! UNABLE DISC.");
       }
       else if (dischargingStatus & 2048)
       {
-        strcpy(dischargingStatusText, "! SHORT");
+        strcpy(this->charVars[SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT], "! SHORT");
       }
       else
       {
-        strcpy(dischargingStatusText, "! ??");
+        strcpy(this->charVars[SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT], "! ??");
       }
     }
     else
     {
       if (dischargingStatus & 1)
       {
-        strcpy(dischargingStatusText, "Running");
+        strcpy(this->charVars[SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT], "Running");
       }
       else
       {
-        strcpy(dischargingStatusText, "Standby");
+        strcpy(this->charVars[SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT], "Standby");
       }
     }
   }
@@ -495,15 +505,15 @@ void EPEVERSolarTracer::updateStats()
   if (rs485readSuccess)
   {
 
-    stats_today_pv_volt_min = this->node.getResponseBuffer(0x00) / 100.0f;
-    stats_today_pv_volt_max = this->node.getResponseBuffer(0x01) / 100.0f;
-    stats_today_bat_volt_min = this->node.getResponseBuffer(0x02) / 100.0f;
-    stats_today_bat_volt_max = this->node.getResponseBuffer(0x03) / 100.0f;
+    this->floatVars[SolarTracerVariables::MINIMUM_PV_VOLTAGE_TODAY] = this->node.getResponseBuffer(0x00) / 100.0f;
+    this->floatVars[SolarTracerVariables::MAXIMUM_PV_VOLTAGE_TODAY] = this->node.getResponseBuffer(0x01) / 100.0f;
+    this->floatVars[SolarTracerVariables::MINIMUM_BATTERY_VOLTAGE_TODAY] = this->node.getResponseBuffer(0x02) / 100.0f;
+    this->floatVars[SolarTracerVariables::MAXIMUM_BATTERY_VOLTAGE_TODAY] = this->node.getResponseBuffer(0x03) / 100.0f;
 
-    stats_today_generated_energy = (this->node.getResponseBuffer(12) | this->node.getResponseBuffer(13) << 16) / 100.0f;
-    stats_month_generated_energy = (this->node.getResponseBuffer(14) | this->node.getResponseBuffer(15) << 16) / 100.0f;
-    stats_year_generated_energy = (this->node.getResponseBuffer(16) | this->node.getResponseBuffer(17) << 16) / 100.0f;
-    stats_total_generated_energy = (this->node.getResponseBuffer(18) | this->node.getResponseBuffer(19) << 16) / 100.0f;
+    this->floatVars[SolarTracerVariables::GENERATED_ENERGY_TODAY] = (this->node.getResponseBuffer(12) | this->node.getResponseBuffer(13) << 16) / 100.0f;
+    this->floatVars[SolarTracerVariables::GENERATED_ENERGY_MONTH] = (this->node.getResponseBuffer(14) | this->node.getResponseBuffer(15) << 16) / 100.0f;
+    this->floatVars[SolarTracerVariables::GENERATED_ENERGY_YEAR] = (this->node.getResponseBuffer(16) | this->node.getResponseBuffer(17) << 16) / 100.0f;
+    this->floatVars[SolarTracerVariables::GENERATED_ENERGY_TOTAL] = (this->node.getResponseBuffer(18) | this->node.getResponseBuffer(19) << 16) / 100.0f;
   }
 
   this->setVariableReadReady(8, rs485readSuccess,

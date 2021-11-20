@@ -220,6 +220,18 @@
 #define vPIN_DISCHARGING_EQUIPMENT_STATUS_TEXT          V25
 #define vPIN_CHARGE_DEVICE_ENABLED                      V26
 #define vPIN_CONTROLLER_HEATSINK_TEMP                   V29
+#define vPIN_BATTERY_BOOST_VOLTAGE                      V30
+#define vPIN_BATTERY_EQUALIZATION_VOLTAGE               V31
+#define vPIN_BATTERY_FLOAT_VOLTAGE                      V32
+#define vPIN_BATTERY_FLOAT_MIN_VOLTAGE                  V33
+#define vPIN_BATTERY_CHARGING_LIMIT_VOLTAGE             V34
+#define vPIN_BATTERY_DISCHARGING_LIMIT_VOLTAGE          V35
+#define vPIN_BATTERY_LOW_VOLTAGE_DISCONNECT             V36
+#define vPIN_BATTERY_LOW_VOLTAGE_RECONNECT              V37
+#define vPIN_BATTERY_OVER_VOLTAGE_DISCONNECT            V38
+#define vPIN_BATTERY_OVER_VOLTAGE_CONNECT               V39
+#define vPIN_BATTERY_UNDER_VOLTAGE_RESET                V40
+#define vPIN_BATTERY_UNDER_VOLTAGE_SET                  V41
 // internal
 #define vPIN_INTERNAL_STATUS                            V27
 //action

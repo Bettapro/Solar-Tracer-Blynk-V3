@@ -48,15 +48,11 @@ class EPEVERSolarTracer : public SolarTracer, public ModbusMasterCallable {
 
     void AddressRegistry_3100();
 
-    void AddressRegistry_3106();
-
-    void AddressRegistry_310D();
-
     void AddressRegistry_3110();
 
-    void AddressRegistry_311A() ;
+    void AddressRegistry_331B();
 
-    void AddressRegistry_331B() ;
+    void AddressRegistry_9003();
 
     void fetchAddressStatusVariables();
 
@@ -107,6 +103,7 @@ class EPEVERSolarTracer : public SolarTracer, public ModbusMasterCallable {
     static const uint16_t MODBUS_ADDRESS_CONTROLLER_TEMP =    0x3111;
     static const uint16_t MODBUS_ADDRESS_REMOTE_BATTERY_TEMP =    0x311B;
     static const uint16_t MODBUS_ADDRESS_REALTIME_CLOCK =    0x9013;
+    static const uint16_t MODBUS_ADDRESS_BATTERY_OVERVOLTAGE_DISCONNECT =    0x9003;
 };
 
 

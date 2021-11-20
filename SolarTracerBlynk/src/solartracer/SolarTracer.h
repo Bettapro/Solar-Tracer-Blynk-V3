@@ -55,11 +55,24 @@ typedef enum
   MINIMUM_PV_VOLTAGE_TODAY,
   MAXIMUM_BATTERY_VOLTAGE_TODAY,
   MINIMUM_BATTERY_VOLTAGE_TODAY,
+  BATTERY_BOOST_VOLTAGE,
+  BATTERY_EQUALIZATION_VOLTAGE,
+  BATTERY_FLOAT_VOLTAGE,
+  BATTERY_FLOAT_MIN_VOLTAGE,
+  BATTERY_CHARGING_LIMIT_VOLTAGE,
+  BATTERY_DISCHARGING_LIMIT_VOLTAGE,
+  BATTERY_LOW_VOLTAGE_DISCONNECT,
+  BATTERY_LOW_VOLTAGE_RECONNECT,
+  BATTERY_OVER_VOLTAGE_DISCONNECT,
+  BATTERY_OVER_VOLTAGE_CONNECT,
+  BATTERY_UNDER_VOLTAGE_SET,
+  BATTERY_UNDER_VOLTAGE_RESET,
   BATTERY_STATUS_TEXT,
   CHARGING_EQUIPMENT_STATUS_TEXT,
   DISCHARGING_EQUIPMENT_STATUS_TEXT,
   CHARGING_DEVICE_ONOFF,
   HEATSINK_TEMP,
+
   //----------------
   VARIABLES_COUNT
 } SolarTracerVariables;
@@ -71,11 +84,22 @@ public:
   {
     this->variableEnables = new bool[SolarTracerVariables::VARIABLES_COUNT + 1]();
     this->variableReadReady = new bool[SolarTracerVariables::VARIABLES_COUNT + 1]();
+    this->charVars = new char*[SolarTracerVariables::VARIABLES_COUNT + 1]();
+    this->floatVars = new float[SolarTracerVariables::VARIABLES_COUNT + 1]();
 
     // make sure all variables are disabled and not read ready
     for (uint16_t i = 0; i <= SolarTracerVariables::VARIABLES_COUNT; i++)
     {
       this->variableEnables[i] = this->variableReadReady[i] = false;
+      switch(this->getVariableDatatype((SolarTracerVariables)i)){
+        case SolarTracerVariablesDataType::FLOAT:
+          // nothing to do
+          break;
+        case SolarTracerVariablesDataType::STRING:
+          // should specialize depending on the text
+          this->charVars[i] = new char[20];
+          break;
+      }
     }
   }
 
@@ -153,7 +177,7 @@ public:
 
     for (uint8_t i = 1; i <= count; i++)
     {
-      this->setVariableReadReady((SolarTracerVariables) va_arg(args, int), ready);
+      this->setVariableReadReady((SolarTracerVariables)va_arg(args, int), ready);
     }
 
     va_end(args);
@@ -168,23 +192,17 @@ public:
     return false;
   }
 
-  const char* getStringValue(SolarTracerVariables variable)
+  const char *getStringValue(SolarTracerVariables variable)
   {
     if (!this->isVariableEnabled(variable))
     {
       return "";
     }
-    switch (variable)
-    {
-    case SolarTracerVariables::BATTERY_STATUS_TEXT:
-      return batteryStatusText;
-    case SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT:
-      return chargingStatusText;
-    case SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT:
-      return dischargingStatusText;
-    default:
-      break;
+
+    if(this->getVariableDatatype(variable) == SolarTracerVariablesDataType::FLOAT){
+      return charVars[variable];
     }
+
     // should raise an exception?
     return "";
   }
@@ -196,59 +214,10 @@ public:
       return 0;
     }
 
-    switch (variable)
-    {
-    case SolarTracerVariables::PV_VOLTAGE:
-      return pvvoltage;
-    case SolarTracerVariables::PV_POWER:
-      return pvpower;
-    case SolarTracerVariables::PV_CURRENT:
-      return pvcurrent;
-    case SolarTracerVariables::LOAD_CURRENT:
-      return lcurrent;
-    case SolarTracerVariables::LOAD_POWER:
-      return lpower;
-    case SolarTracerVariables::BATTERY_TEMP:
-      return btemp;
-    case SolarTracerVariables::BATTERY_VOLTAGE:
-      return bvoltage;
-    case SolarTracerVariables::BATTERY_SOC:
-      return bremaining;
-    case SolarTracerVariables::CONTROLLER_TEMP:
-      return ctemp;
-    case SolarTracerVariables::BATTERY_CHARGE_CURRENT:
-      return battChargeCurrent;
-    case SolarTracerVariables::BATTERY_CHARGE_POWER:
-      return battChargePower;
-    case SolarTracerVariables::BATTERY_OVERALL_CURRENT:
-      return battOverallCurrent;
-    case SolarTracerVariables::LOAD_MANUAL_ONOFF:
-      return loadOnOff;
-    case SolarTracerVariables::CHARGING_DEVICE_ONOFF:
-      return chargingDeviceOnOff;
-    case SolarTracerVariables::GENERATED_ENERGY_TODAY:
-      return stats_today_generated_energy;
-    case SolarTracerVariables::GENERATED_ENERGY_MONTH:
-      return stats_month_generated_energy;
-    case SolarTracerVariables::GENERATED_ENERGY_YEAR:
-      return stats_year_generated_energy;
-    case SolarTracerVariables::GENERATED_ENERGY_TOTAL:
-      return stats_total_generated_energy;
-    case SolarTracerVariables::HEATSINK_TEMP:
-      return htemp;
-    case SolarTracerVariables::MAXIMUM_PV_VOLTAGE_TODAY:
-      return stats_today_pv_volt_max;
-    case SolarTracerVariables::MINIMUM_PV_VOLTAGE_TODAY:
-      return stats_today_pv_volt_min;
-    case SolarTracerVariables::MAXIMUM_BATTERY_VOLTAGE_TODAY:
-      return stats_today_bat_volt_max;
-    case SolarTracerVariables::MINIMUM_BATTERY_VOLTAGE_TODAY:
-      return stats_today_bat_volt_min;
-    case SolarTracerVariables::REMOTE_BATTERY_TEMP:
-      return rtemp;
-    default:
-      break;
+    if(this->getVariableDatatype(variable) == SolarTracerVariablesDataType::FLOAT){
+      return floatVars[variable];
     }
+
     // should raise an exception?
     return 0.0;
   }
@@ -259,14 +228,8 @@ public:
   virtual bool writeBoolValue(SolarTracerVariables variable, bool value) = 0;
 
 protected:
-  float battChargeCurrent, battDischargeCurrent, battOverallCurrent, battChargePower;
-  float bvoltage, rtemp, ctemp, btemp, htemp, bremaining, lpower, lcurrent, pvvoltage, pvcurrent, pvpower;
-  float stats_today_pv_volt_min, stats_today_pv_volt_max, stats_today_bat_volt_min, stats_today_bat_volt_max, stats_today_generated_energy, stats_month_generated_energy, stats_year_generated_energy, stats_total_generated_energy;
-  // should be bool
-  float loadOnOff, chargingDeviceOnOff;
-
-  char batteryStatusText[20], dischargingStatusText[20], chargingStatusText [30];
-
+  float* floatVars;
+  char** charVars;
 private:
   bool *variableEnables;
   bool *variableReadReady;
