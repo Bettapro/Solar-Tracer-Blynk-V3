@@ -54,13 +54,17 @@ void uploadStatsAll()
 
 void loop()
 {
-  if (WiFi.isConnected())
+  if (!WiFi.isConnected())
   {
-    clearStatusError(STATUS_ERR_NO_WIFI_CONNECTION);
+    WiFi.reconnect();
+    // cannot trust return value of reconnect()
+    if (!WiFi.isConnected())
+    {
+      setStatusError(STATUS_ERR_NO_WIFI_CONNECTION);
+    }
   }
-  else
-  {
-    setStatusError(STATUS_ERR_NO_WIFI_CONNECTION);
+  else{
+    clearStatusError(STATUS_ERR_NO_WIFI_CONNECTION);
   }
   blynkLoop();
 #ifdef USE_OTA_UPDATE
@@ -151,8 +155,6 @@ void setup()
     ESP.restart();
 #endif
   }
-  WiFi.setAutoConnect(true);
-  WiFi.setAutoReconnect(true);
   debugPrintln("Connected.");
   debugPrint("IP address: ");
   debugPrintln(WiFi.localIP().toString());

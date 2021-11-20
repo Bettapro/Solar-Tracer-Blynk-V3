@@ -24,22 +24,21 @@
 
 extern SolarTracer *thisController;
 
-boolean blynkConnect(){
-  if(envData.blynkLocalServer){
-    Blynk.config(envData.blynkAuth, envData.blynkServerHostname, envData.blynkServerPort);
-  }
-  else{
-    Blynk.config(envData.blynkAuth);
-  }
-  return Blynk.connect();
-}
-
 void blynkSetup()
 {
   debugPrintln(" ++ Setting up Blynk:");
   debugPrint("Connecting...");
 
-  while (!blynkConnect())
+  if (envData.blynkLocalServer)
+  {
+    Blynk.config(envData.blynkAuth, envData.blynkServerHostname, envData.blynkServerPort);
+  }
+  else
+  {
+    Blynk.config(envData.blynkAuth);
+  }
+
+  while (!Blynk.connect())
   {
     debugPrint(".");
     delay(500);
@@ -48,26 +47,28 @@ void blynkSetup()
   clearStatusError(STATUS_ERR_NO_BLYNK_CONNECTION);
 }
 
-void blynkLoop(){
-  if(!Blynk.connected()){
-    if(!blynkConnect()){
-      setStatusError(STATUS_ERR_NO_BLYNK_CONNECTION);
-    }
-    else{
-      clearStatusError(STATUS_ERR_NO_BLYNK_CONNECTION);
-    }
-  } 
-  
+void blynkLoop()
+{
+  if (!Blynk.connected())
+  {
+    setStatusError(STATUS_ERR_NO_BLYNK_CONNECTION);
+  }
+  else
+  {
+    clearStatusError(STATUS_ERR_NO_BLYNK_CONNECTION);
+  }
+
   Blynk.run();
 }
 
 // upload values stats
 void uploadStatsToBlynk()
 {
-  if(!Blynk.connected()){
+  if (!Blynk.connected())
+  {
     return;
   }
-  
+
   bool varNotReady = false;
   for (uint8_t index = 0; index < statVirtualBlynkSolarVariablesCount; index++)
   {
@@ -104,7 +105,8 @@ void uploadStatsToBlynk()
 // upload values realtime
 void uploadRealtimeToBlynk()
 {
-  if(!Blynk.connected()){
+  if (!Blynk.connected())
+  {
     return;
   }
 
