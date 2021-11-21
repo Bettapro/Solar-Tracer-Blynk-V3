@@ -175,6 +175,8 @@ public:
     return false;
   }
 
+  
+
   void setVariableReadReady(SolarTracerVariables variable, bool enable)
   {
     if (variable < SolarTracerVariables::VARIABLES_COUNT)
@@ -212,7 +214,7 @@ public:
       return "";
     }
 
-    if(this->getVariableDatatype(variable) == SolarTracerVariablesDataType::STRING)
+    if (this->getVariableDatatype(variable) == SolarTracerVariablesDataType::STRING)
     {
       return charVars[variable];
     }
@@ -241,8 +243,31 @@ public:
   virtual void fetchAllValues() = 0;
   virtual bool updateRun() = 0;
   virtual bool writeBoolValue(SolarTracerVariables variable, bool value) = 0;
+  virtual bool writeValue(SolarTracerVariables variable, void* value) = 0;
 
 protected:
+  bool setVariableValue(SolarTracerVariables variable, void *value)
+  {
+    bool valueOk = value != nullptr; 
+    if (valueOk)
+    {
+      switch (this->getVariableDatatype(variable))
+      {
+      case SolarTracerVariablesDataType::FLOAT:
+        this->floatVars[variable] = *(float*)value;
+        break;
+      case SolarTracerVariablesDataType::STRING:
+        // should specialize depending on the text
+        this->charVars[variable] = (char*) value;
+        break;
+      }
+    }
+    this->setVariableReadReady(variable, valueOk);
+    return valueOk;
+  }
+
+
+
   float *floatVars;
   char **charVars;
 

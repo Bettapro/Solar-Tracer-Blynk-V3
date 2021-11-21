@@ -41,10 +41,10 @@ class EPEVERSolarTracer : public SolarTracer, public ModbusMasterCallable {
     virtual bool fetchValue(SolarTracerVariables variable);
 
     virtual bool writeBoolValue(SolarTracerVariables variable, bool value) ;
+    virtual bool writeValue(SolarTracerVariables variable, void* value) ;
 
     bool readControllerSingleCoil(uint16_t address) ;
 
-    bool writeControllerSingleCoil(uint16_t address, bool value);
 
     void AddressRegistry_3100();
 
@@ -78,6 +78,10 @@ class EPEVERSolarTracer : public SolarTracer, public ModbusMasterCallable {
     uint8_t currentRealtimeUpdateCounter = 0;
 
     ModbusMaster node;
+
+    // MODBUS FUNCTION
+    bool writeControllerSingleCoil(uint16_t address, bool value);
+    bool writeControllerHoldingRegister(uint16_t address, uint8_t value);
 
     // MODBUS ADDRESS
     static const uint16_t MODBUS_ADDRESS_PV_VOLTAGE   =           0x3100;

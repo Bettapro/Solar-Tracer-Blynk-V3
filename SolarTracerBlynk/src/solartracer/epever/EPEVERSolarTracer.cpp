@@ -21,6 +21,9 @@
 
 #include "EPEVERSolarTracer.h"
 
+#define _EST_RS_POINTER(s, v) (s ? &v : nullptr)
+
+
 EPEVERSolarTracer::EPEVERSolarTracer(Stream &SerialCom, uint8_t slave, uint8_t max485_de, uint8_t max485_re_neg)
     : EPEVERSolarTracer(SerialCom, slave)
 {
@@ -159,24 +162,13 @@ bool EPEVERSolarTracer::fetchValue(SolarTracerVariables variable)
   {
   case SolarTracerVariables::LOAD_FORCE_ONOFF:
     value = this->readControllerSingleCoil(MODBUS_ADDRESS_LOAD_FORCE_ONOFF);
-    this->setVariableReadReady(variable, rs485readSuccess);
-    return rs485readSuccess;
+    return this->setVariableValue(variable, _EST_RS_POINTER(rs485readSuccess, value));
   case SolarTracerVariables::LOAD_MANUAL_ONOFF:
     value = this->readControllerSingleCoil(MODBUS_ADDRESS_LOAD_MANUAL_ONOFF);
-    if (rs485readSuccess)
-    {
-      this->floatVars[SolarTracerVariables::LOAD_MANUAL_ONOFF] = value;
-    }
-    this->setVariableReadReady(variable, rs485readSuccess);
-    return rs485readSuccess;
+    return this->setVariableValue(variable, _EST_RS_POINTER(rs485readSuccess, value));
   case SolarTracerVariables::CHARGING_DEVICE_ONOFF:
     value = this->readControllerSingleCoil(MODBUS_ADDRESS_BATTERY_CHARGE_ONOFF);
-    if (rs485readSuccess)
-    {
-      this->floatVars[SolarTracerVariables::CHARGING_DEVICE_ONOFF] = value;
-    }
-    this->setVariableReadReady(variable, rs485readSuccess);
-    return rs485readSuccess;
+    return this->setVariableValue(variable, _EST_RS_POINTER(rs485readSuccess, value));
   default:
     break;
   }
@@ -206,6 +198,28 @@ bool EPEVERSolarTracer::writeBoolValue(SolarTracerVariables variable, bool value
   return false;
 }
 
+bool EPEVERSolarTracer::writeValue(SolarTracerVariables variable, void* value)
+{
+  if (!this->isVariableEnabled(variable))
+  {
+    return false;
+  }
+
+  switch (variable)
+  {
+  case SolarTracerVariables::LOAD_FORCE_ONOFF:
+    return this->writeControllerSingleCoil(MODBUS_ADDRESS_LOAD_FORCE_ONOFF, (*(float*)value) > 0);
+  case SolarTracerVariables::LOAD_MANUAL_ONOFF:
+    return this->writeControllerSingleCoil(MODBUS_ADDRESS_LOAD_MANUAL_ONOFF, (*(float*)value) > 0);
+  case SolarTracerVariables::CHARGING_DEVICE_ONOFF:
+    return this->writeControllerSingleCoil(MODBUS_ADDRESS_BATTERY_CHARGE_ONOFF, (*(float*)value) > 0);
+  default:
+    break;
+  }
+
+  return false;
+}
+
 bool EPEVERSolarTracer::readControllerSingleCoil(uint16_t address)
 {
   uint8_t result = this->node.readCoils(address, 1);
@@ -221,6 +235,18 @@ bool EPEVERSolarTracer::readControllerSingleCoil(uint16_t address)
 bool EPEVERSolarTracer::writeControllerSingleCoil(uint16_t address, bool value)
 {
   uint8_t result = this->node.writeSingleCoil(address, value);
+
+  if (result == this->node.ku8MBSuccess)
+  {
+    this->node.getResponseBuffer(0x00);
+    return true;
+  }
+  return false;
+}
+
+bool EPEVERSolarTracer::writeControllerHoldingRegister(uint16_t address, uint8_t value)
+{
+  uint8_t result = this->node.writeSingleRegister(address, value);
 
   if (result == this->node.ku8MBSuccess)
   {

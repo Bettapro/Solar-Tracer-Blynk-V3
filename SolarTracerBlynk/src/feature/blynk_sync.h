@@ -147,37 +147,30 @@ void uploadRealtimeToBlynk()
   }
 }
 
-#ifdef vPIN_LOAD_ENABLED
-BLYNK_WRITE(vPIN_LOAD_ENABLED)
-{
-  uint8_t newState = (uint8_t)param.asInt();
-
-  debugPrint("Setting load state output coil to value: ");
-  debugPrintln(newState);
-
-  if (!thisController->writeBoolValue(SolarTracerVariables::LOAD_MANUAL_ONOFF, newState > 0))
+void executeFromBlynkWrite(SolarTracerVariables variable, void* value){
+  if (!thisController->writeValue(SolarTracerVariables::LOAD_MANUAL_ONOFF, value))
   {
-    debugPrintln("Write & Read failed.");
+    debugPrintln("Write failed!");
   }
   thisController->fetchValue(SolarTracerVariables::LOAD_MANUAL_ONOFF);
   uploadRealtimeToBlynk();
+}
+
+#ifdef vPIN_LOAD_ENABLED
+BLYNK_WRITE(vPIN_LOAD_ENABLED)
+{
+  debugPrint("SET NEW VALUE FOR vPIN_LOAD_ENABLED");
+  uint8_t newState = (uint8_t)param.asInt();
+  executeFromBlynkWrite(SolarTracerVariables::LOAD_MANUAL_ONOFF, &newState);
 }
 #endif
 
 #ifdef vPIN_CHARGE_DEVICE_ENABLED
 BLYNK_WRITE(vPIN_CHARGE_DEVICE_ENABLED)
 {
+  debugPrint("SET NEW VALUE FOR vPIN_CHARGE_DEVICE_ENABLED");
   uint8_t newState = (uint8_t)param.asInt();
-
-  debugPrint("Setting load state output coil to value: ");
-  debugPrintln(newState);
-
-  if (thisController->writeBoolValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF, newState > 0))
-  {
-    debugPrintln("Write & Read failed.");
-  }
-  thisController->fetchValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF);
-  uploadRealtimeToBlynk();
+  executeFromBlynkWrite(SolarTracerVariables::CHARGING_DEVICE_ONOFF, &newState);
 }
 #endif
 
