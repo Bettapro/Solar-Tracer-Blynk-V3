@@ -176,7 +176,8 @@ bool EPEVERSolarTracer::fetchValue(SolarTracerVariables variable)
   return false;
 }
 
-bool EPEVERSolarTracer::writeBoolValue(SolarTracerVariables variable, bool value)
+
+bool EPEVERSolarTracer::writeValue(SolarTracerVariables variable, bool* value)
 {
   if (!this->isVariableEnabled(variable))
   {
@@ -186,11 +187,11 @@ bool EPEVERSolarTracer::writeBoolValue(SolarTracerVariables variable, bool value
   switch (variable)
   {
   case SolarTracerVariables::LOAD_FORCE_ONOFF:
-    return this->writeControllerSingleCoil(MODBUS_ADDRESS_LOAD_FORCE_ONOFF, value);
+    return this->writeControllerSingleCoil(MODBUS_ADDRESS_LOAD_FORCE_ONOFF, (*(bool*)value));
   case SolarTracerVariables::LOAD_MANUAL_ONOFF:
-    return this->writeControllerSingleCoil(MODBUS_ADDRESS_LOAD_MANUAL_ONOFF, value);
+    return this->writeControllerSingleCoil(MODBUS_ADDRESS_LOAD_MANUAL_ONOFF, (*(bool*)value));
   case SolarTracerVariables::CHARGING_DEVICE_ONOFF:
-    return this->writeControllerSingleCoil(MODBUS_ADDRESS_BATTERY_CHARGE_ONOFF, value);
+    return this->writeControllerSingleCoil(MODBUS_ADDRESS_BATTERY_CHARGE_ONOFF, (*(bool*)value));
   default:
     break;
   }
@@ -198,7 +199,7 @@ bool EPEVERSolarTracer::writeBoolValue(SolarTracerVariables variable, bool value
   return false;
 }
 
-bool EPEVERSolarTracer::writeValue(SolarTracerVariables variable, void* value)
+bool EPEVERSolarTracer::writeValue(SolarTracerVariables variable, float* value)
 {
   if (!this->isVariableEnabled(variable))
   {

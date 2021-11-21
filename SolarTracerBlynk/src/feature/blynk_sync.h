@@ -147,12 +147,21 @@ void uploadRealtimeToBlynk()
   }
 }
 
-void executeFromBlynkWrite(SolarTracerVariables variable, void* value){
-  if (!thisController->writeValue(SolarTracerVariables::LOAD_MANUAL_ONOFF, value))
+void executeFromBlynkFloatWrite(SolarTracerVariables variable, float* value){
+  if (!thisController->writeValue(variable, value))
   {
-    debugPrintln("Write failed!");
+    debugPrint (" - FAILED!");
   }
-  thisController->fetchValue(SolarTracerVariables::LOAD_MANUAL_ONOFF);
+  thisController->fetchValue(variable);
+  uploadRealtimeToBlynk();
+}
+
+void executeFromBlynkBoolWrite(SolarTracerVariables variable, bool* value){
+  if (!thisController->writeValue(variable, value))
+  {
+    debugPrint (" - FAILED!");
+  }
+  thisController->fetchValue(variable);
   uploadRealtimeToBlynk();
 }
 
@@ -160,8 +169,9 @@ void executeFromBlynkWrite(SolarTracerVariables variable, void* value){
 BLYNK_WRITE(vPIN_LOAD_ENABLED)
 {
   debugPrint("SET NEW VALUE FOR vPIN_LOAD_ENABLED");
-  uint8_t newState = (uint8_t)param.asInt();
-  executeFromBlynkWrite(SolarTracerVariables::LOAD_MANUAL_ONOFF, &newState);
+  bool newState = param.asInt() > 0;
+  executeFromBlynkBoolWrite(SolarTracerVariables::LOAD_MANUAL_ONOFF, &newState);
+  debugPrintln();
 }
 #endif
 
@@ -169,8 +179,9 @@ BLYNK_WRITE(vPIN_LOAD_ENABLED)
 BLYNK_WRITE(vPIN_CHARGE_DEVICE_ENABLED)
 {
   debugPrint("SET NEW VALUE FOR vPIN_CHARGE_DEVICE_ENABLED");
-  uint8_t newState = (uint8_t)param.asInt();
-  executeFromBlynkWrite(SolarTracerVariables::CHARGING_DEVICE_ONOFF, &newState);
+  bool newState = param.asInt() > 0;
+  executeFromBlynkBoolWrite(SolarTracerVariables::CHARGING_DEVICE_ONOFF, &newState);
+  debugPrintln();
 }
 #endif
 
