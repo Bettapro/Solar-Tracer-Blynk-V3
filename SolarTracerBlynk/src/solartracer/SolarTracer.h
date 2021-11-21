@@ -84,21 +84,22 @@ public:
   {
     this->variableEnables = new bool[SolarTracerVariables::VARIABLES_COUNT + 1]();
     this->variableReadReady = new bool[SolarTracerVariables::VARIABLES_COUNT + 1]();
-    this->charVars = new char*[SolarTracerVariables::VARIABLES_COUNT + 1]();
+    this->charVars = new char *[SolarTracerVariables::VARIABLES_COUNT + 1]();
     this->floatVars = new float[SolarTracerVariables::VARIABLES_COUNT + 1]();
 
     // make sure all variables are disabled and not read ready
     for (uint16_t i = 0; i <= SolarTracerVariables::VARIABLES_COUNT; i++)
     {
       this->variableEnables[i] = this->variableReadReady[i] = false;
-      switch(this->getVariableDatatype((SolarTracerVariables)i)){
-        case SolarTracerVariablesDataType::FLOAT:
-          // nothing to do
-          break;
-        case SolarTracerVariablesDataType::STRING:
-          // should specialize depending on the text
-          this->charVars[i] = new char[20];
-          break;
+      switch (this->getVariableDatatype((SolarTracerVariables)i))
+      {
+      case SolarTracerVariablesDataType::FLOAT:
+        // nothing to do
+        break;
+      case SolarTracerVariablesDataType::STRING:
+        // should specialize depending on the text
+        this->charVars[i] = new char[20];
+        break;
       }
     }
   }
@@ -131,6 +132,18 @@ public:
     case SolarTracerVariables::MINIMUM_BATTERY_VOLTAGE_TODAY:
     case SolarTracerVariables::REMOTE_BATTERY_TEMP:
     case SolarTracerVariables::HEATSINK_TEMP:
+    case SolarTracerVariables::BATTERY_BOOST_VOLTAGE:
+    case SolarTracerVariables::BATTERY_EQUALIZATION_VOLTAGE:
+    case SolarTracerVariables::BATTERY_FLOAT_VOLTAGE:
+    case SolarTracerVariables::BATTERY_FLOAT_MIN_VOLTAGE:
+    case SolarTracerVariables::BATTERY_CHARGING_LIMIT_VOLTAGE:
+    case SolarTracerVariables::BATTERY_DISCHARGING_LIMIT_VOLTAGE:
+    case SolarTracerVariables::BATTERY_LOW_VOLTAGE_DISCONNECT:
+    case SolarTracerVariables::BATTERY_LOW_VOLTAGE_RECONNECT:
+    case SolarTracerVariables::BATTERY_OVER_VOLTAGE_DISCONNECT:
+    case SolarTracerVariables::BATTERY_OVER_VOLTAGE_CONNECT:
+    case SolarTracerVariables::BATTERY_UNDER_VOLTAGE_SET:
+    case SolarTracerVariables::BATTERY_UNDER_VOLTAGE_RESET:
       return SolarTracerVariablesDataType::FLOAT;
     case SolarTracerVariables::BATTERY_STATUS_TEXT:
     case SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT:
@@ -199,7 +212,8 @@ public:
       return "";
     }
 
-    if(this->getVariableDatatype(variable) == SolarTracerVariablesDataType::FLOAT){
+    if(this->getVariableDatatype(variable) == SolarTracerVariablesDataType::STRING)
+    {
       return charVars[variable];
     }
 
@@ -214,7 +228,8 @@ public:
       return 0;
     }
 
-    if(this->getVariableDatatype(variable) == SolarTracerVariablesDataType::FLOAT){
+    if (this->getVariableDatatype(variable) == SolarTracerVariablesDataType::FLOAT)
+    {
       return floatVars[variable];
     }
 
@@ -228,8 +243,9 @@ public:
   virtual bool writeBoolValue(SolarTracerVariables variable, bool value) = 0;
 
 protected:
-  float* floatVars;
-  char** charVars;
+  float *floatVars;
+  char **charVars;
+
 private:
   bool *variableEnables;
   bool *variableReadReady;

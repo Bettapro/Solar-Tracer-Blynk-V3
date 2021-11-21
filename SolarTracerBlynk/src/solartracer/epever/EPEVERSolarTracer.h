@@ -50,6 +50,8 @@ class EPEVERSolarTracer : public SolarTracer, public ModbusMasterCallable {
 
     void AddressRegistry_3110();
 
+    void AddressRegistry_311A();
+
     void AddressRegistry_331B();
 
     void AddressRegistry_9003();

@@ -71,6 +71,18 @@ EPEVERSolarTracer::EPEVERSolarTracer(Stream &SerialCom, uint8_t slave)
   this->setVariableEnabled(SolarTracerVariables::GENERATED_ENERGY_YEAR);
   this->setVariableEnabled(SolarTracerVariables::GENERATED_ENERGY_TOTAL);
   this->setVariableEnabled(SolarTracerVariables::HEATSINK_TEMP);
+  this->setVariableEnabled(SolarTracerVariables::BATTERY_BOOST_VOLTAGE);
+  this->setVariableEnabled(SolarTracerVariables::BATTERY_EQUALIZATION_VOLTAGE);
+  this->setVariableEnabled(SolarTracerVariables::BATTERY_FLOAT_VOLTAGE);
+  this->setVariableEnabled(SolarTracerVariables::BATTERY_FLOAT_MIN_VOLTAGE);
+  this->setVariableEnabled(SolarTracerVariables::BATTERY_CHARGING_LIMIT_VOLTAGE);
+  this->setVariableEnabled(SolarTracerVariables::BATTERY_DISCHARGING_LIMIT_VOLTAGE);
+  this->setVariableEnabled(SolarTracerVariables::BATTERY_LOW_VOLTAGE_DISCONNECT);
+  this->setVariableEnabled(SolarTracerVariables::BATTERY_LOW_VOLTAGE_RECONNECT);
+  this->setVariableEnabled(SolarTracerVariables::BATTERY_OVER_VOLTAGE_DISCONNECT);
+  this->setVariableEnabled(SolarTracerVariables::BATTERY_OVER_VOLTAGE_CONNECT);
+  this->setVariableEnabled(SolarTracerVariables::BATTERY_UNDER_VOLTAGE_SET);
+  this->setVariableEnabled(SolarTracerVariables::BATTERY_UNDER_VOLTAGE_RESET);
 }
 
 bool EPEVERSolarTracer::syncRealtimeClock(struct tm *ti)
@@ -97,6 +109,7 @@ void EPEVERSolarTracer::fetchAllValues()
   //REALTIME
   this->AddressRegistry_3100();
   this->AddressRegistry_3110();
+  this->AddressRegistry_311A();
   this->AddressRegistry_331B();
   this->fetchValue(SolarTracerVariables::LOAD_MANUAL_ONOFF);
   this->fetchAddressStatusVariables();
@@ -117,16 +130,19 @@ bool EPEVERSolarTracer::updateRun()
     {
     case 0:
       globalUpdateCounter++;
-      currentRealtimeUpdateCounter = 6;
+      currentRealtimeUpdateCounter = 5;
       this->AddressRegistry_3100();
       break;
     case 1:
       this->AddressRegistry_3110();
       break;
     case 2:
-      this->AddressRegistry_331B();
+      this->AddressRegistry_311A();
       break;
     case 3:
+      this->AddressRegistry_331B();
+      break;
+    case 4:
       this->fetchValue(SolarTracerVariables::LOAD_MANUAL_ONOFF);
       this->fetchValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF);
       this->fetchAddressStatusVariables();
@@ -246,7 +262,8 @@ void EPEVERSolarTracer::AddressRegistry_3100()
 
 void EPEVERSolarTracer::AddressRegistry_3110()
 {
-  uint8_t result = this->node.readInputRegisters(MODBUS_ADDRESS_BATT_TEMP, 12);
+  // 0x3114,0x3115 -> returns modbus error code 2, must use AddressRegistry_311A
+  uint8_t result = this->node.readInputRegisters(MODBUS_ADDRESS_BATT_TEMP, 3);
 
   rs485readSuccess = result == this->node.ku8MBSuccess;
   if (rs485readSuccess)
@@ -254,15 +271,26 @@ void EPEVERSolarTracer::AddressRegistry_3110()
     this->floatVars[SolarTracerVariables::BATTERY_TEMP] = this->node.getResponseBuffer(0x00) / 100.0f;
     this->floatVars[SolarTracerVariables::CONTROLLER_TEMP] = this->node.getResponseBuffer(0x01) / 100.0f;
     this->floatVars[SolarTracerVariables::HEATSINK_TEMP] = this->node.getResponseBuffer(0x02) / 100.0f;
-
-    this->floatVars[SolarTracerVariables::BATTERY_SOC] = this->node.getResponseBuffer(0x0A) / 1.0f;
-    this->floatVars[SolarTracerVariables::REMOTE_BATTERY_TEMP] = this->node.getResponseBuffer(0x0B) / 100.0f;
   }
 
   this->setVariableReadReady(5, rs485readSuccess,
                              SolarTracerVariables::BATTERY_TEMP,
                              SolarTracerVariables::CONTROLLER_TEMP,
-                             SolarTracerVariables::HEATSINK_TEMP,
+                             SolarTracerVariables::HEATSINK_TEMP);
+}
+
+void EPEVERSolarTracer::AddressRegistry_311A()
+{
+  uint8_t result = this->node.readInputRegisters(MODBUS_ADDRESS_BATT_SOC, 2);
+
+  rs485readSuccess = result == this->node.ku8MBSuccess;
+  if (rs485readSuccess)
+  {
+    this->floatVars[SolarTracerVariables::BATTERY_SOC] = this->node.getResponseBuffer(0x00) / 1.0f;
+    this->floatVars[SolarTracerVariables::REMOTE_BATTERY_TEMP] = this->node.getResponseBuffer(0x01) / 100.0f;
+  }
+
+  this->setVariableReadReady(2, rs485readSuccess,
                              SolarTracerVariables::BATTERY_SOC,
                              SolarTracerVariables::REMOTE_BATTERY_TEMP);
 }
@@ -282,7 +310,7 @@ void EPEVERSolarTracer::AddressRegistry_331B()
 
 void EPEVERSolarTracer::AddressRegistry_9003()
 {
-  uint8_t result = this->node.readInputRegisters(MODBUS_ADDRESS_BATTERY_OVERVOLTAGE_DISCONNECT, 12);
+  uint8_t result = this->node.readHoldingRegisters(MODBUS_ADDRESS_BATTERY_OVERVOLTAGE_DISCONNECT, 12);
 
   rs485readSuccess = result == this->node.ku8MBSuccess;
   if (rs485readSuccess)
