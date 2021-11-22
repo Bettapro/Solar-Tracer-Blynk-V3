@@ -236,6 +236,15 @@ public:
     // should raise an exception?
     return 0.0;
   }
+
+
+  /**
+   * Return last status code, 0 means the controller is responding to requests correctly.
+   */
+  const uint16_t getLastControllerCommunicationStatus(){
+    return this->lastControllerCommunicationStatus;
+  }
+
   virtual bool fetchValue(SolarTracerVariables variable) = 0;
   virtual bool syncRealtimeClock(struct tm *ti) = 0;
   virtual void fetchAllValues() = 0;
@@ -266,6 +275,8 @@ protected:
 
   float *floatVars;
   char **charVars;
+
+  uint16_t lastControllerCommunicationStatus;
 
 private:
   bool *variableEnables;

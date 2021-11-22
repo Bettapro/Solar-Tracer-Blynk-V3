@@ -24,11 +24,10 @@
 
 SolarTracer *thisController;
 
-
-void controllerSetup(){
-     thisController = new SOLAR_TRACER_INSTANCE;
+void controllerSetup()
+{
+  thisController = new SOLAR_TRACER_INSTANCE;
 }
-
 
 void updateSolarController()
 {
@@ -40,7 +39,8 @@ void updateSolarController()
   }
   else
   {
-    debugPrintln("Update Solar-Tracer FAILED!");
+    debugPrintf("Update Solar-Tracer FAILED! [err=%i]", thisController->getLastControllerCommunicationStatus());
+    debugPrintln();
     setStatusError(STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION);
   }
 }

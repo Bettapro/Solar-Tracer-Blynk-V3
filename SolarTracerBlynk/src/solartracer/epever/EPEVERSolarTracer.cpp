@@ -93,9 +93,8 @@ bool EPEVERSolarTracer::syncRealtimeClock(struct tm *ti)
   node.setTransmitBuffer(1, (ti->tm_mday << 8) + ti->tm_hour);
   node.setTransmitBuffer(2, ((ti->tm_year + 1900 - 2000) << 8) + ti->tm_mon + 1);
 
-  uint8_t result = node.writeMultipleRegisters(MODBUS_ADDRESS_REALTIME_CLOCK, 3);
-
-  if (node.writeMultipleRegisters(MODBUS_ADDRESS_REALTIME_CLOCK, 3) == this->node.ku8MBSuccess)
+  this->lastControllerCommunicationStatus = node.writeMultipleRegisters(MODBUS_ADDRESS_REALTIME_CLOCK, 3);
+  if (this->lastControllerCommunicationStatus == this->node.ku8MBSuccess)
   {
     this->node.getResponseBuffer(0x00);
     return true;
@@ -242,9 +241,9 @@ bool EPEVERSolarTracer::writeValue(SolarTracerVariables variable, float *value)
 
 bool EPEVERSolarTracer::readControllerSingleCoil(uint16_t address)
 {
-  uint8_t result = this->node.readCoils(address, 1);
+  this->lastControllerCommunicationStatus = this->node.readCoils(address, 1);
 
-  rs485readSuccess = result == this->node.ku8MBSuccess;
+  rs485readSuccess = this->lastControllerCommunicationStatus == this->node.ku8MBSuccess;
   if (rs485readSuccess)
   {
     return (node.getResponseBuffer(0x00) > 0);
@@ -254,9 +253,9 @@ bool EPEVERSolarTracer::readControllerSingleCoil(uint16_t address)
 
 bool EPEVERSolarTracer::writeControllerSingleCoil(uint16_t address, bool value)
 {
-  uint8_t result = this->node.writeSingleCoil(address, value);
+  this->lastControllerCommunicationStatus = this->node.writeSingleCoil(address, value);
 
-  if (result == this->node.ku8MBSuccess)
+  if (this->lastControllerCommunicationStatus == this->node.ku8MBSuccess)
   {
     this->node.getResponseBuffer(0x00);
     return true;
@@ -266,8 +265,8 @@ bool EPEVERSolarTracer::writeControllerSingleCoil(uint16_t address, bool value)
 
 bool EPEVERSolarTracer::replaceControllerHoldingRegister(uint16_t address, uint16_t value, uint16_t fromAddress, uint8_t count)
 {
-  uint8_t result = this->node.readHoldingRegisters(fromAddress, count);
-  if (result == this->node.ku8MBSuccess)
+  this->lastControllerCommunicationStatus = this->node.readHoldingRegisters(fromAddress, count);
+  if (this->lastControllerCommunicationStatus == this->node.ku8MBSuccess)
   {
     // adding a delay here could help, epever tends to trigger timeouts 
     for (uint8_t i = 0; i < count; i++)
@@ -277,17 +276,17 @@ bool EPEVERSolarTracer::replaceControllerHoldingRegister(uint16_t address, uint1
     this->node.setTransmitBuffer(0, 0);
     this->node.setTransmitBuffer(address - fromAddress, value);
      
-    result = this->node.writeMultipleRegisters(fromAddress, count);
-    return result == this->node.ku8MBSuccess;
+    this->lastControllerCommunicationStatus = this->node.writeMultipleRegisters(fromAddress, count);
+    return this->lastControllerCommunicationStatus == this->node.ku8MBSuccess;
   }
   return false;
 }
 
 void EPEVERSolarTracer::AddressRegistry_3100()
 {
-  uint8_t result = this->node.readInputRegisters(MODBUS_ADDRESS_PV_VOLTAGE, 16);
+  this->lastControllerCommunicationStatus = this->node.readInputRegisters(MODBUS_ADDRESS_PV_VOLTAGE, 16);
 
-  rs485readSuccess = result == this->node.ku8MBSuccess;
+  rs485readSuccess = this->lastControllerCommunicationStatus == this->node.ku8MBSuccess;
   if (rs485readSuccess)
   {
 
@@ -316,9 +315,9 @@ void EPEVERSolarTracer::AddressRegistry_3100()
 void EPEVERSolarTracer::AddressRegistry_3110()
 {
   // 0x3114,0x3115 -> returns modbus error code 2, must use AddressRegistry_311A
-  uint8_t result = this->node.readInputRegisters(MODBUS_ADDRESS_BATT_TEMP, 3);
+  this->lastControllerCommunicationStatus = this->node.readInputRegisters(MODBUS_ADDRESS_BATT_TEMP, 3);
 
-  rs485readSuccess = result == this->node.ku8MBSuccess;
+  rs485readSuccess = this->lastControllerCommunicationStatus == this->node.ku8MBSuccess;
   if (rs485readSuccess)
   {
     this->floatVars[SolarTracerVariables::BATTERY_TEMP] = this->node.getResponseBuffer(0x00) / 100.0f;
@@ -334,9 +333,9 @@ void EPEVERSolarTracer::AddressRegistry_3110()
 
 void EPEVERSolarTracer::AddressRegistry_311A()
 {
-  uint8_t result = this->node.readInputRegisters(MODBUS_ADDRESS_BATT_SOC, 2);
+  this->lastControllerCommunicationStatus = this->node.readInputRegisters(MODBUS_ADDRESS_BATT_SOC, 2);
 
-  rs485readSuccess = result == this->node.ku8MBSuccess;
+  rs485readSuccess = this->lastControllerCommunicationStatus == this->node.ku8MBSuccess;
   if (rs485readSuccess)
   {
     this->floatVars[SolarTracerVariables::BATTERY_SOC] = this->node.getResponseBuffer(0x00) / 1.0f;
@@ -350,9 +349,9 @@ void EPEVERSolarTracer::AddressRegistry_311A()
 
 void EPEVERSolarTracer::AddressRegistry_331B()
 {
-  uint8_t result = this->node.readInputRegisters(0x331B, 2);
+  this->lastControllerCommunicationStatus = this->node.readInputRegisters(0x331B, 2);
 
-  rs485readSuccess = result == this->node.ku8MBSuccess;
+  rs485readSuccess = this->lastControllerCommunicationStatus == this->node.ku8MBSuccess;
   if (rs485readSuccess)
   {
     this->floatVars[SolarTracerVariables::BATTERY_OVERALL_CURRENT] = (this->node.getResponseBuffer(0x00) | this->node.getResponseBuffer(0x01) << 16) / 100.0f;
@@ -363,9 +362,9 @@ void EPEVERSolarTracer::AddressRegistry_331B()
 
 void EPEVERSolarTracer::AddressRegistry_9003()
 {
-  uint8_t result = this->node.readHoldingRegisters(MODBUS_ADDRESS_HIGH_VOLTAGE_DISCONNECT, 12);
+  this->lastControllerCommunicationStatus = this->node.readHoldingRegisters(MODBUS_ADDRESS_HIGH_VOLTAGE_DISCONNECT, 12);
 
-  rs485readSuccess = result == this->node.ku8MBSuccess;
+  rs485readSuccess = this->lastControllerCommunicationStatus == this->node.ku8MBSuccess;
   if (rs485readSuccess)
   {
     this->floatVars[SolarTracerVariables::BATTERY_OVER_VOLTAGE_DISCONNECT] = this->node.getResponseBuffer(0x00) / 100.0f;
@@ -399,9 +398,9 @@ void EPEVERSolarTracer::AddressRegistry_9003()
 
 void EPEVERSolarTracer::fetchAddressStatusVariables()
 {
-  uint8_t result = this->node.readInputRegisters(MODBUS_ADDRESS_BATTERY_STATUS, 3);
+  this->lastControllerCommunicationStatus = this->node.readInputRegisters(MODBUS_ADDRESS_BATTERY_STATUS, 3);
 
-  rs485readSuccess = result == this->node.ku8MBSuccess;
+  rs485readSuccess = this->lastControllerCommunicationStatus == this->node.ku8MBSuccess;
   if (rs485readSuccess)
   {
     uint16_t batteryStatus = node.getResponseBuffer(0x00);
@@ -580,9 +579,9 @@ void EPEVERSolarTracer::fetchAddressStatusVariables()
 
 void EPEVERSolarTracer::updateStats()
 {
-  uint8_t result = this->node.readInputRegisters(MODBUS_ADDRESS_STAT_MAX_PV_VOLTAGE_TODAY, 29);
+  this->lastControllerCommunicationStatus = this->node.readInputRegisters(MODBUS_ADDRESS_STAT_MAX_PV_VOLTAGE_TODAY, 29);
 
-  rs485readSuccess = result == this->node.ku8MBSuccess;
+  rs485readSuccess = this->lastControllerCommunicationStatus == this->node.ku8MBSuccess;
   if (rs485readSuccess)
   {
 

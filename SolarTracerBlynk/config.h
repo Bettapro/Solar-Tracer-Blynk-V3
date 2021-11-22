@@ -44,7 +44,7 @@
  * Define how/if the board should notify an error
  */
 // blink a led when errors occur
-#define USE_STATUS_LED
+//#define USE_STATUS_LED
 #ifdef USE_STATUS_LED
   //specify pin number connected to the status led
   #define STATUS_LED_PIN 2

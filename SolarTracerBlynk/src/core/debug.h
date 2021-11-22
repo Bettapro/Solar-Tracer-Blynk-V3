@@ -23,18 +23,15 @@
 
 #include "../incl/project_config.h"
 
+#include <stdio.h> // vsnprintf
+
+
 void debugPrintln()
 {
     BOARD_DEBUG_SERIAL_STREAM.println();
 }
 
-void debugPrintf(const char *format, ...)
-{
-    va_list args;
-    va_start(args, format);
-    BOARD_DEBUG_SERIAL_STREAM.printf(format, args);
-    va_end(args);
-}
+
 
 void debugPrintln(const String msgString)
 {
@@ -69,4 +66,15 @@ void debugPrintln(const unsigned char num)
 void debugPrint(const unsigned char num)
 {
     BOARD_DEBUG_SERIAL_STREAM.print(num);
+}
+
+void debugPrintf(const char *format, ...)
+{
+    char buffer[256];
+
+    va_list args;
+    va_start(args, format);
+    vsnprintf(buffer, 256, format, args);
+    debugPrint(buffer);
+    va_end(args);
 }

@@ -150,7 +150,7 @@ void uploadRealtimeToBlynk()
 void executeFromBlynkFloatWrite(SolarTracerVariables variable, float* value){
   if (!thisController->writeValue(variable, value))
   {
-    debugPrint (" - FAILED!");
+    debugPrintf(" - FAILED! [err=%i]", thisController->getLastControllerCommunicationStatus());
   }
   thisController->fetchValue(variable);
   uploadRealtimeToBlynk();
@@ -159,7 +159,7 @@ void executeFromBlynkFloatWrite(SolarTracerVariables variable, float* value){
 void executeFromBlynkBoolWrite(SolarTracerVariables variable, bool* value){
   if (!thisController->writeValue(variable, value))
   {
-    debugPrint (" - FAILED!");
+    debugPrintf(" - FAILED! [err=%i]", thisController->getLastControllerCommunicationStatus());
   }
   thisController->fetchValue(variable);
   uploadRealtimeToBlynk();
@@ -289,7 +289,6 @@ BLYNK_WRITE(vPIN_BATTERY_OVER_VOLTAGE_RECONNECT)
 #ifdef vPIN_BATTERY_UNDER_VOLTAGE_RESET
 BLYNK_WRITE(vPIN_BATTERY_UNDER_VOLTAGE_RESET)
 {
-  Serial.println(request.pin);
   debugPrint("SET NEW VALUE FOR vPIN_BATTERY_UNDER_VOLTAGE_RESET");
   float newState = param.asFloat();
   executeFromBlynkFloatWrite(SolarTracerVariables::BATTERY_UNDER_VOLTAGE_RESET, &newState);
@@ -300,8 +299,7 @@ BLYNK_WRITE(vPIN_BATTERY_UNDER_VOLTAGE_RESET)
 #ifdef vPIN_BATTERY_UNDER_VOLTAGE_SET
 BLYNK_WRITE(vPIN_BATTERY_UNDER_VOLTAGE_SET)
 {
-   Serial.println(request.pin);
-    debugPrint("SET NEW VALUE FOR vPIN_BATTERY_UNDER_VOLTAGE_SET");
+  debugPrint("SET NEW VALUE FOR vPIN_BATTERY_UNDER_VOLTAGE_SET");
   float newState = param.asFloat();
   executeFromBlynkFloatWrite(SolarTracerVariables::BATTERY_UNDER_VOLTAGE_SET, &newState);
   debugPrintln();
