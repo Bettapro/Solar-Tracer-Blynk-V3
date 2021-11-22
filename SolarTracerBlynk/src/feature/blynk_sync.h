@@ -185,6 +185,132 @@ BLYNK_WRITE(vPIN_CHARGE_DEVICE_ENABLED)
 }
 #endif
 
+
+#ifdef vPIN_BATTERY_BOOST_VOLTAGE
+BLYNK_WRITE(vPIN_BATTERY_BOOST_VOLTAGE)
+{
+  debugPrint("SET NEW VALUE FOR vPIN_BATTERY_BOOST_VOLTAGE");
+  float newState = param.asFloat();
+  executeFromBlynkFloatWrite(SolarTracerVariables::BATTERY_BOOST_VOLTAGE, &newState);
+  debugPrintln();
+}
+#endif
+
+#ifdef vPIN_BATTERY_EQUALIZATION_VOLTAGE
+BLYNK_WRITE(vPIN_BATTERY_EQUALIZATION_VOLTAGE)
+{
+  debugPrint("SET NEW VALUE FOR vPIN_BATTERY_EQUALIZATION_VOLTAGE");
+  float newState = param.asFloat();
+  executeFromBlynkFloatWrite(SolarTracerVariables::BATTERY_EQUALIZATION_VOLTAGE, &newState);
+  debugPrintln();
+}
+#endif
+
+#ifdef vPIN_BATTERY_FLOAT_VOLTAGE
+BLYNK_WRITE(vPIN_BATTERY_FLOAT_VOLTAGE)
+{
+  debugPrint("SET NEW VALUE FOR vPIN_BATTERY_FLOAT_VOLTAGE");
+  float newState = param.asFloat();
+  executeFromBlynkFloatWrite(SolarTracerVariables::BATTERY_FLOAT_VOLTAGE, &newState);
+  debugPrintln();
+}
+#endif
+
+#ifdef vPIN_BATTERY_FLOAT_MIN_VOLTAGE
+BLYNK_WRITE(vPIN_BATTERY_FLOAT_MIN_VOLTAGE)
+{
+  debugPrint("SET NEW VALUE FOR vPIN_BATTERY_FLOAT_MIN_VOLTAGE");
+  float newState = param.asFloat();
+  executeFromBlynkFloatWrite(SolarTracerVariables::BATTERY_FLOAT_MIN_VOLTAGE, &newState);
+  debugPrintln();
+}
+#endif
+
+#ifdef vPIN_BATTERY_CHARGING_LIMIT_VOLTAGE
+BLYNK_WRITE(vPIN_BATTERY_CHARGING_LIMIT_VOLTAGE)
+{
+  debugPrint("SET NEW VALUE FOR vPIN_BATTERY_CHARGING_LIMIT_VOLTAGE");
+  float newState = param.asFloat();
+  executeFromBlynkFloatWrite(SolarTracerVariables::BATTERY_CHARGING_LIMIT_VOLTAGE, &newState);
+  debugPrintln();
+}
+#endif
+
+#ifdef vPIN_BATTERY_DISCHARGING_LIMIT_VOLTAGE
+BLYNK_WRITE(vPIN_BATTERY_DISCHARGING_LIMIT_VOLTAGE)
+{
+  debugPrint("SET NEW VALUE FOR vPIN_BATTERY_DISCHARGING_LIMIT_VOLTAGE");
+  float newState = param.asFloat();
+  executeFromBlynkFloatWrite(SolarTracerVariables::BATTERY_DISCHARGING_LIMIT_VOLTAGE, &newState);
+  debugPrintln();
+}
+#endif
+
+#ifdef vPIN_BATTERY_LOW_VOLTAGE_DISCONNECT
+BLYNK_WRITE(vPIN_BATTERY_LOW_VOLTAGE_DISCONNECT)
+{
+  debugPrint("SET NEW VALUE FOR vPIN_BATTERY_LOW_VOLTAGE_DISCONNECT");
+  float newState = param.asFloat();
+  executeFromBlynkFloatWrite(SolarTracerVariables::BATTERY_LOW_VOLTAGE_DISCONNECT, &newState);
+  debugPrintln();
+}
+#endif
+
+#ifdef vPIN_BATTERY_LOW_VOLTAGE_RECONNECT
+BLYNK_WRITE(vPIN_BATTERY_LOW_VOLTAGE_RECONNECT)
+{
+  debugPrint("SET NEW VALUE FOR vPIN_BATTERY_LOW_VOLTAGE_RECONNECT");
+  float newState = param.asFloat();
+  executeFromBlynkFloatWrite(SolarTracerVariables::BATTERY_LOW_VOLTAGE_RECONNECT, &newState);
+  debugPrintln();
+}
+#endif
+
+#ifdef vPIN_BATTERY_OVER_VOLTAGE_DISCONNECT
+BLYNK_WRITE(vPIN_BATTERY_OVER_VOLTAGE_DISCONNECT)
+{
+  debugPrint("SET NEW VALUE FOR vPIN_BATTERY_OVER_VOLTAGE_DISCONNECT");
+  float newState = param.asFloat();
+  executeFromBlynkFloatWrite(SolarTracerVariables::BATTERY_OVER_VOLTAGE_DISCONNECT, &newState);
+  debugPrintln();
+}
+#endif
+
+#ifdef vPIN_BATTERY_OVER_VOLTAGE_RECONNECT
+BLYNK_WRITE(vPIN_BATTERY_OVER_VOLTAGE_RECONNECT)
+{
+  debugPrint("SET NEW VALUE FOR vPIN_BATTERY_OVER_VOLTAGE_RECONNECT");
+  float newState = param.asFloat();
+  executeFromBlynkFloatWrite(SolarTracerVariables::BATTERY_OVER_VOLTAGE_RECONNECT, &newState);
+  debugPrintln();
+}
+#endif
+
+#ifdef vPIN_BATTERY_UNDER_VOLTAGE_RESET
+BLYNK_WRITE(vPIN_BATTERY_UNDER_VOLTAGE_RESET)
+{
+  Serial.println(request.pin);
+  debugPrint("SET NEW VALUE FOR vPIN_BATTERY_UNDER_VOLTAGE_RESET");
+  float newState = param.asFloat();
+  executeFromBlynkFloatWrite(SolarTracerVariables::BATTERY_UNDER_VOLTAGE_RESET, &newState);
+  debugPrintln();
+}
+#endif
+
+#ifdef vPIN_BATTERY_UNDER_VOLTAGE_SET
+BLYNK_WRITE(vPIN_BATTERY_UNDER_VOLTAGE_SET)
+{
+   Serial.println(request.pin);
+    debugPrint("SET NEW VALUE FOR vPIN_BATTERY_UNDER_VOLTAGE_SET");
+  float newState = param.asFloat();
+  executeFromBlynkFloatWrite(SolarTracerVariables::BATTERY_UNDER_VOLTAGE_SET, &newState);
+  debugPrintln();
+}
+#endif
+
+
+
+
 #ifdef vPIN_UPDATE_ALL_CONTROLLER_DATA
 BLYNK_WRITE(vPIN_UPDATE_ALL_CONTROLLER_DATA)
 {

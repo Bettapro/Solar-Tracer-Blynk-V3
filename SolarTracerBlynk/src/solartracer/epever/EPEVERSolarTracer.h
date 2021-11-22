@@ -82,7 +82,7 @@ protected:
   // MODBUS FUNCTION
 
   bool writeControllerSingleCoil(uint16_t address, bool value);
-  bool writeControllerHoldingRegister(uint16_t address, uint8_t value);
+  bool replaceControllerHoldingRegister(uint16_t address, uint16_t value, uint16_t fromAddress, uint8_t count);
 
   // MODBUS ADDRESS
   static const uint16_t MODBUS_ADDRESS_PV_VOLTAGE = 0x3100;
@@ -110,7 +110,19 @@ protected:
   static const uint16_t MODBUS_ADDRESS_CONTROLLER_TEMP = 0x3111;
   static const uint16_t MODBUS_ADDRESS_REMOTE_BATTERY_TEMP = 0x311B;
   static const uint16_t MODBUS_ADDRESS_REALTIME_CLOCK = 0x9013;
-  static const uint16_t MODBUS_ADDRESS_BATTERY_OVERVOLTAGE_DISCONNECT = 0x9003;
+  static const uint16_t MODBUS_ADDRESS_BATTERY_TYPE = 0x9000;
+  static const uint16_t MODBUS_ADDRESS_HIGH_VOLTAGE_DISCONNECT = 0x9003;
+  static const uint16_t MODBUS_ADDRESS_CHARGING_LIMIT_VOLTAGE = 0x9004;
+  static const uint16_t MODBUS_ADDRESS_OVER_VOLTAGE_RECONNECT = 0x9005;
+  static const uint16_t MODBUS_ADDRESS_EQUALIZATION_VOLTAGE = 0x9006;
+  static const uint16_t MODBUS_ADDRESS_BOOST_VOLTAGE = 0x9007;
+  static const uint16_t MODBUS_ADDRESS_FLOAT_VOLTAGE = 0x9008;
+  static const uint16_t MODBUS_ADDRESS_BOOST_RECONNECT_VOLTAGE = 0x9009;
+  static const uint16_t MODBUS_ADDRESS_LOW_VOLTAGE_RECONNECT = 0x900A;
+  static const uint16_t MODBUS_ADDRESS_UNDER_VOLTAGE_RECOVER = 0x900B;
+  static const uint16_t MODBUS_ADDRESS_UNDER_VOLTAGE_WARNING = 0x900C;
+  static const uint16_t MODBUS_ADDRESS_LOW_VOLTAGE_DISCONNECT = 0x900D;
+  static const uint16_t MODBUS_ADDRESS_DISCHARGING_LIMIT_VOLTAGE = 0x900E;
 };
 
 #endif

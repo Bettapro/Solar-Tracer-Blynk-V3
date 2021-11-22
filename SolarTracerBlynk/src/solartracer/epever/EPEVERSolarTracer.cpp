@@ -23,7 +23,6 @@
 
 #define _EST_RS_POINTER(s, v) (s ? &v : nullptr)
 
-
 EPEVERSolarTracer::EPEVERSolarTracer(Stream &SerialCom, uint8_t slave, uint8_t max485_de, uint8_t max485_re_neg)
     : EPEVERSolarTracer(SerialCom, slave)
 {
@@ -83,7 +82,7 @@ EPEVERSolarTracer::EPEVERSolarTracer(Stream &SerialCom, uint8_t slave)
   this->setVariableEnabled(SolarTracerVariables::BATTERY_LOW_VOLTAGE_DISCONNECT);
   this->setVariableEnabled(SolarTracerVariables::BATTERY_LOW_VOLTAGE_RECONNECT);
   this->setVariableEnabled(SolarTracerVariables::BATTERY_OVER_VOLTAGE_DISCONNECT);
-  this->setVariableEnabled(SolarTracerVariables::BATTERY_OVER_VOLTAGE_CONNECT);
+  this->setVariableEnabled(SolarTracerVariables::BATTERY_OVER_VOLTAGE_RECONNECT);
   this->setVariableEnabled(SolarTracerVariables::BATTERY_UNDER_VOLTAGE_SET);
   this->setVariableEnabled(SolarTracerVariables::BATTERY_UNDER_VOLTAGE_RESET);
 }
@@ -157,7 +156,7 @@ bool EPEVERSolarTracer::updateRun()
 
 bool EPEVERSolarTracer::fetchValue(SolarTracerVariables variable)
 {
-  bool value;
+  float value;
   switch (variable)
   {
   case SolarTracerVariables::LOAD_FORCE_ONOFF:
@@ -176,8 +175,7 @@ bool EPEVERSolarTracer::fetchValue(SolarTracerVariables variable)
   return false;
 }
 
-
-bool EPEVERSolarTracer::writeValue(SolarTracerVariables variable, bool* value)
+bool EPEVERSolarTracer::writeValue(SolarTracerVariables variable, bool *value)
 {
   if (!this->isVariableEnabled(variable))
   {
@@ -187,35 +185,56 @@ bool EPEVERSolarTracer::writeValue(SolarTracerVariables variable, bool* value)
   switch (variable)
   {
   case SolarTracerVariables::LOAD_FORCE_ONOFF:
-    return this->writeControllerSingleCoil(MODBUS_ADDRESS_LOAD_FORCE_ONOFF, (*(bool*)value));
+    return this->writeControllerSingleCoil(MODBUS_ADDRESS_LOAD_FORCE_ONOFF, *value);
   case SolarTracerVariables::LOAD_MANUAL_ONOFF:
-    return this->writeControllerSingleCoil(MODBUS_ADDRESS_LOAD_MANUAL_ONOFF, (*(bool*)value));
+    return this->writeControllerSingleCoil(MODBUS_ADDRESS_LOAD_MANUAL_ONOFF, *value);
   case SolarTracerVariables::CHARGING_DEVICE_ONOFF:
-    return this->writeControllerSingleCoil(MODBUS_ADDRESS_BATTERY_CHARGE_ONOFF, (*(bool*)value));
-  default:
-    break;
+    return this->writeControllerSingleCoil(MODBUS_ADDRESS_BATTERY_CHARGE_ONOFF, *value);
   }
 
   return false;
 }
 
-bool EPEVERSolarTracer::writeValue(SolarTracerVariables variable, float* value)
+bool EPEVERSolarTracer::writeValue(SolarTracerVariables variable, float *value)
 {
   if (!this->isVariableEnabled(variable))
   {
     return false;
   }
+  /**
+   * https://diysolarforum.com/threads/setting-registers-in-epever-controller-with-python.25406/
+   * Some holding registers cannot be set directly - error 04, it's mandatory to write a block of
+   * xx registers at once - direct write not allowed on single holding register
+   * 
+   * 0x9000 - 0x900E
+   **/
 
   switch (variable)
   {
-  case SolarTracerVariables::LOAD_FORCE_ONOFF:
-    return this->writeControllerSingleCoil(MODBUS_ADDRESS_LOAD_FORCE_ONOFF, (*(float*)value) > 0);
-  case SolarTracerVariables::LOAD_MANUAL_ONOFF:
-    return this->writeControllerSingleCoil(MODBUS_ADDRESS_LOAD_MANUAL_ONOFF, (*(float*)value) > 0);
-  case SolarTracerVariables::CHARGING_DEVICE_ONOFF:
-    return this->writeControllerSingleCoil(MODBUS_ADDRESS_BATTERY_CHARGE_ONOFF, (*(float*)value) > 0);
-  default:
-    break;
+  case SolarTracerVariables::BATTERY_OVER_VOLTAGE_DISCONNECT:
+    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_HIGH_VOLTAGE_DISCONNECT, (*value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+  case SolarTracerVariables::BATTERY_CHARGING_LIMIT_VOLTAGE:
+    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_CHARGING_LIMIT_VOLTAGE, (*value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+  case SolarTracerVariables::BATTERY_OVER_VOLTAGE_RECONNECT:
+    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_OVER_VOLTAGE_RECONNECT, (*value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+  case SolarTracerVariables::BATTERY_EQUALIZATION_VOLTAGE:
+    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_EQUALIZATION_VOLTAGE, (*value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+  case SolarTracerVariables::BATTERY_BOOST_VOLTAGE:
+    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_BOOST_VOLTAGE, (*value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+  case SolarTracerVariables::BATTERY_FLOAT_VOLTAGE:
+    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_FLOAT_VOLTAGE, (*value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+  case SolarTracerVariables::BATTERY_FLOAT_MIN_VOLTAGE:
+    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_BOOST_RECONNECT_VOLTAGE, (*value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+  case SolarTracerVariables::BATTERY_LOW_VOLTAGE_RECONNECT:
+    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_LOW_VOLTAGE_RECONNECT, (*value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+  case SolarTracerVariables::BATTERY_UNDER_VOLTAGE_RESET:
+    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_UNDER_VOLTAGE_RECOVER, (*value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+  case SolarTracerVariables::BATTERY_UNDER_VOLTAGE_SET:
+    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_UNDER_VOLTAGE_WARNING, (*value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+  case SolarTracerVariables::BATTERY_LOW_VOLTAGE_DISCONNECT:
+    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_LOW_VOLTAGE_DISCONNECT, (*value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+  case SolarTracerVariables::BATTERY_DISCHARGING_LIMIT_VOLTAGE:
+    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_DISCHARGING_LIMIT_VOLTAGE, (*value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
   }
 
   return false;
@@ -245,14 +264,21 @@ bool EPEVERSolarTracer::writeControllerSingleCoil(uint16_t address, bool value)
   return false;
 }
 
-bool EPEVERSolarTracer::writeControllerHoldingRegister(uint16_t address, uint8_t value)
+bool EPEVERSolarTracer::replaceControllerHoldingRegister(uint16_t address, uint16_t value, uint16_t fromAddress, uint8_t count)
 {
-  uint8_t result = this->node.writeSingleRegister(address, value);
-
+  uint8_t result = this->node.readHoldingRegisters(fromAddress, count);
   if (result == this->node.ku8MBSuccess)
   {
-    this->node.getResponseBuffer(0x00);
-    return true;
+    // adding a delay here could help, epever tends to trigger timeouts 
+    for (uint8_t i = 0; i < count; i++)
+    {
+      this->node.setTransmitBuffer(i, this->node.getResponseBuffer(i));
+    }
+    this->node.setTransmitBuffer(0, 0);
+    this->node.setTransmitBuffer(address - fromAddress, value);
+     
+    result = this->node.writeMultipleRegisters(fromAddress, count);
+    return result == this->node.ku8MBSuccess;
   }
   return false;
 }
@@ -300,7 +326,7 @@ void EPEVERSolarTracer::AddressRegistry_3110()
     this->floatVars[SolarTracerVariables::HEATSINK_TEMP] = this->node.getResponseBuffer(0x02) / 100.0f;
   }
 
-  this->setVariableReadReady(5, rs485readSuccess,
+  this->setVariableReadReady(3, rs485readSuccess,
                              SolarTracerVariables::BATTERY_TEMP,
                              SolarTracerVariables::CONTROLLER_TEMP,
                              SolarTracerVariables::HEATSINK_TEMP);
@@ -337,14 +363,14 @@ void EPEVERSolarTracer::AddressRegistry_331B()
 
 void EPEVERSolarTracer::AddressRegistry_9003()
 {
-  uint8_t result = this->node.readHoldingRegisters(MODBUS_ADDRESS_BATTERY_OVERVOLTAGE_DISCONNECT, 12);
+  uint8_t result = this->node.readHoldingRegisters(MODBUS_ADDRESS_HIGH_VOLTAGE_DISCONNECT, 12);
 
   rs485readSuccess = result == this->node.ku8MBSuccess;
   if (rs485readSuccess)
   {
     this->floatVars[SolarTracerVariables::BATTERY_OVER_VOLTAGE_DISCONNECT] = this->node.getResponseBuffer(0x00) / 100.0f;
     this->floatVars[SolarTracerVariables::BATTERY_CHARGING_LIMIT_VOLTAGE] = this->node.getResponseBuffer(0x01) / 100.0f;
-    this->floatVars[SolarTracerVariables::BATTERY_OVER_VOLTAGE_CONNECT] = this->node.getResponseBuffer(0x02) / 100.0f;
+    this->floatVars[SolarTracerVariables::BATTERY_OVER_VOLTAGE_RECONNECT] = this->node.getResponseBuffer(0x02) / 100.0f;
     this->floatVars[SolarTracerVariables::BATTERY_EQUALIZATION_VOLTAGE] = this->node.getResponseBuffer(0x03) / 100.0f;
     this->floatVars[SolarTracerVariables::BATTERY_BOOST_VOLTAGE] = this->node.getResponseBuffer(0x04) / 100.0f;
     this->floatVars[SolarTracerVariables::BATTERY_FLOAT_VOLTAGE] = this->node.getResponseBuffer(0x05) / 100.0f;
@@ -359,7 +385,7 @@ void EPEVERSolarTracer::AddressRegistry_9003()
   this->setVariableReadReady(12, rs485readSuccess,
                              SolarTracerVariables::BATTERY_OVER_VOLTAGE_DISCONNECT,
                              SolarTracerVariables::BATTERY_CHARGING_LIMIT_VOLTAGE,
-                             SolarTracerVariables::BATTERY_OVER_VOLTAGE_CONNECT,
+                             SolarTracerVariables::BATTERY_OVER_VOLTAGE_RECONNECT,
                              SolarTracerVariables::BATTERY_EQUALIZATION_VOLTAGE,
                              SolarTracerVariables::BATTERY_BOOST_VOLTAGE,
                              SolarTracerVariables::BATTERY_FLOAT_VOLTAGE,

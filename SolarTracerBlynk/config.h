@@ -43,7 +43,7 @@
  * 
  * Define how/if the board should notify an error
  */
-// bink a led when errors occur
+// blink a led when errors occur
 #define USE_STATUS_LED
 #ifdef USE_STATUS_LED
   //specify pin number connected to the status led
@@ -229,7 +229,7 @@
 #define vPIN_BATTERY_LOW_VOLTAGE_DISCONNECT             V36
 #define vPIN_BATTERY_LOW_VOLTAGE_RECONNECT              V37
 #define vPIN_BATTERY_OVER_VOLTAGE_DISCONNECT            V38
-#define vPIN_BATTERY_OVER_VOLTAGE_CONNECT               V39
+#define vPIN_BATTERY_OVER_VOLTAGE_RECONNECT             V39
 #define vPIN_BATTERY_UNDER_VOLTAGE_RESET                V40
 #define vPIN_BATTERY_UNDER_VOLTAGE_SET                  V41
 // internal
