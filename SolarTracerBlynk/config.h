@@ -74,9 +74,9 @@
   #define USE_SERIAL_MAX485
   #ifdef USE_SERIAL_MAX485
     // specify the pin num. connected to DE
-    //#define MAX485_DE 18
+    //#define MAX485_DE 13
     // specify the pin num. connected to RE_NEG
-    //#define MAX485_RE_NEG 18
+    //#define MAX485_RE_NEG 13
   #endif
 #endif
 

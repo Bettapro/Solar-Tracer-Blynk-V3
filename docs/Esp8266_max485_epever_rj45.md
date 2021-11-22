@@ -17,7 +17,7 @@ It's powered from `+5V` from ESP8266, and wired as following:
 
 - `DI` -> `D10` / `GPIO1` / `TX`
 - `RO` -> `D9` / `GPIO3` / `RX`
-- `DE` and `RE` are interconnected with a jumper and then connected do either pin `D1` or `D2`
+- `DE` and `RE` are interconnected with a jumper and then connected to pin `D1` / `GPIO5`
 - `VCC` to `+5V` / `VIN` on ESP8266
 
 	
