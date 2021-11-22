@@ -113,6 +113,7 @@ void EPEVERSolarTracer::fetchAllValues()
   this->AddressRegistry_311A();
   this->AddressRegistry_331B();
   this->fetchValue(SolarTracerVariables::LOAD_MANUAL_ONOFF);
+  this->fetchValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF);
   this->fetchAddressStatusVariables();
 }
 
@@ -159,6 +160,7 @@ bool EPEVERSolarTracer::fetchValue(SolarTracerVariables variable)
   switch (variable)
   {
   case SolarTracerVariables::LOAD_FORCE_ONOFF:
+    // seems not doing anything
     value = this->readControllerSingleCoil(MODBUS_ADDRESS_LOAD_FORCE_ONOFF);
     return this->setVariableValue(variable, _EST_RS_POINTER(rs485readSuccess, value));
   case SolarTracerVariables::LOAD_MANUAL_ONOFF:
