@@ -24,6 +24,12 @@
 
 extern SolarTracer *thisController;
 
+#define BLYNK_VALUE_CACHES_UNTIL_COUNT 5
+#define BLYNK_VALUE_CACHES_STRING_LEN 20
+
+void *blynkValuesCache[statVirtualBlynkSolarVariablesCount + realTimeVirtualBlynkSolarVariablesCount];
+uint8_t blynkValuesCacheValid[statVirtualBlynkSolarVariablesCount + realTimeVirtualBlynkSolarVariablesCount];
+
 #ifdef vPIN_INTERNAL_DEBUG_TERMINAL
 void blynkDebugCallback(String message)
 {
@@ -56,6 +62,21 @@ void blynkSetup()
   debugAddRegisterCallback(blynkDebugCallback);
   blynkDebugCallback("Solar Tracer START\r\n");
 #endif
+
+  for (uint8_t index = 0; index < statVirtualBlynkSolarVariablesCount + realTimeVirtualBlynkSolarVariablesCount; index++)
+  {
+    blynkValuesCacheValid[index] = 0;
+
+    switch (SolarTracer::getVariableDatatype(index >= realTimeVirtualBlynkSolarVariablesCount ? statVirtualBlynkSolarVariables[index - realTimeVirtualBlynkSolarVariablesCount].solarVariable : realTimeVirtualBlynkSolarVariables[index].solarVariable))
+    {
+    case SolarTracerVariablesDataType::FLOAT:
+      blynkValuesCache[index] = malloc(sizeof(float));
+      break;
+    case SolarTracerVariablesDataType::STRING:
+      blynkValuesCache[index] = new char[BLYNK_VALUE_CACHES_STRING_LEN];
+      break;
+    }
+  }
 }
 
 void blynkLoop()
@@ -72,6 +93,48 @@ void blynkLoop()
   Blynk.run();
 }
 
+bool updateBlynkVariable(bool isRT, uint8_t index, SolarTracerVariables variable, int pin)
+{
+  if (thisController->isVariableEnabled(variable) &&
+      thisController->isVariableReadReady(variable))
+  {
+    void *cachedValue = blynkValuesCache[index + (isRT ? 0 : realTimeVirtualBlynkSolarVariablesCount)];
+    uint8_t *cachedUntil = &(blynkValuesCacheValid[index + (isRT ? 0 : realTimeVirtualBlynkSolarVariablesCount)]);
+
+    switch (SolarTracer::getVariableDatatype(variable))
+    {
+    case SolarTracerVariablesDataType::FLOAT:
+    {
+      float currentValue = thisController->getFloatValue(variable);
+      if (*cachedUntil <= 0 || (*(float *)cachedValue) != currentValue)
+      {
+        Blynk.virtualWrite(pin, thisController->getFloatValue(variable));
+        (*(float *)cachedValue) = currentValue;
+        (*cachedUntil) = BLYNK_VALUE_CACHES_UNTIL_COUNT;
+      }
+      (*cachedUntil)--;
+    }
+    break;
+    case SolarTracerVariablesDataType::STRING:
+    {
+      const char *currentValue = thisController->getStringValue(variable);
+      if (*cachedUntil <= 0 || strcmp(currentValue, (const char *)cachedValue) != 0)
+      {
+        Blynk.virtualWrite(pin, thisController->getStringValue(variable));
+        strcpy((char *)cachedValue, currentValue);
+        (*cachedUntil) = BLYNK_VALUE_CACHES_UNTIL_COUNT;
+      }
+      (*cachedUntil)--;
+    }
+    break;
+    default:
+      return false;
+    }
+    return true;
+  }
+  return false;
+}
+
 // upload values stats
 void uploadStatsToBlynk()
 {
@@ -80,31 +143,14 @@ void uploadStatsToBlynk()
     return;
   }
 
-  bool varNotReady = false;
+  uint8_t varNotReady = 0;
   for (uint8_t index = 0; index < statVirtualBlynkSolarVariablesCount; index++)
   {
-    if (thisController->isVariableReadReady(statVirtualBlynkSolarVariables[index].solarVariable))
-    {
-      switch (SolarTracer::getVariableDatatype(statVirtualBlynkSolarVariables[index].solarVariable))
-      {
-      case SolarTracerVariablesDataType::FLOAT:
-        Blynk.virtualWrite(statVirtualBlynkSolarVariables[index].virtualPin, thisController->getFloatValue(statVirtualBlynkSolarVariables[index].solarVariable));
-        break;
-      case SolarTracerVariablesDataType::STRING:
-        Blynk.virtualWrite(statVirtualBlynkSolarVariables[index].virtualPin, thisController->getStringValue(statVirtualBlynkSolarVariables[index].solarVariable));
-        break;
-      default:
-        break;
-      }
-    }
-    else
-    {
-      varNotReady = true;
-    }
+    varNotReady += updateBlynkVariable(false, index, statVirtualBlynkSolarVariables[index].solarVariable, statVirtualBlynkSolarVariables[index].virtualPin) ? 0 : 1;
   }
-  if (varNotReady)
+  if (varNotReady > 0)
   {
-    debugPrintln("Some ST variables are not ready and not synced!");
+    debugPrintf("WARNING %i ST var. are not ready & synced!\r\n", varNotReady);
     setStatusError(STATUS_ERR_SOLAR_TRACER_NO_SYNC_ST);
   }
   else
@@ -125,31 +171,14 @@ void uploadRealtimeToBlynk()
   Blynk.virtualWrite(vPIN_INTERNAL_STATUS, internalStatus);
 #endif
 
-  bool varNotReady = false;
+  uint8_t varNotReady = 0;
   for (uint8_t index = 0; index < realTimeVirtualBlynkSolarVariablesCount; index++)
   {
-    if (thisController->isVariableReadReady(realTimeVirtualBlynkSolarVariables[index].solarVariable))
-    {
-      switch (SolarTracer::getVariableDatatype(realTimeVirtualBlynkSolarVariables[index].solarVariable))
-      {
-      case SolarTracerVariablesDataType::FLOAT:
-        Blynk.virtualWrite(realTimeVirtualBlynkSolarVariables[index].virtualPin, thisController->getFloatValue(realTimeVirtualBlynkSolarVariables[index].solarVariable));
-        break;
-      case SolarTracerVariablesDataType::STRING:
-        Blynk.virtualWrite(realTimeVirtualBlynkSolarVariables[index].virtualPin, thisController->getStringValue(realTimeVirtualBlynkSolarVariables[index].solarVariable));
-        break;
-      default:
-        break;
-      }
-    }
-    else
-    {
-      varNotReady = true;
-    }
+    varNotReady += updateBlynkVariable(true, index, realTimeVirtualBlynkSolarVariables[index].solarVariable, realTimeVirtualBlynkSolarVariables[index].virtualPin) ? 0 : 1;
   }
-  if (varNotReady)
+  if (varNotReady > 0)
   {
-    debugPrintln("Some RT variables are not ready and not synced!");
+    debugPrintf("WARNING %i RT var. are not ready & synced!\r\n", varNotReady);
     setStatusError(STATUS_ERR_SOLAR_TRACER_NO_SYNC_RT);
   }
   else
