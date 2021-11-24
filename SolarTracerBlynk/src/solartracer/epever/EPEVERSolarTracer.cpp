@@ -72,6 +72,10 @@ EPEVERSolarTracer::EPEVERSolarTracer(Stream &SerialCom, uint8_t slave)
   this->setVariableEnabled(SolarTracerVariables::GENERATED_ENERGY_MONTH);
   this->setVariableEnabled(SolarTracerVariables::GENERATED_ENERGY_YEAR);
   this->setVariableEnabled(SolarTracerVariables::GENERATED_ENERGY_TOTAL);
+  this->setVariableEnabled(SolarTracerVariables::MAXIMUM_PV_VOLTAGE_TODAY);
+  this->setVariableEnabled(SolarTracerVariables::MINIMUM_PV_VOLTAGE_TODAY);
+  this->setVariableEnabled(SolarTracerVariables::MAXIMUM_BATTERY_VOLTAGE_TODAY);
+  this->setVariableEnabled(SolarTracerVariables::MINIMUM_BATTERY_VOLTAGE_TODAY);
   this->setVariableEnabled(SolarTracerVariables::HEATSINK_TEMP);
   this->setVariableEnabled(SolarTracerVariables::BATTERY_BOOST_VOLTAGE);
   this->setVariableEnabled(SolarTracerVariables::BATTERY_EQUALIZATION_VOLTAGE);
