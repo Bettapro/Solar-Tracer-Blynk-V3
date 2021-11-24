@@ -24,6 +24,13 @@
 
 extern SolarTracer *thisController;
 
+#ifdef vPIN_INTERNAL_DEBUG_TERMINAL
+void blynkDebugCallback(String message)
+{
+  Blynk.virtualWrite(vPIN_INTERNAL_DEBUG_TERMINAL, message);
+}
+#endif
+
 void blynkSetup()
 {
   debugPrintln(" ++ Setting up Blynk:");
@@ -45,6 +52,10 @@ void blynkSetup()
   }
   debugPrintln("OK");
   clearStatusError(STATUS_ERR_NO_BLYNK_CONNECTION);
+#ifdef vPIN_INTERNAL_DEBUG_TERMINAL
+  debugAddRegisterCallback(blynkDebugCallback);
+  blynkDebugCallback("Solar Tracer START\r\n");
+#endif
 }
 
 void blynkLoop()
@@ -147,7 +158,8 @@ void uploadRealtimeToBlynk()
   }
 }
 
-void executeFromBlynkFloatWrite(SolarTracerVariables variable, float* value){
+void executeFromBlynkFloatWrite(SolarTracerVariables variable, float *value)
+{
   if (!thisController->writeValue(variable, value))
   {
     debugPrintf(" - FAILED! [err=%i]", thisController->getLastControllerCommunicationStatus());
@@ -156,7 +168,8 @@ void executeFromBlynkFloatWrite(SolarTracerVariables variable, float* value){
   uploadRealtimeToBlynk();
 }
 
-void executeFromBlynkBoolWrite(SolarTracerVariables variable, bool* value){
+void executeFromBlynkBoolWrite(SolarTracerVariables variable, bool *value)
+{
   if (!thisController->writeValue(variable, value))
   {
     debugPrintf(" - FAILED! [err=%i]", thisController->getLastControllerCommunicationStatus());
@@ -184,7 +197,6 @@ BLYNK_WRITE(vPIN_CHARGE_DEVICE_ENABLED)
   debugPrintln();
 }
 #endif
-
 
 #ifdef vPIN_BATTERY_BOOST_VOLTAGE
 BLYNK_WRITE(vPIN_BATTERY_BOOST_VOLTAGE)
@@ -305,9 +317,6 @@ BLYNK_WRITE(vPIN_BATTERY_UNDER_VOLTAGE_SET)
   debugPrintln();
 }
 #endif
-
-
-
 
 #ifdef vPIN_UPDATE_ALL_CONTROLLER_DATA
 BLYNK_WRITE(vPIN_UPDATE_ALL_CONTROLLER_DATA)

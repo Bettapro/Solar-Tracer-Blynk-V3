@@ -236,6 +236,7 @@
 #define vPIN_MAX_PV_VOLTAGE_TODAY                       V43
 // internal
 #define vPIN_INTERNAL_STATUS                            V27
+//#define vPIN_INTERNAL_DEBUG_TERMINAL                    V44
 //action
 #define vPIN_UPDATE_ALL_CONTROLLER_DATA                 V28
 
