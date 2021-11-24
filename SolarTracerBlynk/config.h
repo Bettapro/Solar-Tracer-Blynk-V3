@@ -232,6 +232,8 @@
 #define vPIN_BATTERY_OVER_VOLTAGE_RECONNECT             V39
 #define vPIN_BATTERY_UNDER_VOLTAGE_RESET                V40
 #define vPIN_BATTERY_UNDER_VOLTAGE_SET                  V41
+#define vPIN_MIN_PV_VOLTAGE_TODAY                       V42
+#define vPIN_MAX_PV_VOLTAGE_TODAY                       V43
 // internal
 #define vPIN_INTERNAL_STATUS                            V27
 //action

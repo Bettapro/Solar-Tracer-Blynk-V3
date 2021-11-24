@@ -91,6 +91,11 @@ EPEVERSolarTracer::EPEVERSolarTracer(Stream &SerialCom, uint8_t slave)
   this->setVariableEnabled(SolarTracerVariables::BATTERY_UNDER_VOLTAGE_RESET);
 }
 
+bool EPEVERSolarTracer::testConnection()
+{
+  return this->fetchValue(SolarTracerVariables::LOAD_MANUAL_ONOFF);
+}
+
 bool EPEVERSolarTracer::syncRealtimeClock(struct tm *ti)
 {
   node.setTransmitBuffer(0, (ti->tm_min << 8) + ti->tm_sec);
@@ -108,8 +113,10 @@ bool EPEVERSolarTracer::syncRealtimeClock(struct tm *ti)
 
 void EPEVERSolarTracer::fetchAllValues()
 {
+
+
   // STATS
-  updateStats();
+  this->updateStats();
   this->AddressRegistry_9003();
   //REALTIME
   this->AddressRegistry_3100();
@@ -591,10 +598,10 @@ void EPEVERSolarTracer::updateStats()
   if (rs485readSuccess)
   {
 
-    this->floatVars[SolarTracerVariables::MINIMUM_PV_VOLTAGE_TODAY] = this->node.getResponseBuffer(0x00) / 100.0f;
-    this->floatVars[SolarTracerVariables::MAXIMUM_PV_VOLTAGE_TODAY] = this->node.getResponseBuffer(0x01) / 100.0f;
-    this->floatVars[SolarTracerVariables::MINIMUM_BATTERY_VOLTAGE_TODAY] = this->node.getResponseBuffer(0x02) / 100.0f;
-    this->floatVars[SolarTracerVariables::MAXIMUM_BATTERY_VOLTAGE_TODAY] = this->node.getResponseBuffer(0x03) / 100.0f;
+    this->floatVars[SolarTracerVariables::MAXIMUM_PV_VOLTAGE_TODAY] = this->node.getResponseBuffer(0x00) / 100.0f;
+    this->floatVars[SolarTracerVariables::MINIMUM_PV_VOLTAGE_TODAY] = this->node.getResponseBuffer(0x01) / 100.0f;
+    this->floatVars[SolarTracerVariables::MAXIMUM_BATTERY_VOLTAGE_TODAY] = this->node.getResponseBuffer(0x02) / 100.0f;
+    this->floatVars[SolarTracerVariables::MINIMUM_BATTERY_VOLTAGE_TODAY] = this->node.getResponseBuffer(0x03) / 100.0f;
 
     this->floatVars[SolarTracerVariables::GENERATED_ENERGY_TODAY] = (this->node.getResponseBuffer(12) | this->node.getResponseBuffer(13) << 16) / 100.0f;
     this->floatVars[SolarTracerVariables::GENERATED_ENERGY_MONTH] = (this->node.getResponseBuffer(14) | this->node.getResponseBuffer(15) << 16) / 100.0f;

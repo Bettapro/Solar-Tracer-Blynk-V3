@@ -69,6 +69,8 @@ public:
 
   virtual void onModbusPostTransmission();
 
+  virtual bool testConnection();
+
 protected:
   uint8_t max485_re_neg, max485_de;
 

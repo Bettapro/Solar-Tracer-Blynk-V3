@@ -251,6 +251,7 @@ public:
   virtual bool updateRun() = 0;
   virtual bool writeValue(SolarTracerVariables variable, float *value) = 0;
   virtual bool writeValue(SolarTracerVariables variable, bool *value) = 0;
+  virtual bool testConnection() = 0;
 
 protected:
   bool setVariableValue(SolarTracerVariables variable, void *value)
