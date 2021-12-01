@@ -35,11 +35,11 @@
 #endif
 
 #if defined(USE_SERIAL_MAX485) && !defined(MAX485_DE)
-#define MAX485_DE 18
+#define MAX485_DE 13
 #endif
 
 #if defined(USE_SERIAL_MAX485) && !defined(MAX485_RE_NEG)
-#define MAX485_RE_NEG 18
+#define MAX485_RE_NEG 13
 #endif
 
 #if defined(USE_WIFI_AP_CONFIGURATION) && defined(USE_HALL_AP_CONFIGURATION_TRIGGER)

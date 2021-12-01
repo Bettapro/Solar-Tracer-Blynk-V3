@@ -43,8 +43,8 @@
  * 
  * Define how/if the board should notify an error
  */
-// bink a led when errors occur
-#define USE_STATUS_LED
+// blink a led when errors occur
+//#define USE_STATUS_LED
 #ifdef USE_STATUS_LED
   //specify pin number connected to the status led
   #define STATUS_LED_PIN 2
@@ -74,9 +74,9 @@
   #define USE_SERIAL_MAX485
   #ifdef USE_SERIAL_MAX485
     // specify the pin num. connected to DE
-    //#define MAX485_DE 18
+    //#define MAX485_DE 13
     // specify the pin num. connected to RE_NEG
-    //#define MAX485_RE_NEG 18
+    //#define MAX485_RE_NEG 13
   #endif
 #endif
 
@@ -198,6 +198,9 @@
   #endif
 
   // virtual pins definition and mapping
+  // virtual pins definition and mapping
+
+
   #define vPIN_PV_POWER                                   V1
   #define vPIN_PV_CURRENT                                 V2
   #define vPIN_PV_VOLTAGE                                 V3
@@ -222,8 +225,23 @@
   #define vPIN_DISCHARGING_EQUIPMENT_STATUS_TEXT          V25
   #define vPIN_CHARGE_DEVICE_ENABLED                      V26
   #define vPIN_CONTROLLER_HEATSINK_TEMP                   V29
+  #define vPIN_BATTERY_BOOST_VOLTAGE                      V30
+  #define vPIN_BATTERY_EQUALIZATION_VOLTAGE               V31
+  #define vPIN_BATTERY_FLOAT_VOLTAGE                      V32
+  #define vPIN_BATTERY_FLOAT_MIN_VOLTAGE                  V33
+  #define vPIN_BATTERY_CHARGING_LIMIT_VOLTAGE             V34
+  #define vPIN_BATTERY_DISCHARGING_LIMIT_VOLTAGE          V35
+  #define vPIN_BATTERY_LOW_VOLTAGE_DISCONNECT             V36
+  #define vPIN_BATTERY_LOW_VOLTAGE_RECONNECT              V37
+  #define vPIN_BATTERY_OVER_VOLTAGE_DISCONNECT            V38
+  #define vPIN_BATTERY_OVER_VOLTAGE_RECONNECT             V39
+  #define vPIN_BATTERY_UNDER_VOLTAGE_RESET                V40
+  #define vPIN_BATTERY_UNDER_VOLTAGE_SET                  V41
+  #define vPIN_MIN_PV_VOLTAGE_TODAY                       V42
+  #define vPIN_MAX_PV_VOLTAGE_TODAY                       V43
   // internal
   #define vPIN_INTERNAL_STATUS                            V27
+  //#define vPIN_INTERNAL_DEBUG_TERMINAL                    V44
   //action
   #define vPIN_UPDATE_ALL_CONTROLLER_DATA                 V28
 #endif
@@ -252,34 +270,46 @@
   #endif
 
   // virtual pins definition and mapping
-  #define MQTT_TOPIC_PV_POWER                                   MQTT_CLIENT_ID  "/pv/power"
-  #define MQTT_TOPIC_PV_CURRENT                                 MQTT_CLIENT_ID  "/pv/current"
-  #define MQTT_TOPIC_PV_VOLTAGE                                 MQTT_CLIENT_ID  "/pv/voltage"
-  #define MQTT_TOPIC_LOAD_CURRENT                               MQTT_CLIENT_ID  "/load/current"
-  #define MQTT_TOPIC_LOAD_POWER                                 MQTT_CLIENT_ID  "/load/power"
-  #define MQTT_TOPIC_BATT_TEMP                                  MQTT_CLIENT_ID  "/battery/power"
-  #define MQTT_TOPIC_BATT_VOLTAGE                               MQTT_CLIENT_ID  "/battery/voltage"
-  #define MQTT_TOPIC_BATT_REMAIN                                MQTT_CLIENT_ID  "/battery/SOC"
-  #define MQTT_TOPIC_CONTROLLER_TEMP                            MQTT_CLIENT_ID  "/controller/temperature"
-  #define MQTT_TOPIC_BATTERY_CHARGE_CURRENT                     MQTT_CLIENT_ID  "/battery/chargeCurrent"
-  #define MQTT_TOPIC_BATTERY_CHARGE_POWER                       MQTT_CLIENT_ID  "/battery/chargePower"
-  #define MQTT_TOPIC_BATTERY_OVERALL_CURRENT                    MQTT_CLIENT_ID  "/battery/overallCurrent"
-  #define MQTT_TOPIC_LOAD_ENABLED                               MQTT_CLIENT_ID  "/controller/loadEnabled"
-  #define MQTT_TOPIC_STAT_ENERGY_GENERATED_TODAY                MQTT_CLIENT_ID  "/stats/production/day"
-  #define MQTT_TOPIC_STAT_ENERGY_GENERATED_THIS_MONTH           MQTT_CLIENT_ID  "/stats/production/month"
-  #define MQTT_TOPIC_STAT_ENERGY_GENERATED_THIS_YEAR            MQTT_CLIENT_ID  "/stats/production/year"
-  #define MQTT_TOPIC_STAT_ENERGY_GENERATED_TOTAL                MQTT_CLIENT_ID  "/stats/production/total"
-  #define MQTT_TOPIC_MIN_BATTERY_VOLTAGE_TODAY                  MQTT_CLIENT_ID  "/stats/battery/maxVoltage"
-  #define MQTT_TOPIC_MAX_BATTERY_VOLTAGE_TODAY                  MQTT_CLIENT_ID  "/stats/battery/minVoltage"
-  #define MQTT_TOPIC_BATTERY_STATUS_TEXT                        MQTT_CLIENT_ID  "/battery/statusText"
-  #define MQTT_TOPIC_CHARGING_EQUIPMENT_STATUS_TEXT             MQTT_CLIENT_ID  "/pv/statusText"
-  #define MQTT_TOPIC_DISCHARGING_EQUIPMENT_STATUS_TEXT          MQTT_CLIENT_ID  "/load/statusText"
-  #define MQTT_TOPIC_CHARGE_DEVICE_ENABLED                      MQTT_CLIENT_ID  "/controller/chargeEnabled"
-  #define MQTT_TOPIC_CONTROLLER_HEATSINK_TEMP                   MQTT_CLIENT_ID  "/controller/heatsinkTemperature"
+  #define MQTT_TOPIC_PV_POWER                                  "pv/power"
+  #define MQTT_TOPIC_PV_CURRENT                                "pv/current"
+  #define MQTT_TOPIC_PV_VOLTAGE                                "pv/voltage"
+  #define MQTT_TOPIC_LOAD_CURRENT                              "load/current"
+  #define MQTT_TOPIC_LOAD_POWER                                "load/power"
+  #define MQTT_TOPIC_BATT_TEMP                                 "battery/power"
+  #define MQTT_TOPIC_BATT_VOLTAGE                              "battery/voltage"
+  #define MQTT_TOPIC_BATT_REMAIN                               "battery/SOC"
+  #define MQTT_TOPIC_CONTROLLER_TEMP                           "controller/temperature"
+  #define MQTT_TOPIC_BATTERY_CHARGE_CURRENT                    "battery/chargeCurrent"
+  #define MQTT_TOPIC_BATTERY_CHARGE_POWER                      "battery/chargePower"
+  #define MQTT_TOPIC_BATTERY_OVERALL_CURRENT                   "battery/overallCurrent"
+  #define MQTT_TOPIC_LOAD_ENABLED                              "controller/loadEnabled"
+  #define MQTT_TOPIC_STAT_ENERGY_GENERATED_TODAY               "stats/production/day"
+  #define MQTT_TOPIC_STAT_ENERGY_GENERATED_THIS_MONTH          "stats/production/month"
+  #define MQTT_TOPIC_STAT_ENERGY_GENERATED_THIS_YEAR           "stats/production/year"
+  #define MQTT_TOPIC_STAT_ENERGY_GENERATED_TOTAL               "stats/production/total"
+  #define MQTT_TOPIC_MIN_BATTERY_VOLTAGE_TODAY                 "stats/battery/maxVoltage"
+  #define MQTT_TOPIC_MAX_BATTERY_VOLTAGE_TODAY                 "stats/battery/minVoltage"
+  #define MQTT_TOPIC_BATTERY_STATUS_TEXT                       "battery/statusText"
+  #define MQTT_TOPIC_CHARGING_EQUIPMENT_STATUS_TEXT            "pv/statusText"
+  #define MQTT_TOPIC_DISCHARGING_EQUIPMENT_STATUS_TEXT         "load/statusText"
+  #define MQTT_TOPIC_CHARGE_DEVICE_ENABLED                     "controller/chargeEnabled"
+  #define MQTT_TOPIC_CONTROLLER_HEATSINK_TEMP                  "controller/heatsinkTemperature"
+  #define MQTT_TOPIC_BATTERY_BOOST_VOLTAGE                     "battery/settings/boostVoltage"
+  #define MQTT_TOPIC_BATTERY_EQUALIZATION_VOLTAGE              "battery/settings/equalizationVoltage"
+  #define MQTT_TOPIC_BATTERY_FLOAT_VOLTAGE                     "battery/settings/floatVoltage"
+  #define MQTT_TOPIC_BATTERY_FLOAT_MIN_VOLTAGE                 "battery/settings/floatMinVoltage"
+  #define MQTT_TOPIC_BATTERY_CHARGING_LIMIT_VOLTAGE            "battery/settings/charginLimitVoltage"
+  #define MQTT_TOPIC_BATTERY_DISCHARGING_LIMIT_VOLTAGE         "battery/settings/discharginLimitVoltage"
+  #define MQTT_TOPIC_BATTERY_LOW_VOLTAGE_DISCONNECT            "battery/settings/lowVoltageDisconnect"
+  #define MQTT_TOPIC_BATTERY_LOW_VOLTAGE_RECONNECT             "battery/settings/loVoltageReconnect"
+  #define MQTT_TOPIC_BATTERY_OVER_VOLTAGE_DISCONNECT           "battery/settings/overVoltageDisconnect"
+  #define MQTT_TOPIC_BATTERY_OVER_VOLTAGE_RECONNECT            "battery/settings/overVoltageReconnect"
+  #define MQTT_TOPIC_BATTERY_UNDER_VOLTAGE_RESET               "battery/settings/underVoltageReset"
+  #define MQTT_TOPIC_BATTERY_UNDER_VOLTAGE_SET                 "battery/settings/underVoltageSet"
+  #define MQTT_TOPIC_MIN_PV_VOLTAGE_TODAY                      "stats/pv/maxVoltage"
+  #define MQTT_TOPIC_MAX_PV_VOLTAGE_TODAY                      "stats/pv/minVoltage"
   // internal
-  #define MQTT_TOPIC_INTERNAL_STATUS                            MQTT_CLIENT_ID "/internal/status"
+  #define MQTT_TOPIC_INTERNAL_STATUS                           "internal/status"
   //action
-  #define MQTT_TOPIC_UPDATE_ALL_CONTROLLER_DATA                 MQTT_CLIENT_ID "/internal/updateAll"
-
-
+  #define MQTT_TOPIC_UPDATE_ALL_CONTROLLER_DATA                "internal/updateAll"
 #endif

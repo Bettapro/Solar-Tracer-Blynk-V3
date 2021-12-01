@@ -17,7 +17,7 @@ It's powered from `+5V` from ESP8266, and wired as following:
 
 - `DI` -> `D10` / `GPIO1` / `TX`
 - `RO` -> `D9` / `GPIO3` / `RX`
-- `DE` and `RE` are interconnected with a jumper and then connected do either pin `D1` or `D2`
+- `DE` and `RE` are interconnected with a jumper and then connected to pin `D1` / `GPIO5`
 - `VCC` to `+5V` / `VIN` on ESP8266
 
 	
@@ -25,14 +25,15 @@ It's powered from `+5V` from ESP8266, and wired as following:
 
 ## MAX485 module <-> EPEVER CONTROLLER (RJ45)
 
-Cut open your ethernet cable and split out pin 3, 5, 7 (B, A, GND). Refer to [Tracer Modbus PDF](../docs/1733_modbus_protocol.pdf) for additional info.
+Cut open your ethernet cable and split out pin 4, 6, 8 (B, A, GND). Refer to [Tracer Modbus PDF](../docs/1733_modbus_protocol.pdf) for additional info.
 
-Connect cables as follows:
-- Ethernet green, pin `5` -> `A`
-- Ethernet blue, pin `3` -> `B`
-- Ethernet brown, pin `7` -> `GND` on module **and** ESP8266 `GND` pin
+Connect cables as follows (make sure you wire matches the color schema below - otherwise refer to pin numbers only):
+- Ethernet green / pin `6` -> `A`
+- Ethernet blue / pin `4` -> `B`
+- Ethernet brown / pin `8` -> `GND` on module **and** ESP8266 `GND` pin
 		- -> to prevent ground loops - **important!**
 - **DON' T** use pin `1` or `2` to feed the ESP8266 (they supply 7,5/5V - 50mA maximum)
 
 ![EPEVER RJ485 SPEC](../images/epever_rj45_specs.png)
+![ETH_T586B](../images/eth_t568b.png)
 

@@ -64,13 +64,18 @@ void uploadStatsAll()
 
 void loop()
 {
-  if (WiFi.isConnected())
+  if (!WiFi.isConnected())
   {
-    clearStatusError(STATUS_ERR_NO_WIFI_CONNECTION);
+    WiFi.reconnect();
+    // cannot trust return value of reconnect()
+    if (!WiFi.isConnected())
+    {
+      setStatusError(STATUS_ERR_NO_WIFI_CONNECTION);
+    }
   }
   else
   {
-    setStatusError(STATUS_ERR_NO_WIFI_CONNECTION);
+    clearStatusError(STATUS_ERR_NO_WIFI_CONNECTION);
   }
 #if defined USE_BLYNK
   blynkLoop();
@@ -167,8 +172,6 @@ void setup()
     ESP.restart();
 #endif
   }
-  WiFi.setAutoConnect(true);
-  WiFi.setAutoReconnect(true);
   debugPrintln("Connected.");
   debugPrint("IP address: ");
   debugPrintln(WiFi.localIP().toString());
@@ -185,7 +188,32 @@ void setup()
   BOARD_ST_SERIAL_STREAM.begin(BOARD_ST_SERIAL_STREAM_BAUDRATE);
 #endif
 #endif
+  debugPrintln(" ++ Setting Solar Charge Controller:");
   controllerSetup();
+  debugPrint("Connection Test: ");
+  uint8_t attemptControllerConnectionCount;
+  for (attemptControllerConnectionCount = 1; attemptControllerConnectionCount < 4; attemptControllerConnectionCount++)
+  {
+    if (thisController->testConnection())
+    {
+      break;
+    }
+    debugPrint(".");
+    delay(1000);
+  }
+
+  switch (attemptControllerConnectionCount)
+  {
+  case 1:
+    debugPrint("OK");
+    break;
+  case 4:
+    debugPrintf("KO [err=%i]", thisController->getLastControllerCommunicationStatus());
+    break;
+  default:
+    debugPrintf("OK [attempt=%i]", attemptControllerConnectionCount);
+  }
+  debugPrintln();
 
 #ifdef USE_NTP_SERVER
   debugPrintln(" ++ Setting up Local Time:");
@@ -205,18 +233,8 @@ void setup()
   strftime(strftime_buf, sizeof(strftime_buf), "%c", localtime(&tnow));
   struct tm *ti = localtime(&tnow);
 
-  debugPrint("My NOW is: ");
-  debugPrint(ti->tm_year + 1900);
-  debugPrint("-");
-  debugPrint(ti->tm_mon + 1);
-  debugPrint("-");
-  debugPrint(ti->tm_mday);
-  debugPrint(" ");
-  debugPrint(ti->tm_hour);
-  debugPrint(":");
-  debugPrint(ti->tm_min);
-  debugPrint(":");
-  debugPrintln(ti->tm_sec);
+  debugPrintf("My NOW is: %i-%02i-%02i %02i:%02i:%02i", ti->tm_year + 1900, ti->tm_mon + 1, ti->tm_mday, ti->tm_hour, ti->tm_min, ti->tm_sec);
+  debugPrintln();
 
 #endif
 #if defined USE_BLYNK

@@ -32,6 +32,26 @@ char mqttPublishBuffer[20];
 void uploadRealtimeToMqtt();
 void uploadStatsToMqtt();
 
+void executeFromMqttFloatWrite(SolarTracerVariables variable, float *value)
+{
+  if (!thisController->writeValue(variable, value))
+  {
+    debugPrintf(" - FAILED! [err=%i]", thisController->getLastControllerCommunicationStatus());
+  }
+  thisController->fetchValue(variable);
+  uploadRealtimeToMqtt();
+}
+
+void executeFromMqttBoolWrite(SolarTracerVariables variable, bool *value)
+{
+  if (!thisController->writeValue(variable, value))
+  {
+    debugPrintf(" - FAILED! [err=%i]", thisController->getLastControllerCommunicationStatus());
+  }
+  thisController->fetchValue(variable);
+  uploadRealtimeToMqtt();
+}
+
 #if defined(USE_MQTT_RPC_SUBSCRIBE) || defined(USE_MQTT_JSON_PUBLISH)
 DynamicJsonDocument json(1024);
 #endif;
@@ -55,17 +75,10 @@ void mqttCallback(char *topic, uint8_t *bytes, unsigned int length)
 #ifdef MQTT_TOPIC_LOAD_ENABLED
   if (strcmp(MQTT_TOPIC_LOAD_ENABLED, constTopic) == 0)
   {
-    uint8_t newState = (uint8_t)payload.toInt();
-
-    debugPrint("Setting load state output coil to value: ");
-    debugPrintln(newState);
-
-    if (thisController->writeBoolValue(SolarTracerVariables::LOAD_MANUAL_ONOFF, newState > 0))
-    {
-      debugPrintln("Write & Read failed.");
-    }
-    thisController->fetchValue(SolarTracerVariables::LOAD_MANUAL_ONOFF);
-    uploadRealtimeToMqtt();
+    debugPrint("SET NEW VALUE FOR MQTT_TOPIC_LOAD_ENABLED");
+    bool newState = payload.toInt() > 0;
+    executeFromMqttBoolWrite(SolarTracerVariables::LOAD_MANUAL_ONOFF, &newState);
+    debugPrintln();
     return;
   }
 #endif
@@ -89,20 +102,31 @@ void mqttCallback(char *topic, uint8_t *bytes, unsigned int length)
 #ifdef MQTT_TOPIC_CHARGE_DEVICE_ENABLED
   if (strcmp(MQTT_TOPIC_CHARGE_DEVICE_ENABLED, constTopic) == 0)
   {
-    uint8_t newState = (uint8_t)payload.toInt();
-
-    debugPrint("Setting load state output coil to value: ");
-    debugPrintln(newState);
-
-    if (thisController->writeBoolValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF, newState > 0))
-    {
-      debugPrintln("Write & Read failed.");
-    }
-    thisController->fetchValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF);
-    uploadRealtimeToMqtt();
+    debugPrint("SET NEW VALUE FOR MQTT_TOPIC_CHARGE_DEVICE_ENABLED");
+    bool newState = payload.toInt() > 0;
+    executeFromMqttBoolWrite(SolarTracerVariables::CHARGING_DEVICE_ONOFF, &newState);
+    debugPrintln();
     return;
   }
 #endif
+
+  /*
+  * TODO implementation for:
+  * MQTT_TOPIC_BATTERY_BOOST_VOLTAGE                
+  * MQTT_TOPIC_BATTERY_EQUALIZATION_VOLTAGE             
+  * MQTT_TOPIC_BATTERY_FLOAT_VOLTAGE                   
+  * MQTT_TOPIC_BATTERY_FLOAT_MIN_VOLTAGE                 
+  * MQTT_TOPIC_BATTERY_CHARGING_LIMIT_VOLTAGE            
+  * MQTT_TOPIC_BATTERY_DISCHARGING_LIMIT_VOLTAGE         
+  * MQTT_TOPIC_BATTERY_LOW_VOLTAGE_DISCONNECT           
+  * MQTT_TOPIC_BATTERY_LOW_VOLTAGE_RECONNECT           
+  * MQTT_TOPIC_BATTERY_OVER_VOLTAGE_DISCONNECT          
+  * MQTT_TOPIC_BATTERY_OVER_VOLTAGE_RECONNECT         
+  * MQTT_TOPIC_BATTERY_UNDER_VOLTAGE_RESET              
+  * MQTT_TOPIC_BATTERY_UNDER_VOLTAGE_SET                 
+  * MQTT_TOPIC_MIN_PV_VOLTAGE_TODAY                     
+  * MQTT_TOPIC_MAX_PV_VOLTAGE_TODAY                      
+ */
 }
 
 boolean mqttAttemptConnection()

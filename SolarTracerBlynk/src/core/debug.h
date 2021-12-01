@@ -23,50 +23,82 @@
 
 #include "../incl/project_config.h"
 
-void debugPrintln()
+#include <stdio.h> // vsnprintf
+
+#define DEBUG_REGISTER_CALLBACKS_MAX 2
+
+uint8_t regCallbacksIndex = 0;
+void (*regCallbacks[DEBUG_REGISTER_CALLBACKS_MAX])(String);
+
+void debugAddRegisterCallback(void (*regCallback)(String))
 {
-    BOARD_DEBUG_SERIAL_STREAM.println();
+    if (regCallbacksIndex < DEBUG_REGISTER_CALLBACKS_MAX)
+    {
+        regCallbacks[regCallbacksIndex++] = regCallback;
+    }
 }
 
-void debugPrintf(const char *format, ...)
+void debugDispactMessageRegisterCallback(String msg){
+    for(uint8_t index = 0; index < regCallbacksIndex; index ++){
+        (*regCallbacks[index])(msg);
+    }
+}
+
+void debugPrint(String message)
 {
-    va_list args;
-    va_start(args, format);
-    BOARD_DEBUG_SERIAL_STREAM.printf(format, args);
-    va_end(args);
+    BOARD_DEBUG_SERIAL_STREAM.print(message);
+    for(uint8_t index = 0; index < regCallbacksIndex; index ++){
+        (*regCallbacks[index])(message);
+    }
+}
+
+void debugPrintln()
+{
+    debugPrint("\r\n");
 }
 
 void debugPrintln(const String msgString)
 {
-    BOARD_DEBUG_SERIAL_STREAM.println(msgString);
+    debugPrint(msgString +"\r\n");
 }
 
 void debugPrintln(const char *msgChar)
 {
-    BOARD_DEBUG_SERIAL_STREAM.println(msgChar);
+    debugPrint(String(msgChar) +"\r\n");
 }
 
 void debugPrint(const char *msgChar)
 {
-    BOARD_DEBUG_SERIAL_STREAM.print(msgChar);
+    debugPrint(String(msgChar));
 }
 
 void debugPrintln(const int num)
 {
-    BOARD_DEBUG_SERIAL_STREAM.println(num);
+    debugPrint(String(num) + "\r\n");
 }
 
 void debugPrint(const int num)
 {
-    BOARD_DEBUG_SERIAL_STREAM.print(num);
+    debugPrint(String(num));
 }
 
 void debugPrintln(const unsigned char num)
 {
-    BOARD_DEBUG_SERIAL_STREAM.println(num);
+    debugPrint(String(num) + "\r\n");
 }
 
 void debugPrint(const unsigned char num)
 {
-    BOARD_DEBUG_SERIAL_STREAM.print(num);
+    debugPrint(String(num));
+}
+
+void debugPrintf(const char *format, ...)
+{
+    char buffer[256];
+
+    va_list args;
+    va_start(args, format);
+    vsnprintf(buffer, 256, format, args);
+    debugPrint(String(buffer));
+    va_end(args);
 }

@@ -24,82 +24,133 @@
 
 extern SolarTracer *thisController;
 
-boolean blynkConnect(){
-  if(envData.blynkLocalServer){
-    Blynk.config(envData.blynkAuth, envData.blynkServerHostname, envData.blynkServerPort);
-  }
-  else{
-    Blynk.config(envData.blynkAuth);
-  }
-  return Blynk.connect();
+#define BLYNK_VALUE_CACHES_UNTIL_COUNT 5
+#define BLYNK_VALUE_CACHES_STRING_LEN 20
+
+void *blynkValuesCache[statVirtualBlynkSolarVariablesCount + realTimeVirtualBlynkSolarVariablesCount];
+uint8_t blynkValuesCacheValid[statVirtualBlynkSolarVariablesCount + realTimeVirtualBlynkSolarVariablesCount];
+
+#ifdef vPIN_INTERNAL_DEBUG_TERMINAL
+void blynkDebugCallback(String message)
+{
+  Blynk.virtualWrite(vPIN_INTERNAL_DEBUG_TERMINAL, message);
 }
+#endif
 
 void blynkSetup()
 {
   debugPrintln(" ++ Setting up Blynk:");
   debugPrint("Connecting...");
 
-  while (!blynkConnect())
+  if (envData.blynkLocalServer)
+  {
+    Blynk.config(envData.blynkAuth, envData.blynkServerHostname, envData.blynkServerPort);
+  }
+  else
+  {
+    Blynk.config(envData.blynkAuth);
+  }
+
+  while (!Blynk.connect())
   {
     debugPrint(".");
     delay(500);
   }
   debugPrintln("OK");
   clearStatusError(STATUS_ERR_NO_BLYNK_CONNECTION);
+#ifdef vPIN_INTERNAL_DEBUG_TERMINAL
+  debugAddRegisterCallback(blynkDebugCallback);
+  blynkDebugCallback("Solar Tracer START\r\n");
+#endif
+
+  for (uint8_t index = 0; index < statVirtualBlynkSolarVariablesCount + realTimeVirtualBlynkSolarVariablesCount; index++)
+  {
+    blynkValuesCacheValid[index] = 0;
+
+    switch (SolarTracer::getVariableDatatype(index >= realTimeVirtualBlynkSolarVariablesCount ? statVirtualBlynkSolarVariables[index - realTimeVirtualBlynkSolarVariablesCount].solarVariable : realTimeVirtualBlynkSolarVariables[index].solarVariable))
+    {
+    case SolarTracerVariablesDataType::FLOAT:
+      blynkValuesCache[index] = malloc(sizeof(float));
+      break;
+    case SolarTracerVariablesDataType::STRING:
+      blynkValuesCache[index] = new char[BLYNK_VALUE_CACHES_STRING_LEN];
+      break;
+    }
+  }
 }
 
-void blynkLoop(){
-  if(!Blynk.connected()){
-    if(!blynkConnect()){
-      setStatusError(STATUS_ERR_NO_BLYNK_CONNECTION);
-    }
-    else{
-      clearStatusError(STATUS_ERR_NO_BLYNK_CONNECTION);
-    }
-  } 
-  
+void blynkLoop()
+{
+  if (!Blynk.connected())
+  {
+    setStatusError(STATUS_ERR_NO_BLYNK_CONNECTION);
+  }
+  else
+  {
+    clearStatusError(STATUS_ERR_NO_BLYNK_CONNECTION);
+  }
+
   Blynk.run();
 }
 
+bool updateBlynkVariable(bool isRT, uint8_t index, SolarTracerVariables variable, int pin)
+{
+  if (thisController->isVariableEnabled(variable) &&
+      thisController->isVariableReadReady(variable))
+  {
+    void *cachedValue = blynkValuesCache[index + (isRT ? 0 : realTimeVirtualBlynkSolarVariablesCount)];
+    uint8_t *cachedUntil = &(blynkValuesCacheValid[index + (isRT ? 0 : realTimeVirtualBlynkSolarVariablesCount)]);
 
-bool uploadVariableToBlynk(const mqttSolarVariableMap* varDef){
-  if (thisController->isVariableReadReady(varDef->solarVariable))
+    switch (SolarTracer::getVariableDatatype(variable))
     {
-     if (thisController->isVariableReadReady(varDef->solarVariable))
+    case SolarTracerVariablesDataType::FLOAT:
     {
-      switch (SolarTracer::getVariableDatatype(varDef->solarVariable))
+      float currentValue = thisController->getFloatValue(variable);
+      if (*cachedUntil <= 0 || (*(float *)cachedValue) != currentValue)
       {
-      case SolarTracerVariablesDataType::FLOAT:
-        Blynk.virtualWrite(varDef->virtualPin, thisController->getFloatValue(varDef->solarVariable));
-        break;
-      case SolarTracerVariablesDataType::STRING:
-        Blynk.virtualWrite(varDef->virtualPin, thisController->getStringValue(varDef->solarVariable));
-        break;
-      default:
-        break;
+        Blynk.virtualWrite(pin, thisController->getFloatValue(variable));
+        (*(float *)cachedValue) = currentValue;
+        (*cachedUntil) = BLYNK_VALUE_CACHES_UNTIL_COUNT;
       }
+      (*cachedUntil)--;
     }
-      return true;
+    break;
+    case SolarTracerVariablesDataType::STRING:
+    {
+      const char *currentValue = thisController->getStringValue(variable);
+      if (*cachedUntil <= 0 || strcmp(currentValue, (const char *)cachedValue) != 0)
+      {
+        Blynk.virtualWrite(pin, thisController->getStringValue(variable));
+        strcpy((char *)cachedValue, currentValue);
+        (*cachedUntil) = BLYNK_VALUE_CACHES_UNTIL_COUNT;
+      }
+      (*cachedUntil)--;
     }
-    return false;
+    break;
+    default:
+      return false;
+    }
+    return true;
+  }
+  return false;
 }
 
 // upload values stats
 void uploadStatsToBlynk()
 {
-  if(!Blynk.connected()){
-    setStatusError(STATUS_ERR_NO_BLYNK_CONNECTION);
+  if (!Blynk.connected())
+  {
     return;
   }
-  clearStatusError(STATUS_ERR_NO_BLYNK_CONNECTION);
-  bool varNotReady = false;
+
+  uint8_t varNotReady = 0;
   for (uint8_t index = 0; index < statVirtualBlynkSolarVariablesCount; index++)
   {
-    varNotReady |= ! uploadVariableToBlynk(&statTimeVirtualBlynkSolarVariables[index]);
+    varNotReady += updateBlynkVariable(false, index, statVirtualBlynkSolarVariables[index].solarVariable, statVirtualBlynkSolarVariables[index].virtualPin) ? 0 : 1;
   }
-  if (varNotReady)
+  if (varNotReady > 0)
   {
-    debugPrintln("Some ST variables are not ready and not synced!");
+    debugPrintf("WARNING %i ST var. are not ready & synced!\r\n", varNotReady);
     setStatusError(STATUS_ERR_SOLAR_TRACER_NO_SYNC_ST);
   }
   else
@@ -111,7 +162,8 @@ void uploadStatsToBlynk()
 // upload values realtime
 void uploadRealtimeToBlynk()
 {
-  if(!Blynk.connected()){
+  if (!Blynk.connected())
+  {
     return;
   }
 
@@ -119,14 +171,14 @@ void uploadRealtimeToBlynk()
   Blynk.virtualWrite(vPIN_INTERNAL_STATUS, internalStatus);
 #endif
 
-  bool varNotReady = false;
+  uint8_t varNotReady = 0;
   for (uint8_t index = 0; index < realTimeVirtualBlynkSolarVariablesCount; index++)
   {
-    varNotReady |= ! uploadVariableToBlynk(&realTimeVirtualBlynkSolarVariables[index]);
+    varNotReady += updateBlynkVariable(true, index, realTimeVirtualBlynkSolarVariables[index].solarVariable, realTimeVirtualBlynkSolarVariables[index].virtualPin) ? 0 : 1;
   }
-  if (varNotReady)
+  if (varNotReady > 0)
   {
-    debugPrintln("Some RT variables are not ready and not synced!");
+    debugPrintf("WARNING %i RT var. are not ready & synced!\r\n", varNotReady);
     setStatusError(STATUS_ERR_SOLAR_TRACER_NO_SYNC_RT);
   }
   else
@@ -135,37 +187,163 @@ void uploadRealtimeToBlynk()
   }
 }
 
+void executeFromBlynkFloatWrite(SolarTracerVariables variable, float *value)
+{
+  if (!thisController->writeValue(variable, value))
+  {
+    debugPrintf(" - FAILED! [err=%i]", thisController->getLastControllerCommunicationStatus());
+  }
+  thisController->fetchValue(variable);
+  uploadRealtimeToBlynk();
+}
+
+void executeFromBlynkBoolWrite(SolarTracerVariables variable, bool *value)
+{
+  if (!thisController->writeValue(variable, value))
+  {
+    debugPrintf(" - FAILED! [err=%i]", thisController->getLastControllerCommunicationStatus());
+  }
+  thisController->fetchValue(variable);
+  uploadRealtimeToBlynk();
+}
+
 #ifdef vPIN_LOAD_ENABLED
 BLYNK_WRITE(vPIN_LOAD_ENABLED)
 {
-  uint8_t newState = (uint8_t)param.asInt();
-
-  debugPrint("Setting load state output coil to value: ");
-  debugPrintln(newState);
-
-  if (!thisController->writeBoolValue(SolarTracerVariables::LOAD_MANUAL_ONOFF, newState > 0))
-  {
-    debugPrintln("Write & Read failed.");
-  }
-  thisController->fetchValue(SolarTracerVariables::LOAD_MANUAL_ONOFF);
-  uploadRealtimeToBlynk();
+  debugPrint("SET NEW VALUE FOR vPIN_LOAD_ENABLED");
+  bool newState = param.asInt() > 0;
+  executeFromBlynkBoolWrite(SolarTracerVariables::LOAD_MANUAL_ONOFF, &newState);
+  debugPrintln();
 }
 #endif
 
 #ifdef vPIN_CHARGE_DEVICE_ENABLED
 BLYNK_WRITE(vPIN_CHARGE_DEVICE_ENABLED)
 {
-  uint8_t newState = (uint8_t)param.asInt();
+  debugPrint("SET NEW VALUE FOR vPIN_CHARGE_DEVICE_ENABLED");
+  bool newState = param.asInt() > 0;
+  executeFromBlynkBoolWrite(SolarTracerVariables::CHARGING_DEVICE_ONOFF, &newState);
+  debugPrintln();
+}
+#endif
 
-  debugPrint("Setting load state output coil to value: ");
-  debugPrintln(newState);
+#ifdef vPIN_BATTERY_BOOST_VOLTAGE
+BLYNK_WRITE(vPIN_BATTERY_BOOST_VOLTAGE)
+{
+  debugPrint("SET NEW VALUE FOR vPIN_BATTERY_BOOST_VOLTAGE");
+  float newState = param.asFloat();
+  executeFromBlynkFloatWrite(SolarTracerVariables::BATTERY_BOOST_VOLTAGE, &newState);
+  debugPrintln();
+}
+#endif
 
-  if (thisController->writeBoolValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF, newState > 0))
-  {
-    debugPrintln("Write & Read failed.");
-  }
-  thisController->fetchValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF);
-  uploadRealtimeToBlynk();
+#ifdef vPIN_BATTERY_EQUALIZATION_VOLTAGE
+BLYNK_WRITE(vPIN_BATTERY_EQUALIZATION_VOLTAGE)
+{
+  debugPrint("SET NEW VALUE FOR vPIN_BATTERY_EQUALIZATION_VOLTAGE");
+  float newState = param.asFloat();
+  executeFromBlynkFloatWrite(SolarTracerVariables::BATTERY_EQUALIZATION_VOLTAGE, &newState);
+  debugPrintln();
+}
+#endif
+
+#ifdef vPIN_BATTERY_FLOAT_VOLTAGE
+BLYNK_WRITE(vPIN_BATTERY_FLOAT_VOLTAGE)
+{
+  debugPrint("SET NEW VALUE FOR vPIN_BATTERY_FLOAT_VOLTAGE");
+  float newState = param.asFloat();
+  executeFromBlynkFloatWrite(SolarTracerVariables::BATTERY_FLOAT_VOLTAGE, &newState);
+  debugPrintln();
+}
+#endif
+
+#ifdef vPIN_BATTERY_FLOAT_MIN_VOLTAGE
+BLYNK_WRITE(vPIN_BATTERY_FLOAT_MIN_VOLTAGE)
+{
+  debugPrint("SET NEW VALUE FOR vPIN_BATTERY_FLOAT_MIN_VOLTAGE");
+  float newState = param.asFloat();
+  executeFromBlynkFloatWrite(SolarTracerVariables::BATTERY_FLOAT_MIN_VOLTAGE, &newState);
+  debugPrintln();
+}
+#endif
+
+#ifdef vPIN_BATTERY_CHARGING_LIMIT_VOLTAGE
+BLYNK_WRITE(vPIN_BATTERY_CHARGING_LIMIT_VOLTAGE)
+{
+  debugPrint("SET NEW VALUE FOR vPIN_BATTERY_CHARGING_LIMIT_VOLTAGE");
+  float newState = param.asFloat();
+  executeFromBlynkFloatWrite(SolarTracerVariables::BATTERY_CHARGING_LIMIT_VOLTAGE, &newState);
+  debugPrintln();
+}
+#endif
+
+#ifdef vPIN_BATTERY_DISCHARGING_LIMIT_VOLTAGE
+BLYNK_WRITE(vPIN_BATTERY_DISCHARGING_LIMIT_VOLTAGE)
+{
+  debugPrint("SET NEW VALUE FOR vPIN_BATTERY_DISCHARGING_LIMIT_VOLTAGE");
+  float newState = param.asFloat();
+  executeFromBlynkFloatWrite(SolarTracerVariables::BATTERY_DISCHARGING_LIMIT_VOLTAGE, &newState);
+  debugPrintln();
+}
+#endif
+
+#ifdef vPIN_BATTERY_LOW_VOLTAGE_DISCONNECT
+BLYNK_WRITE(vPIN_BATTERY_LOW_VOLTAGE_DISCONNECT)
+{
+  debugPrint("SET NEW VALUE FOR vPIN_BATTERY_LOW_VOLTAGE_DISCONNECT");
+  float newState = param.asFloat();
+  executeFromBlynkFloatWrite(SolarTracerVariables::BATTERY_LOW_VOLTAGE_DISCONNECT, &newState);
+  debugPrintln();
+}
+#endif
+
+#ifdef vPIN_BATTERY_LOW_VOLTAGE_RECONNECT
+BLYNK_WRITE(vPIN_BATTERY_LOW_VOLTAGE_RECONNECT)
+{
+  debugPrint("SET NEW VALUE FOR vPIN_BATTERY_LOW_VOLTAGE_RECONNECT");
+  float newState = param.asFloat();
+  executeFromBlynkFloatWrite(SolarTracerVariables::BATTERY_LOW_VOLTAGE_RECONNECT, &newState);
+  debugPrintln();
+}
+#endif
+
+#ifdef vPIN_BATTERY_OVER_VOLTAGE_DISCONNECT
+BLYNK_WRITE(vPIN_BATTERY_OVER_VOLTAGE_DISCONNECT)
+{
+  debugPrint("SET NEW VALUE FOR vPIN_BATTERY_OVER_VOLTAGE_DISCONNECT");
+  float newState = param.asFloat();
+  executeFromBlynkFloatWrite(SolarTracerVariables::BATTERY_OVER_VOLTAGE_DISCONNECT, &newState);
+  debugPrintln();
+}
+#endif
+
+#ifdef vPIN_BATTERY_OVER_VOLTAGE_RECONNECT
+BLYNK_WRITE(vPIN_BATTERY_OVER_VOLTAGE_RECONNECT)
+{
+  debugPrint("SET NEW VALUE FOR vPIN_BATTERY_OVER_VOLTAGE_RECONNECT");
+  float newState = param.asFloat();
+  executeFromBlynkFloatWrite(SolarTracerVariables::BATTERY_OVER_VOLTAGE_RECONNECT, &newState);
+  debugPrintln();
+}
+#endif
+
+#ifdef vPIN_BATTERY_UNDER_VOLTAGE_RESET
+BLYNK_WRITE(vPIN_BATTERY_UNDER_VOLTAGE_RESET)
+{
+  debugPrint("SET NEW VALUE FOR vPIN_BATTERY_UNDER_VOLTAGE_RESET");
+  float newState = param.asFloat();
+  executeFromBlynkFloatWrite(SolarTracerVariables::BATTERY_UNDER_VOLTAGE_RESET, &newState);
+  debugPrintln();
+}
+#endif
+
+#ifdef vPIN_BATTERY_UNDER_VOLTAGE_SET
+BLYNK_WRITE(vPIN_BATTERY_UNDER_VOLTAGE_SET)
+{
+  debugPrint("SET NEW VALUE FOR vPIN_BATTERY_UNDER_VOLTAGE_SET");
+  float newState = param.asFloat();
+  executeFromBlynkFloatWrite(SolarTracerVariables::BATTERY_UNDER_VOLTAGE_SET, &newState);
+  debugPrintln();
 }
 #endif
 
