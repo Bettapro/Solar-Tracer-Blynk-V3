@@ -54,7 +54,7 @@ void executeFromMqttBoolWrite(SolarTracerVariables variable, bool *value)
 
 #if defined(USE_MQTT_RPC_SUBSCRIBE) || defined(USE_MQTT_JSON_PUBLISH)
 DynamicJsonDocument json(1024);
-#endif;
+#endif
 
 void mqttCallback(char *topic, uint8_t *bytes, unsigned int length)
 {
@@ -208,7 +208,9 @@ bool uploadVariableToMqtt(const mqttSolarVariableMap *varDef)
 // upload values stats
 void uploadStatsToMqtt()
 {
+#if defined(USE_MQTT_RPC_SUBSCRIBE) || defined(USE_MQTT_JSON_PUBLISH)
   json.clear();
+#endif
   if (!mqttClient.connected())
   {
     setStatusError(STATUS_ERR_NO_MQTT_CONNECTION);
@@ -243,7 +245,9 @@ void uploadStatsToMqtt()
 // upload values realtime
 void uploadRealtimeToMqtt()
 {
+#if defined(USE_MQTT_RPC_SUBSCRIBE) || defined(USE_MQTT_JSON_PUBLISH)
   json.clear();
+#endif
   if (!mqttClient.connected())
   {
     setStatusError(STATUS_ERR_NO_MQTT_CONNECTION);
