@@ -123,9 +123,7 @@ void mqttCallback(char *topic, uint8_t *bytes, unsigned int length)
   * MQTT_TOPIC_BATTERY_OVER_VOLTAGE_DISCONNECT          
   * MQTT_TOPIC_BATTERY_OVER_VOLTAGE_RECONNECT         
   * MQTT_TOPIC_BATTERY_UNDER_VOLTAGE_RESET              
-  * MQTT_TOPIC_BATTERY_UNDER_VOLTAGE_SET                 
-  * MQTT_TOPIC_MIN_PV_VOLTAGE_TODAY                     
-  * MQTT_TOPIC_MAX_PV_VOLTAGE_TODAY                      
+  * MQTT_TOPIC_BATTERY_UNDER_VOLTAGE_SET                                     
  */
 }
 

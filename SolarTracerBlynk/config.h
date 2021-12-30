@@ -246,30 +246,40 @@
   #define vPIN_UPDATE_ALL_CONTROLLER_DATA                 V28
 #endif
 
+
+/*
+ * MQTT
+ * Specify how to connect to mqtt broker and when to sync the data from the tracer
+ * 
+ * NOTE: mqtt support is till a WIP, it supports a small set of the features and variable compared
+ *        to blynk. Developed and tested using a thingspeak server and mosquitto broker
+ */
 #define USE_MQTT
 #if defined (USE_MQTT)
   //address of mqtt server (specify the hostname or the ip address eg: IPAddress(192, 168, 1, 78) )
   #define MQTT_SERVER "127.0.0.1"
   // port number of the mqtt server (eg: 1883)
   #define MQTT_PORT 1883
-
-  #define MQTT_USERNAME "solartracer"
-
-  #define MQTT_PASSWORD "solartracer"
-
+  // username to use 
+  //#define MQTT_USERNAME "solartracer"
+  // password to use in combination with MQTT_USERNAME
+  //#define MQTT_PASSWORD "solartracer"
+  // client id
   #define MQTT_CLIENT_ID "solarTracer1"
 
-  #define USE_MQTT_JSON_PUBLISH
+  // all the "variable topics" will be published in JSON on a single topic defined in MQTT_JSON_PUBLISH_TOPIC
+  //#define USE_MQTT_JSON_PUBLISH
    #ifdef USE_MQTT_JSON_PUBLISH
     #define MQTT_JSON_PUBLISH_TOPIC "v1/devices/me/telemetry"
   #endif
   
-  #define USE_MQTT_RPC_SUBSCRIBE
+  // use rpc to send control messages to this board (early stage support)
+  //#define USE_MQTT_RPC_SUBSCRIBE
   #ifdef USE_MQTT_RPC_SUBSCRIBE
     #define MQTT_RPC_SUBSCRIBE_TOPIC "v1/devices/me/rpc/request/+"
   #endif
 
-  // virtual pins definition and mapping
+  // topics definition and mapping
   #define MQTT_TOPIC_PV_POWER                                  "pv/power"
   #define MQTT_TOPIC_PV_CURRENT                                "pv/current"
   #define MQTT_TOPIC_PV_VOLTAGE                                "pv/voltage"
