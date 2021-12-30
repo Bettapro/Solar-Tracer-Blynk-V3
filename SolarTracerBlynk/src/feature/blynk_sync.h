@@ -362,3 +362,16 @@ BLYNK_WRITE(vPIN_UPDATE_ALL_CONTROLLER_DATA)
   }
 }
 #endif
+
+#ifdef vPIN_UPDATE_CONTROLLER_DATETIME
+BLYNK_WRITE(vPIN_UPDATE_CONTROLLER_DATETIME)
+{
+  uint8_t newState = (uint8_t)param.asInt();
+  Blynk.virtualWrite(vPIN_UPDATE_CONTROLLER_DATETIME, newState);
+  if (newState > 0)
+  {
+    thisController->syncRealtimeClock(getMyNowTm());
+    Blynk.virtualWrite(vPIN_UPDATE_CONTROLLER_DATETIME, 0);
+  }
+}
+#endif

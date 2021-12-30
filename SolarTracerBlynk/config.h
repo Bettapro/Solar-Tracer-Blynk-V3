@@ -247,6 +247,7 @@
   //#define vPIN_INTERNAL_DEBUG_TERMINAL                    V44
   //action
   #define vPIN_UPDATE_ALL_CONTROLLER_DATA                 V28
+  #define vPIN_UPDATE_CONTROLLER_DATETIME                 V45
 #endif
 
 

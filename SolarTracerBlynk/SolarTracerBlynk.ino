@@ -26,20 +26,6 @@ extern SimpleTimer *mainTimer;
 // -------------------------------------------------------------------------------
 // MISC
 
-#ifdef SYNC_ST_TIME
-void getTimeFromServer()
-{
-  struct tm *ti;
-  time_t tnow;
-  char strftime_buf[64];
-
-  tnow = time(nullptr) + 1;
-  strftime(strftime_buf, sizeof(strftime_buf), "%c", localtime(&tnow));
-  ti = localtime(&tnow);
-  thisController->syncRealtimeClock(ti);
-}
-#endif
-
 void uploadRealtimeAll()
 {
 #if defined USE_BLYNK
@@ -218,25 +204,11 @@ void setup()
 
 #ifdef USE_NTP_SERVER
   debugPrintln(" ++ Setting up Local Time:");
-  debugPrint("Waiting for NTP time...");
-  configTzTime(CURRENT_TIMEZONE, NTP_SERVER_CONNECT_TO);
+  setupDatetimeFromNTP();
 
-  while (time(nullptr) < 100000ul)
-  {
-    debugPrint(".");
-    delay(500);
-  }
-  debugPrintln("OK");
-
-  char strftime_buf[64];
-
-  time_t tnow = time(nullptr) + 1;
-  strftime(strftime_buf, sizeof(strftime_buf), "%c", localtime(&tnow));
-  struct tm *ti = localtime(&tnow);
-
+  struct tm *ti = getMyNowTm();
   debugPrintf("My NOW is: %i-%02i-%02i %02i:%02i:%02i", ti->tm_year + 1900, ti->tm_mon + 1, ti->tm_mday, ti->tm_hour, ti->tm_min, ti->tm_sec);
   debugPrintln();
-
 #endif
 #if defined USE_BLYNK
   blynkSetup();
@@ -249,8 +221,8 @@ void setup()
 
   debugPrintln(" ++ Setting up solar tracer:");
 #ifdef SYNC_ST_TIME
-  debugPrintln("Set NTP time");
-  getTimeFromServer();
+  debugPrintln("Synchronize NTP time with controller");
+  thisController->syncRealtimeClock(getMyNowTm());
   delay(500);
 #endif
   debugPrintln("Get all values");

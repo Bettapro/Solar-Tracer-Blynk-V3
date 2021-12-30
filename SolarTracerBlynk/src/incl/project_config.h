@@ -78,6 +78,7 @@
 #include "../core/debug.h"
 #include "../core/timer.h"
 #include "../core/controller.h"
+#include "../core/datetime.h"
 
 #if defined USE_WIFI_AP_CONFIGURATION
     #include <ArduinoJson.h>
