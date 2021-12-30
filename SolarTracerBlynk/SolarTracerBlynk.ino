@@ -93,7 +93,8 @@ void loop()
 void setup()
 {
   BOARD_DEBUG_SERIAL_STREAM.begin(BOARD_DEBUG_SERIAL_STREAM_BAUDRATE);
-  debugPrintln(" ++ STARTING TRACER-RS485-MODBUS-BLYNK");
+  debugPrintf(" ++ STARTING TRACER-RS485-MODBUS-BLYNK %s [%d]", PROJECT_VERSION, PROJECT_SUBVERSION);
+  debugPrintln();
   loadEnvData();
 
 #if defined(USE_PIN_RESET_CONFIGURATION_TRIGGER)

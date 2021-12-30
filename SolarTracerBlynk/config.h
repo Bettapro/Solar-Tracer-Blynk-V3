@@ -182,7 +182,7 @@
  * Specify how to connect to blynk server and when to sync the data from the tracer
  */
 
-//#define USE_BLYNK
+#define USE_BLYNK
 #if defined (USE_BLYNK)
 
   // Blynk API key
@@ -254,7 +254,7 @@
  * NOTE: mqtt support is till a WIP, it supports a small set of the features and variable compared
  *        to blynk. Developed and tested using a thingspeak server and mosquitto broker
  */
-#define USE_MQTT
+//#define USE_MQTT
 #if defined (USE_MQTT)
   //address of mqtt server (specify the hostname or the ip address eg: IPAddress(192, 168, 1, 78) )
   #define MQTT_SERVER "127.0.0.1"

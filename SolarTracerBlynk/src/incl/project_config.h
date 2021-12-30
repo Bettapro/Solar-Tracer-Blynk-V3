@@ -21,6 +21,10 @@
 
 #pragma once
 
+#define PROJECT_VERSION "v3.0.3"
+#define PROJECT_SUBVERSION 0
+
+
 #include <Arduino.h>
 
 
