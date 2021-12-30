@@ -354,6 +354,7 @@ BLYNK_WRITE(vPIN_UPDATE_ALL_CONTROLLER_DATA)
   Blynk.virtualWrite(vPIN_UPDATE_ALL_CONTROLLER_DATA, newState);
   if (newState > 0)
   {
+    debugPrintln("REQUEST ALL VALUES TO CONTROLLER");
     thisController->fetchAllValues();
     uploadRealtimeToBlynk();
     uploadStatsToBlynk();
@@ -370,6 +371,7 @@ BLYNK_WRITE(vPIN_UPDATE_CONTROLLER_DATETIME)
   Blynk.virtualWrite(vPIN_UPDATE_CONTROLLER_DATETIME, newState);
   if (newState > 0)
   {
+    debugPrintln("UPDATE CONTROLLER DATETIME");
     thisController->syncRealtimeClock(getMyNowTm());
     Blynk.virtualWrite(vPIN_UPDATE_CONTROLLER_DATETIME, 0);
   }
