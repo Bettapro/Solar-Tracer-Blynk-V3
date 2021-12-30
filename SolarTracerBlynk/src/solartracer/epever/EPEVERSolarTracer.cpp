@@ -23,8 +23,8 @@
 
 #define _EST_RS_POINTER(s, v) (s ? &v : nullptr)
 
-EPEVERSolarTracer::EPEVERSolarTracer(Stream &SerialCom, uint8_t slave, uint8_t max485_de, uint8_t max485_re_neg)
-    : EPEVERSolarTracer(SerialCom, slave)
+EPEVERSolarTracer::EPEVERSolarTracer(Stream &serialCom, uint16_t serialTimeoutMs, uint8_t slave, uint8_t max485_de, uint8_t max485_re_neg)
+    : EPEVERSolarTracer(serialCom, serialTimeoutMs, slave)
 {
 
   this->max485_re_neg = max485_re_neg;
@@ -38,12 +38,17 @@ EPEVERSolarTracer::EPEVERSolarTracer(Stream &SerialCom, uint8_t slave, uint8_t m
 
   // set this instance as the callback receiver
   this->node.setTransmissionCallable(this);
+
+  if (serialTimeoutMs > 0)
+  {
+    this->node.setResponseTimeout(serialTimeoutMs);
+  };
 }
 
-EPEVERSolarTracer::EPEVERSolarTracer(Stream &SerialCom, uint8_t slave)
+EPEVERSolarTracer::EPEVERSolarTracer(Stream &serialCom, uint16_t serialTimeoutMs, uint8_t slave)
     : SolarTracer()
 {
-  this->node.begin(slave, SerialCom);
+  this->node.begin(slave, serialCom);
 
   // won't be used as it's not registering to transmission callback
   this->max485_re_neg = this->max485_de = 0;
@@ -113,7 +118,6 @@ bool EPEVERSolarTracer::syncRealtimeClock(struct tm *ti)
 
 void EPEVERSolarTracer::fetchAllValues()
 {
-
 
   // STATS
   this->updateStats();
@@ -281,14 +285,14 @@ bool EPEVERSolarTracer::replaceControllerHoldingRegister(uint16_t address, uint1
   this->lastControllerCommunicationStatus = this->node.readHoldingRegisters(fromAddress, count);
   if (this->lastControllerCommunicationStatus == this->node.ku8MBSuccess)
   {
-    // adding a delay here could help, epever tends to trigger timeouts 
+    // adding a delay here could help, epever tends to trigger timeouts
     for (uint8_t i = 0; i < count; i++)
     {
       this->node.setTransmitBuffer(i, this->node.getResponseBuffer(i));
     }
     this->node.setTransmitBuffer(0, 0);
     this->node.setTransmitBuffer(address - fromAddress, value);
-     
+
     this->lastControllerCommunicationStatus = this->node.writeMultipleRegisters(fromAddress, count);
     return this->lastControllerCommunicationStatus == this->node.ku8MBSuccess;
   }

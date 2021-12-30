@@ -66,6 +66,9 @@
   // specify the baudrate to use (leave commented to use the correct based on you solar tracer)
   //#define BOARD_ST_SERIAL_STREAM_BAUDRATE 115200 
 
+  // ms to wait for a response from controller, then a timeout error will be triggered
+  //#define SERIAL_COMMUNICATION_TIMEOUT 2000
+
   // specify your rx pin
   //#define BOARD_ST_SERIAL_PIN_MAPPING_RX 16
   // specify your tx pin

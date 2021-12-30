@@ -30,8 +30,8 @@
 class EPEVERSolarTracer : public SolarTracer, public ModbusMasterCallable
 {
 public:
-  EPEVERSolarTracer(Stream &SerialCom, uint8_t slave, uint8_t max485_de, uint8_t max485_re_neg);
-  EPEVERSolarTracer(Stream &SerialCom, uint8_t slave);
+  EPEVERSolarTracer(Stream &serialCom, uint16_t serialTimeoutMs, uint8_t slave, uint8_t max485_de, uint8_t max485_re_neg);
+  EPEVERSolarTracer(Stream &serialCom, uint16_t serialTimeoutMs, uint8_t slave);
 
   virtual bool syncRealtimeClock(struct tm *ti);
 
