@@ -30,6 +30,7 @@ jobs:
         - name: WiFiManager
         - name: ArduinoJson
         - source-url : https://github.com/Bettapro/ModbusMaster.git
+        - name: PubSubClient
       # sketch paths to compile (recursive) for all boards
       sketch_paths: |
         - SolarTracerBlynk
