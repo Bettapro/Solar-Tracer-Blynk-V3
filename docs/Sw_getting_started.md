@@ -29,12 +29,15 @@ Open you favorite IDE:
 ### Libraries to include in Arduino IDE
 
 
-* [Blynk Library](https://github.com/blynkkk/blynk-library)
+
 * [ArduinoOTA](https://github.com/esp8266/Arduino/tree/master/libraries/ArduinoOTA)
-* [SimpleTimer](https://github.com/schinken/SimpleTimer)
-* [ModbusMaster_obj](https://github.com/Bettapro/ModbusMaster) 
+* [ModbusMaster](https://github.com/Bettapro/ModbusMaster) 
 * [WiFiManager](https://github.com/tzapu/WiFiManager) 
 * [ArduinoJson](https://github.com/bblanchon/ArduinoJson) 
+* [PubSubClient](https://github.com/knolleary/pubsubclient) - MQTT ONLY
+* [Blynk Library](https://github.com/blynkkk/blynk-library) - BLYNK ONLY
+* [SimpleTimer](https://github.com/Bettapro/SimpleTimer) - MQTT ONLY
+
 
 ### Edit `config.h` library
 Open `SolarTracerBlynk\config.h`
@@ -56,19 +59,21 @@ Upload the sketch to your ESP8266 / ESP32, if you are using platformio you shoul
 
  Get the Mobile App ([iOS](https://itunes.apple.com/us/app/blynk-iot-for-arduino-rpi/id808760481?mt=8) & [Android](https://play.google.com/store/apps/details?id=cc.blynk&hl=en))
 
-Open the Blynk mobile app and create a new project by scanning the following QR code
+Open the Blynk mobile app and create a new project by scanning the following QR code.
+
+Click PLAY on you mobile app, you should start receiving updates from your solar tracer!.
+
 
 ### Legacy app (v3) - SUGGESTED
-Current version of the app, complete overview of the solar charge controller.
+Current version of the app, complete overview of the solar charge controller. ENERGY REQUIRED: 14300
 
-![Project QR Code](../images/blynk-app-qr-code_v3.png)
+![Project QR Code](../images/blynk-app-qr-code_v3_blynkcloud.png)
 
 ### Legacy app (v2)
-Original version of the mobile app, shows a small set of data.
+Original version of the mobile app, shows a small set of data. ENERGY REQUIRED: 4400
 
 ![Project QR Code](../images/blynk-app-qr-code.png)
 
-Click PLAY on you mobile app, you should start receiving updates from your solar tracer!.
 
 ## 3. Wifi Configuration (SETUP MODE)
 
@@ -83,7 +88,7 @@ Default values:
  - WIFI SSID: SolarTracerAP
  - WIFI PASSWORD: admin1234
 
-Connect to this Wifi network, then oper a browser and go to http://192.168.4.1 .
+Connect to this Wifi network, then open a web browser and go to http://192.168.4.1 .
 
  ![wifimanager_home](../images/wifi_manager_home.png)
 
