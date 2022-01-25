@@ -21,9 +21,9 @@
 
 #pragma once
 
-#if defined ESP32
+#if defined ARDUINO_ARCH_ESP32
 #include "esp32_config.h"
-#elif defined ESP8266
+#elif defined ARDUINO_ARCH_ESP8266
 #include "esp8266_config.h"
 #else
 #error This board is not supported.
