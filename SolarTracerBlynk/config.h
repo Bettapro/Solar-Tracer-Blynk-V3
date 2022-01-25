@@ -200,9 +200,10 @@
     #define BLYNK_PORT                  8080
   #endif
 
-  // virtual pins definition and mapping
-  // virtual pins definition and mapping
+  // ESP will wait indefinitely for blynk conneciton
+  #define BLYNK_CONNECTION_REQUIRED
 
+  // virtual pins definition and mapping
 
   #define vPIN_PV_POWER                                   V1
   #define vPIN_PV_CURRENT                                 V2

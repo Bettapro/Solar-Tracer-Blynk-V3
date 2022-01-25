@@ -26,6 +26,12 @@ WiFiClient espClient;
 PubSubClient mqttClient(espClient);
 
 #define RETAIN_ALL_MSG false
+#define MQTT_CONNECT_ATTEMPT 3
+
+void mqttSetup();
+void mqttConnect();
+void mqttLoop();
+
 
 char mqttPublishBuffer[20];
 
@@ -143,14 +149,8 @@ void mqttSetup()
   mqttClient.setServer(MQTT_SERVER, MQTT_PORT);
   mqttClient.setCallback(mqttCallback);
 
-  debugPrintln(" ++ Setting up MQTT:");
-  debugPrint("Connecting...");
+  mqttConnect();
 
-  while (!mqttAttemptConnection())
-  {
-    debugPrint(".");
-    delay(1000);
-  }
 #ifdef USE_MQTT_RPC_SUBSCRIBE
   mqttClient.subscribe(MQTT_RPC_SUBSCRIBE_TOPIC);
 #endif
@@ -163,6 +163,21 @@ void mqttSetup()
 #ifdef MQTT_TOPIC_CHARGE_DEVICE_ENABLED
   mqttClient.subscribe(MQTT_TOPIC_CHARGE_DEVICE_ENABLED);
 #endif
+}
+
+void mqttConnect()
+{
+  debugPrintln(" ++ Setting up MQTT:");
+  debugPrint("Connecting...");
+
+  uint8_t counter = 0;
+
+  while (counter < MQTT_CONNECT_ATTEMPT && !mqttAttemptConnection())
+  {
+    debugPrint(".");
+    delay(500);
+    counter++;
+  }
 }
 
 void mqttLoop()

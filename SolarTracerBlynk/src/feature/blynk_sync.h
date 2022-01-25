@@ -24,6 +24,7 @@
 
 extern SolarTracer *thisController;
 
+#define BLYNK_CONNECT_ATTEMPT 3
 #define BLYNK_VALUE_CACHES_UNTIL_COUNT 5
 #define BLYNK_VALUE_CACHES_STRING_LEN 20
 
@@ -37,27 +38,14 @@ void blynkDebugCallback(String message)
 }
 #endif
 
+void blynkSetup();
+void blynkConnect();
+void blynkLoop();
+
 void blynkSetup()
 {
-  debugPrintln(" ++ Setting up Blynk:");
-  debugPrint("Connecting...");
+  blynkConnect();
 
-  if (envData.blynkLocalServer)
-  {
-    Blynk.config(envData.blynkAuth, envData.blynkServerHostname, envData.blynkServerPort);
-  }
-  else
-  {
-    Blynk.config(envData.blynkAuth);
-  }
-
-  while (!Blynk.connect())
-  {
-    debugPrint(".");
-    delay(500);
-  }
-  debugPrintln("OK");
-  clearStatusError(STATUS_ERR_NO_BLYNK_CONNECTION);
 #ifdef vPIN_INTERNAL_DEBUG_TERMINAL
   debugAddRegisterCallback(blynkDebugCallback);
   blynkDebugCallback("Solar Tracer START\r\n");
@@ -77,6 +65,34 @@ void blynkSetup()
       break;
     }
   }
+}
+
+void blynkConnect()
+{
+  debugPrintln(" ++ Setting up Blynk:");
+  debugPrint("Connecting...");
+
+  if (envData.blynkLocalServer)
+  {
+    Blynk.config(envData.blynkAuth, envData.blynkServerHostname, envData.blynkServerPort);
+  }
+  else
+  {
+    Blynk.config(envData.blynkAuth);
+  }
+
+  uint8_t counter = 0;
+
+  while (counter < BLYNK_CONNECT_ATTEMPT && !Blynk.connect())
+  {
+    debugPrint(".");
+    delay(500);
+#ifndef BLYNK_CONNECTION_REQUIRED
+    counter++;
+#endif
+  }
+
+  debugPrintln(Blynk.connected() ? "OK" : "KO");
 }
 
 void blynkLoop()

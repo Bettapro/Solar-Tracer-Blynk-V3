@@ -58,6 +58,15 @@ void loop()
     {
       setStatusError(STATUS_ERR_NO_WIFI_CONNECTION);
     }
+    else
+    {
+#if defined USE_BLYNK
+      blynkConnect();
+#endif
+#if defined USE_MQTT
+      mqttConnect();
+#endif
+    }
   }
   else
   {
