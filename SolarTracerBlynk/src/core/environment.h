@@ -134,10 +134,10 @@ void loadEnvData()
                     envData.blynkServerPort = doc[CONFIG_PERSISTENCE_WIFI_BLYNK_PORT];
 #endif
 #ifdef USE_WIFI_AP_CONFIGURATION
-                if (doc.containsKey(WIFI_AP_CONFIGURATION_HOSTNAME))
-                    strcpy(envData.wmApSSID, doc[WIFI_AP_CONFIGURATION_HOSTNAME]);
-                if (doc.containsKey(WIFI_AP_CONFIGURATION_PASSWORD))
-                    strcpy(envData.wmApPassword, doc[WIFI_AP_CONFIGURATION_PASSWORD]);
+                if (doc.containsKey(CONFIG_PERSISTENCE_WM_AP_SSID))
+                    strcpy(envData.wmApSSID, doc[CONFIG_PERSISTENCE_WM_AP_SSID]);
+                if (doc.containsKey(CONFIG_PERSISTENCE_WM_AP_PASSWORD))
+                    strcpy(envData.wmApPassword, doc[CONFIG_PERSISTENCE_WM_AP_PASSWORD]);
 #endif
             }
         }

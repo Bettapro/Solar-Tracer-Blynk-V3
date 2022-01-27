@@ -66,7 +66,9 @@
     #endif
 #endif
 
- #include <SimpleTimer.h>
+#ifndef USE_BLYNK
+    #include <SimpleTimer.h>
+#endif
 
 #include "../incl/variables_contains.h"
 
@@ -95,6 +97,8 @@
 #endif
 
 #if defined USE_WIFI_AP_CONFIGURATION
+    // disable WM all logs
+    // #define WM_NODEBUG
     #include <WiFiManager.h> 
 
     #include "../feature/wifi_manager.h"
