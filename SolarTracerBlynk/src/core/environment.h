@@ -35,9 +35,11 @@ struct environrmentData
 #endif
 // blynk
 #ifdef USE_BLYNK
+#ifndef USE_BLYNK_2
     bool blynkLocalServer;
     char blynkServerHostname[CONFIG_PERSISTENCE_WIFI_BLYNK_HOSTNAME_LEN + 1];
     uint16_t blynkServerPort;
+#endif
     char blynkAuth[CONFIG_PERSISTENCE_WIFI_BLYNK_AUTH_LEN + 1];
 #endif
 // mqtt
@@ -63,6 +65,7 @@ void loadEnvData()
 #endif
 
 #ifdef USE_BLYNK
+#ifndef USE_BLYNK_2
 #ifdef USE_BLYNK_LOCAL_SERVER
     envData.blynkLocalServer = true;
     strcpy(envData.blynkServerHostname, BLYNK_SERVER);
@@ -71,19 +74,6 @@ void loadEnvData()
     envData.blynkLocalServer = false;
     envData.blynkServerPort = 0;
 #endif
-#if defined USE_BLYNK
-    strcpy(envData.blynkAuth, BLYNK_AUTH);
-#endif
-#endif
-
-#ifdef USE_BLYNK
-#ifdef USE_BLYNK_LOCAL_SERVER
-    envData.blynkLocalServer = true;
-    strcpy(envData.blynkServerHostname, BLYNK_SERVER);
-    envData.blynkServerPort = BLYNK_PORT;
-#else
-    envData.blynkLocalServer = false;
-    envData.blynkServerPort = 0;
 #endif
 #if defined USE_BLYNK
     strcpy(envData.blynkAuth, BLYNK_AUTH);
@@ -126,12 +116,14 @@ void loadEnvData()
 #if defined USE_BLYNK
                 if (doc.containsKey(CONFIG_PERSISTENCE_WIFI_BLYNK_AUTH))
                     strcpy(envData.blynkAuth, doc[CONFIG_PERSISTENCE_WIFI_BLYNK_AUTH]);
+#ifndef USE_BLYNK_2
                 if (doc.containsKey(CONFIG_PERSISTENCE_WIFI_BLYNK_IS_LOCAL))
                     envData.blynkLocalServer = doc[CONFIG_PERSISTENCE_WIFI_BLYNK_IS_LOCAL];
                 if (doc.containsKey(CONFIG_PERSISTENCE_WIFI_BLYNK_HOSTNAME))
                     strcpy(envData.blynkServerHostname, doc[CONFIG_PERSISTENCE_WIFI_BLYNK_HOSTNAME]);
                 if (doc.containsKey(CONFIG_PERSISTENCE_WIFI_BLYNK_PORT))
                     envData.blynkServerPort = doc[CONFIG_PERSISTENCE_WIFI_BLYNK_PORT];
+#endif
 #endif
 #ifdef USE_WIFI_AP_CONFIGURATION
                 if (doc.containsKey(CONFIG_PERSISTENCE_WM_AP_SSID))

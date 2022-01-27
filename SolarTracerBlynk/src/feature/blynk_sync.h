@@ -72,7 +72,10 @@ void blynkConnect()
   debugPrintln(" ++ Setting up Blynk:");
   debugPrint("Connecting...");
 
-  if (envData.blynkLocalServer)
+#ifdef USE_BLYNK_2
+   Blynk.config(envData.blynkAuth);
+#else
+ if (envData.blynkLocalServer)
   {
     Blynk.config(envData.blynkAuth, envData.blynkServerHostname, envData.blynkServerPort);
   }
@@ -80,6 +83,8 @@ void blynkConnect()
   {
     Blynk.config(envData.blynkAuth);
   }
+#endif
+ 
 
   uint8_t counter = 0;
 

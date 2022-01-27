@@ -188,10 +188,19 @@
 #define USE_BLYNK
 #if defined (USE_BLYNK)
 
+  // uncomment to use blynk 2.0
+  //#define USE_BLYNK_2
+  #ifdef USE_BLYNK_2
+    // your project template id
+    #define BLYNK_TEMPLATE_ID "-template-id-"
+    // device name
+    #define BLYNK_DEVICE_NAME "SolarTracer"
+  #endif
+
   // Blynk API key
   #define BLYNK_AUTH "-blynk-aut-"
 
-  // uncomment to us an user-defined blynk server
+  // uncomment to use an user-defined blynk server
   //#define USE_BLYNK_LOCAL_SERVER
   #ifdef USE_BLYNK_LOCAL_SERVER
     //address of blynk server (specify the hostname or the ip address eg: IPAddress(192, 168, 1, 78) )
