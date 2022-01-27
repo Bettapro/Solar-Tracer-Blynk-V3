@@ -209,7 +209,7 @@
     #define BLYNK_PORT                  8080
   #endif
 
-  // ESP will wait indefinitely for blynk conneciton
+  // ESP will wait indefinitely for blynk connection
   #define BLYNK_CONNECTION_REQUIRED
 
   // virtual pins definition and mapping
