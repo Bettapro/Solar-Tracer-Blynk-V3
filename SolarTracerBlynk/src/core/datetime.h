@@ -26,7 +26,7 @@
 void setupDatetimeFromNTP()
 {
     debugPrint("Waiting for NTP time...");
-    configTzTime(CURRENT_TIMEZONE, NTP_SERVER_CONNECT_TO);
+    configTzTime(envData.ntpTimezone, envData.ntpServer);
 
     while (time(nullptr) < 100000ul)
     {

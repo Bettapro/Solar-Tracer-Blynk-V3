@@ -37,10 +37,10 @@ struct environrmentData
 #ifdef USE_BLYNK
 #ifndef USE_BLYNK_2
     bool blynkLocalServer;
-    char blynkServerHostname[CONFIG_PERSISTENCE_WIFI_BLYNK_HOSTNAME_LEN + 1];
+    char blynkServerHostname[CONFIG_PERSISTENCE_BLYNK_HOSTNAME_LEN + 1];
     uint16_t blynkServerPort;
 #endif
-    char blynkAuth[CONFIG_PERSISTENCE_WIFI_BLYNK_AUTH_LEN + 1];
+    char blynkAuth[CONFIG_PERSISTENCE_BLYNK_AUTH_LEN + 1];
 #endif
 // mqtt
 #ifdef USE_MQTT
@@ -49,9 +49,25 @@ struct environrmentData
     char mqttUsername[CONFIG_PERSISTENCE_WIFI_MQTT_USERNAME_LEN + 1];
     char mqttPassword[CONFIG_PERSISTENCE_WIFI_MQTT_PASSWORD_LEN + 1];
 #endif
+#ifdef USE_OTA_UPDATE
+    char otaHostname[CONFIG_PERSISTENCE_OTA_HOSTNAME_LEN + 1];
+    char otaPassword[CONFIG_PERSISTENCE_OTA_PASSWORD_LEN + 1];
+#endif
+#ifdef USE_NTP_SERVER
+    char ntpServer[CONFIG_PERSISTENCE_NTP_SERVER_LEN + 1];
+    char ntpTimezone[CONFIG_PERSISTENCE_NTP_TIMEZONE_LEN + 1];
+#endif
 };
 
 struct environrmentData envData;
+
+#ifdef USE_WIFI_AP_CONFIGURATION
+void loadStringToEnvIfExist(DynamicJsonDocument doc, const char *envKey, char *envValue)
+{
+    if (doc.containsKey(envKey))
+        strcpy(envValue, doc[envKey]);
+}
+#endif
 
 void loadEnvData()
 {
@@ -79,6 +95,18 @@ void loadEnvData()
     strcpy(envData.blynkAuth, BLYNK_AUTH);
 #endif
 #endif
+
+#ifdef USE_OTA_UPDATE
+    strcpy(envData.otaHostname, OTA_HOSTNAME);
+    strcpy(envData.otaPassword, OTA_PASS);
+#endif
+
+#ifdef USE_NTP_SERVER
+    strcpy(envData.ntpServer, NTP_SERVER_CONNECT_TO);
+    strcpy(envData.ntpTimezone, CURRENT_TIMEZONE);
+#endif
+
+    // END OF LOAD FROM config.h
 
 #if defined USE_WIFI_AP_CONFIGURATION
     LittleFS.begin();
@@ -109,27 +137,33 @@ void loadEnvData()
             }
             else
             {
-                if (doc.containsKey(CONFIG_PERSISTENCE_WIFI_SSID))
-                    strcpy(envData.wifiSSID, doc[CONFIG_PERSISTENCE_WIFI_SSID]);
-                if (doc.containsKey(CONFIG_PERSISTENCE_WIFI_PASSWORD))
-                    strcpy(envData.wifiPassword, doc[CONFIG_PERSISTENCE_WIFI_PASSWORD]);
+                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_WIFI_SSID, envData.wifiSSID);
+                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_WIFI_PASSWORD, envData.wifiPassword);
+
+                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_WM_AP_SSID, envData.wmApSSID);
+                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_WM_AP_PASSWORD, envData.wmApPassword);
+
 #if defined USE_BLYNK
-                if (doc.containsKey(CONFIG_PERSISTENCE_WIFI_BLYNK_AUTH))
-                    strcpy(envData.blynkAuth, doc[CONFIG_PERSISTENCE_WIFI_BLYNK_AUTH]);
+                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_BLYNK_AUTH, envData.blynkAuth);
 #ifndef USE_BLYNK_2
-                if (doc.containsKey(CONFIG_PERSISTENCE_WIFI_BLYNK_IS_LOCAL))
-                    envData.blynkLocalServer = doc[CONFIG_PERSISTENCE_WIFI_BLYNK_IS_LOCAL];
-                if (doc.containsKey(CONFIG_PERSISTENCE_WIFI_BLYNK_HOSTNAME))
-                    strcpy(envData.blynkServerHostname, doc[CONFIG_PERSISTENCE_WIFI_BLYNK_HOSTNAME]);
-                if (doc.containsKey(CONFIG_PERSISTENCE_WIFI_BLYNK_PORT))
-                    envData.blynkServerPort = doc[CONFIG_PERSISTENCE_WIFI_BLYNK_PORT];
+                if (doc.containsKey(CONFIG_PERSISTENCE_BLYNK_IS_LOCAL))
+                    envData.blynkLocalServer = doc[CONFIG_PERSISTENCE_BLYNK_IS_LOCAL];
+
+                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_BLYNK_HOSTNAME, envData.blynkServerHostname);
+
+                if (doc.containsKey(CONFIG_PERSISTENCE_BLYNK_PORT))
+                    envData.blynkServerPort = doc[CONFIG_PERSISTENCE_BLYNK_PORT];
 #endif
 #endif
-#ifdef USE_WIFI_AP_CONFIGURATION
-                if (doc.containsKey(CONFIG_PERSISTENCE_WM_AP_SSID))
-                    strcpy(envData.wmApSSID, doc[CONFIG_PERSISTENCE_WM_AP_SSID]);
-                if (doc.containsKey(CONFIG_PERSISTENCE_WM_AP_PASSWORD))
-                    strcpy(envData.wmApPassword, doc[CONFIG_PERSISTENCE_WM_AP_PASSWORD]);
+
+#ifdef USE_OTA_UPDATE
+                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_OTA_HOSTNAME, envData.otaHostname);
+                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_OTA_PASSWORD, envData.otaPassword);
+#endif
+
+#ifdef USE_NTP_SERVER
+                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_NTP_SERVER, envData.ntpServer);
+                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_NTP_TIMEZONE, envData.ntpTimezone);
 #endif
             }
         }

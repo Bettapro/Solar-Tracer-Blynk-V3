@@ -42,6 +42,17 @@
 #include "../board/board_config.h"
 #include "../solartracer/solartracer_config.h"
 
+#include "../core/debug.h"
+
+#if defined USE_WIFI_AP_CONFIGURATION
+    #include <ArduinoJson.h>
+    
+    #include <LittleFS.h>
+    #include "../incl/config_persistence.h"
+#endif
+#include "../core/environment.h"
+
+
 // reducing Blynk footprint
 #define BLYNK_NO_BUILTIN   // Disable built-in analog & digital pin operations
 
@@ -77,19 +88,9 @@
 #endif
 
 #include "../core/status.h"
-#include "../core/debug.h"
 #include "../core/timer.h"
 #include "../core/controller.h"
 #include "../core/datetime.h"
-
-#if defined USE_WIFI_AP_CONFIGURATION
-    #include <ArduinoJson.h>
-    
-    #include <LittleFS.h>
-    #include "../incl/config_persistence.h"
-#endif
-
-#include "../core/environment.h"
 
 #ifdef USE_OTA_UPDATE
     #include <ArduinoOTA.h>

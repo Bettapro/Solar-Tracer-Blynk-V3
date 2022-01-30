@@ -58,20 +58,42 @@ void startWifiConfigurationAP(bool tryConnection)
   WiFiManagerParameter custom_wmPassword("wmApPassword", "Access Point Password", envData.wmApPassword, CONFIG_PERSISTENCE_WM_AP_PASSWORD_LEN);
 
 #ifdef USE_BLYNK
-  WiFiManagerParameter custom_BlynkAuth("blynkAuth", "Blynk API key", envData.blynkAuth, CONFIG_PERSISTENCE_WIFI_BLYNK_AUTH_LEN);
+  WiFiManagerParameter custom_BlynkAuth("blynkAuth", "Blynk API key", envData.blynkAuth, CONFIG_PERSISTENCE_BLYNK_AUTH_LEN);
 
   wifiManager.addParameter(&custom_BlynkAuth);
 
 #ifndef USE_BLYNK_2
   WiFiManagerParameter custom_blynkLocalServerText("<p><b>BLYNK LOCAL SERVER ONLY:</b></p>");
 
-  WiFiManagerParameter customBlynkServerHostname("blynkServerHostname", "Blynk Server Hostname", envData.blynkServerHostname, CONFIG_PERSISTENCE_WIFI_BLYNK_HOSTNAME_LEN);
+  WiFiManagerParameter customBlynkServerHostname("blynkServerHostname", "Blynk Server Hostname", envData.blynkServerHostname, CONFIG_PERSISTENCE_BLYNK_HOSTNAME_LEN);
   WiFiManagerParameter custom_BlynkServerPort("blynkServerPort", "Blynk Server Port", String(envData.blynkServerPort).c_str(), 5, "type=\"number\" min=\"0\"");
 
   wifiManager.addParameter(&custom_blynkLocalServerText);
   wifiManager.addParameter(&customBlynkServerHostname);
   wifiManager.addParameter(&custom_BlynkServerPort);
 #endif
+#endif
+
+#ifdef USE_OTA_UPDATE
+  WiFiManagerParameter customOtaUpdateText("<p><b>OTA UPDATE:</b></p>");
+
+  WiFiManagerParameter customOtaHostname("otaHostname", "OTA Hostname", envData.otaHostname, CONFIG_PERSISTENCE_OTA_HOSTNAME_LEN);
+  WiFiManagerParameter customOtaPassword("otaPassword", "OTA Password", envData.otaPassword, CONFIG_PERSISTENCE_OTA_PASSWORD_LEN);
+
+  wifiManager.addParameter(&customOtaUpdateText);
+  wifiManager.addParameter(&customOtaHostname);
+  wifiManager.addParameter(&customOtaPassword);
+#endif
+
+#ifdef USE_NTP_SERVER
+  WiFiManagerParameter customNtpText("<p><b>NTP settings:</b></p>");
+
+  WiFiManagerParameter customNtpServer("ntpServer", "NTP Server", envData.ntpServer, CONFIG_PERSISTENCE_NTP_SERVER_LEN);
+  WiFiManagerParameter customNtpTimezone("ntpTimezone", "Timezone", envData.ntpTimezone, CONFIG_PERSISTENCE_NTP_TIMEZONE_LEN);
+
+  wifiManager.addParameter(&customNtpText);
+  wifiManager.addParameter(&customNtpServer);
+  wifiManager.addParameter(&customNtpTimezone);
 #endif
 
   WiFiManagerParameter custom_wmText("<p><b>CONFIGURATION OVER WIFI:</b></p>");
@@ -86,6 +108,9 @@ void startWifiConfigurationAP(bool tryConnection)
   {
     debugPrintln("Saving wifimanager parameters...");
 
+    strcpy(envData.wmApSSID, custom_wmSSID.getValue());
+    strcpy(envData.wmApPassword, custom_wmPassword.getValue());
+
 #ifdef USE_BLYNK
 #ifndef USE_BLYNK_2
     envData.blynkLocalServer = strlen(customBlynkServerHostname.getValue()) > 0;
@@ -94,8 +119,16 @@ void startWifiConfigurationAP(bool tryConnection)
 #endif
     strcpy(envData.blynkAuth, custom_BlynkAuth.getValue());
 #endif
-    strcpy(envData.wmApSSID, custom_wmSSID.getValue());
-    strcpy(envData.wmApPassword, custom_wmPassword.getValue());
+
+#ifdef USE_OTA_UPDATE
+    strcpy(envData.otaHostname, customOtaHostname.getValue());
+    strcpy(envData.otaPassword, customOtaPassword.getValue());
+#endif
+
+#ifdef USE_NTP_SERVER
+    strcpy(envData.ntpServer, customNtpServer.getValue());
+    strcpy(envData.ntpTimezone, customNtpTimezone.getValue());
+#endif
 
     // if LittleFS is not usable
     if (!LittleFS.begin())
@@ -111,16 +144,27 @@ void startWifiConfigurationAP(bool tryConnection)
 
     doc[CONFIG_PERSISTENCE_WIFI_SSID] = WiFi.SSID();
     doc[CONFIG_PERSISTENCE_WIFI_PASSWORD] = WiFi.psk();
-#ifdef USE_BLYNK
-    doc[CONFIG_PERSISTENCE_WIFI_BLYNK_AUTH] = envData.blynkAuth;
-#ifndef USE_BLYNK_2
-    doc[CONFIG_PERSISTENCE_WIFI_BLYNK_IS_LOCAL] = envData.blynkLocalServer;
-    doc[CONFIG_PERSISTENCE_WIFI_BLYNK_HOSTNAME] = envData.blynkServerHostname;
-    doc[CONFIG_PERSISTENCE_WIFI_BLYNK_PORT] = envData.blynkServerPort;
-#endif
-#endif
+
     doc[CONFIG_PERSISTENCE_WM_AP_SSID] = envData.wmApSSID;
     doc[CONFIG_PERSISTENCE_WM_AP_PASSWORD] = envData.wmApPassword;
+#ifdef USE_BLYNK
+    doc[CONFIG_PERSISTENCE_BLYNK_AUTH] = envData.blynkAuth;
+#ifndef USE_BLYNK_2
+    doc[CONFIG_PERSISTENCE_BLYNK_IS_LOCAL] = envData.blynkLocalServer;
+    doc[CONFIG_PERSISTENCE_BLYNK_HOSTNAME] = envData.blynkServerHostname;
+    doc[CONFIG_PERSISTENCE_BLYNK_PORT] = envData.blynkServerPort;
+#endif
+#endif
+
+#ifdef USE_OTA_UPDATE
+    doc[CONFIG_PERSISTENCE_OTA_HOSTNAME] = envData.otaHostname;
+    doc[CONFIG_PERSISTENCE_OTA_PASSWORD] = envData.otaPassword;
+#endif
+
+#ifdef USE_NTP_SERVER
+    doc[CONFIG_PERSISTENCE_NTP_SERVER] = envData.ntpServer;
+    doc[CONFIG_PERSISTENCE_NTP_TIMEZONE] = envData.ntpTimezone;
+#endif
 
     File configFile = LittleFS.open(CONFIG_PERSISTENCE, "w");
     if (!configFile)
