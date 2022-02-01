@@ -19,6 +19,9 @@
  *
  */
 
+    #define ARDUINOHA_DEBUG
+
+
 #include "src/incl/project_config.h"
 
 extern SimpleTimer *mainTimer;

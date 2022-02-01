@@ -280,7 +280,7 @@ void uploadRealtimeToMqtt()
 #endif
 
   bool varNotReady = false;
-  for (uint8_t index = 0; index < realTimeVirtualMqttkSolarVariablesCount; index++)
+  for (uint8_t index = 0; index < realTimeVirtualMqttSolarVariablesCount; index++)
   {
     varNotReady |= !uploadVariableToMqtt(&realTimeVirtualMqttSolarVariables[index]);
   }

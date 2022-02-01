@@ -185,7 +185,7 @@
  * Specify how to connect to blynk server and when to sync the data from the tracer
  */
 
-#define USE_BLYNK
+//#define USE_BLYNK
 #if defined (USE_BLYNK)
 
   // uncomment to use blynk 2.0
@@ -268,72 +268,79 @@
  * NOTE: mqtt support is till a WIP, it supports a small set of the features and variable compared
  *        to blynk. Developed and tested using a thingspeak server and mosquitto broker
  */
-//#define USE_MQTT
+#define USE_MQTT
 #if defined (USE_MQTT)
   //address of mqtt server (specify the hostname or the ip address eg: IPAddress(192, 168, 1, 78) )
   #define MQTT_SERVER "127.0.0.1"
   // port number of the mqtt server (eg: 1883)
   #define MQTT_PORT 1883
   // username to use 
-  //#define MQTT_USERNAME "solartracer"
+  #define MQTT_USERNAME "solartracer"
   // password to use in combination with MQTT_USERNAME
-  //#define MQTT_PASSWORD "solartracer"
+  #define MQTT_PASSWORD "solar123"
   // client id
   #define MQTT_CLIENT_ID "solarTracer1"
 
+  #define USE_MQTT_HOME_ASSISTANT
+  #ifdef USE_MQTT_HOME_ASSISTANT
+    #define MQTT_HOME_ASSISTANT_DEVICE_NAME "SolarTracer1"
+
+    #define MQTT_HOME_ASSISTANT_DEVICE_ID "123456"
+  #endif
+
   // all the "variable topics" will be published in JSON on a single topic defined in MQTT_JSON_PUBLISH_TOPIC
   //#define USE_MQTT_JSON_PUBLISH
-   #ifdef USE_MQTT_JSON_PUBLISH
+  #if defined(USE_MQTT_JSON_PUBLISH) && ! defined(USE_MQTT_HOME_ASSISTANT)
     #define MQTT_JSON_PUBLISH_TOPIC "v1/devices/me/telemetry"
   #endif
   
   // use rpc to send control messages to this board (early stage support)
   //#define USE_MQTT_RPC_SUBSCRIBE
-  #ifdef USE_MQTT_RPC_SUBSCRIBE
+  #if defined(USE_MQTT_RPC_SUBSCRIBE) && ! defined(USE_MQTT_HOME_ASSISTANT)
     #define MQTT_RPC_SUBSCRIBE_TOPIC "v1/devices/me/rpc/request/+"
   #endif
 
   // topics definition and mapping
-  #define MQTT_TOPIC_PV_POWER                                  "pv/power"
-  #define MQTT_TOPIC_PV_CURRENT                                "pv/current"
-  #define MQTT_TOPIC_PV_VOLTAGE                                "pv/voltage"
-  #define MQTT_TOPIC_LOAD_CURRENT                              "load/current"
-  #define MQTT_TOPIC_LOAD_POWER                                "load/power"
-  #define MQTT_TOPIC_BATT_TEMP                                 "battery/power"
-  #define MQTT_TOPIC_BATT_VOLTAGE                              "battery/voltage"
-  #define MQTT_TOPIC_BATT_REMAIN                               "battery/SOC"
-  #define MQTT_TOPIC_CONTROLLER_TEMP                           "controller/temperature"
-  #define MQTT_TOPIC_BATTERY_CHARGE_CURRENT                    "battery/chargeCurrent"
-  #define MQTT_TOPIC_BATTERY_CHARGE_POWER                      "battery/chargePower"
-  #define MQTT_TOPIC_BATTERY_OVERALL_CURRENT                   "battery/overallCurrent"
-  #define MQTT_TOPIC_LOAD_ENABLED                              "controller/loadEnabled"
-  #define MQTT_TOPIC_STAT_ENERGY_GENERATED_TODAY               "stats/production/day"
-  #define MQTT_TOPIC_STAT_ENERGY_GENERATED_THIS_MONTH          "stats/production/month"
-  #define MQTT_TOPIC_STAT_ENERGY_GENERATED_THIS_YEAR           "stats/production/year"
-  #define MQTT_TOPIC_STAT_ENERGY_GENERATED_TOTAL               "stats/production/total"
-  #define MQTT_TOPIC_MIN_BATTERY_VOLTAGE_TODAY                 "stats/battery/maxVoltage"
-  #define MQTT_TOPIC_MAX_BATTERY_VOLTAGE_TODAY                 "stats/battery/minVoltage"
-  #define MQTT_TOPIC_BATTERY_STATUS_TEXT                       "battery/statusText"
-  #define MQTT_TOPIC_CHARGING_EQUIPMENT_STATUS_TEXT            "pv/statusText"
-  #define MQTT_TOPIC_DISCHARGING_EQUIPMENT_STATUS_TEXT         "load/statusText"
-  #define MQTT_TOPIC_CHARGE_DEVICE_ENABLED                     "controller/chargeEnabled"
-  #define MQTT_TOPIC_CONTROLLER_HEATSINK_TEMP                  "controller/heatsinkTemperature"
-  #define MQTT_TOPIC_BATTERY_BOOST_VOLTAGE                     "battery/settings/boostVoltage"
-  #define MQTT_TOPIC_BATTERY_EQUALIZATION_VOLTAGE              "battery/settings/equalizationVoltage"
-  #define MQTT_TOPIC_BATTERY_FLOAT_VOLTAGE                     "battery/settings/floatVoltage"
-  #define MQTT_TOPIC_BATTERY_FLOAT_MIN_VOLTAGE                 "battery/settings/floatMinVoltage"
-  #define MQTT_TOPIC_BATTERY_CHARGING_LIMIT_VOLTAGE            "battery/settings/charginLimitVoltage"
-  #define MQTT_TOPIC_BATTERY_DISCHARGING_LIMIT_VOLTAGE         "battery/settings/discharginLimitVoltage"
-  #define MQTT_TOPIC_BATTERY_LOW_VOLTAGE_DISCONNECT            "battery/settings/lowVoltageDisconnect"
-  #define MQTT_TOPIC_BATTERY_LOW_VOLTAGE_RECONNECT             "battery/settings/loVoltageReconnect"
-  #define MQTT_TOPIC_BATTERY_OVER_VOLTAGE_DISCONNECT           "battery/settings/overVoltageDisconnect"
-  #define MQTT_TOPIC_BATTERY_OVER_VOLTAGE_RECONNECT            "battery/settings/overVoltageReconnect"
-  #define MQTT_TOPIC_BATTERY_UNDER_VOLTAGE_RESET               "battery/settings/underVoltageReset"
-  #define MQTT_TOPIC_BATTERY_UNDER_VOLTAGE_SET                 "battery/settings/underVoltageSet"
-  #define MQTT_TOPIC_MIN_PV_VOLTAGE_TODAY                      "stats/pv/maxVoltage"
-  #define MQTT_TOPIC_MAX_PV_VOLTAGE_TODAY                      "stats/pv/minVoltage"
+  #define MQTT_TOPIC_PV_POWER                                  "pv_power"
+  #define MQTT_TOPIC_PV_CURRENT                                "pv_current"
+  #define MQTT_TOPIC_PV_VOLTAGE                                "pv_voltage"
+  #define MQTT_TOPIC_LOAD_CURRENT                              "load_current"
+  #define MQTT_TOPIC_LOAD_POWER                                "load_power"
+  #define MQTT_TOPIC_BATT_TEMP                                 "battery_power"
+  #define MQTT_TOPIC_BATT_VOLTAGE                              "battery_voltage"
+  #define MQTT_TOPIC_BATT_REMAIN                               "battery_soc"
+  #define MQTT_TOPIC_CONTROLLER_TEMP                           "controller_temperature"
+  #define MQTT_TOPIC_BATTERY_CHARGE_CURRENT                    "battery_charge_current"
+  #define MQTT_TOPIC_BATTERY_CHARGE_POWER                      "battery_charge_power"
+  #define MQTT_TOPIC_BATTERY_OVERALL_CURRENT                   "battery_overall_current"
+  #define MQTT_TOPIC_LOAD_ENABLED                              "controller_load_enabled"
+  #define MQTT_TOPIC_STAT_ENERGY_GENERATED_TODAY               "stats_production_day"
+  #define MQTT_TOPIC_STAT_ENERGY_GENERATED_THIS_MONTH          "stats_production_month"
+  #define MQTT_TOPIC_STAT_ENERGY_GENERATED_THIS_YEAR           "stats_production_year"
+  #define MQTT_TOPIC_STAT_ENERGY_GENERATED_TOTAL               "stats_production_total"
+  #define MQTT_TOPIC_MIN_BATTERY_VOLTAGE_TODAY                 "stats_battery_max_voltage"
+  #define MQTT_TOPIC_MAX_BATTERY_VOLTAGE_TODAY                 "stats_battery_min_voltage"
+  #define MQTT_TOPIC_BATTERY_STATUS_TEXT                       "battery_status_text"
+  #define MQTT_TOPIC_CHARGING_EQUIPMENT_STATUS_TEXT            "pv_status_text"
+  #define MQTT_TOPIC_DISCHARGING_EQUIPMENT_STATUS_TEXT         "load_status_text"
+  #define MQTT_TOPIC_CHARGE_DEVICE_ENABLED                     "controller_charge_enabled"
+  #define MQTT_TOPIC_CONTROLLER_HEATSINK_TEMP                  "controller_heatsink_temperature"
+  #define MQTT_TOPIC_BATTERY_BOOST_VOLTAGE                     "battery_settings_boost_voltage"
+  #define MQTT_TOPIC_BATTERY_EQUALIZATION_VOLTAGE              "battery_settings_equalization_voltage"
+  #define MQTT_TOPIC_BATTERY_FLOAT_VOLTAGE                     "battery_settings_float_voltage"
+  #define MQTT_TOPIC_BATTERY_FLOAT_MIN_VOLTAGE                 "battery_settings_float_min_voltage"
+  #define MQTT_TOPIC_BATTERY_CHARGING_LIMIT_VOLTAGE            "battery_settings_charging_limit_voltage"
+  #define MQTT_TOPIC_BATTERY_DISCHARGING_LIMIT_VOLTAGE         "battery_settings_dischargin_limit_voltage"
+  #define MQTT_TOPIC_BATTERY_LOW_VOLTAGE_DISCONNECT            "battery_settings_lowVoltage_disconnect"
+  #define MQTT_TOPIC_BATTERY_LOW_VOLTAGE_RECONNECT             "battery_settings_loVoltage_reconnect"
+  #define MQTT_TOPIC_BATTERY_OVER_VOLTAGE_DISCONNECT           "battery_settings_over_voltage_disconnect"
+  #define MQTT_TOPIC_BATTERY_OVER_VOLTAGE_RECONNECT            "battery_settings_over_voltage_reconnect"
+  #define MQTT_TOPIC_BATTERY_UNDER_VOLTAGE_RESET               "battery_settings_under_voltage_reset"
+  #define MQTT_TOPIC_BATTERY_UNDER_VOLTAGE_SET                 "battery_settings_under_voltage_set"
+  #define MQTT_TOPIC_MIN_PV_VOLTAGE_TODAY                      "stats_pv_max_voltage"
+  #define MQTT_TOPIC_MAX_PV_VOLTAGE_TODAY                      "stats_pv_min_voltage"
   // internal
-  #define MQTT_TOPIC_INTERNAL_STATUS                           "internal/status"
+  #define MQTT_TOPIC_INTERNAL_STATUS                           "internal_status"
   //action
-  #define MQTT_TOPIC_UPDATE_ALL_CONTROLLER_DATA                "internal/updateAll"
+  #define MQTT_TOPIC_UPDATE_ALL_CONTROLLER_DATA                "internal_updateAll"
 #endif

@@ -21,6 +21,8 @@
 
 #pragma once
 
+
+#define PROJECT_NAME "SolarTracer"
 #define PROJECT_VERSION "v3.0.4"
 #define PROJECT_SUBVERSION 1
 
@@ -108,12 +110,19 @@
 #if defined USE_BLYNK
     #include "../feature/blynk_sync.h"
 #endif
-#if defined USE_MQTT
+#if defined(USE_MQTT) && !defined(USE_MQTT_HOME_ASSISTANT)
     #if defined(USE_MQTT_RPC_SUBSCRIBE) || defined(USE_MQTT_JSON_PUBLISH)
         #include <ArduinoJson.h>
     #endif
     #include <PubSubClient.h>
     #include "../feature/mqtt_sync.h"
+#endif
+#if defined(USE_MQTT) && defined(USE_MQTT_HOME_ASSISTANT)
+    
+    
+
+    #include <ArduinoHA.h>
+    #include "../feature/mqtt_homeassistant_sync.h"
 #endif
 
 #include "../solartracer/SolarTracer.h"

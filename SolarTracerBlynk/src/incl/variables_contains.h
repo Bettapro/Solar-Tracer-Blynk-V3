@@ -286,7 +286,7 @@ const mqttSolarVariableMap statVirtualMqttSolarVariables [] = {
 #endif
 };
 
-const uint8_t  realTimeVirtualMqttkSolarVariablesCount = sizeof(realTimeVirtualMqttSolarVariables) / sizeof(mqttSolarVariableMap);
+const uint8_t  realTimeVirtualMqttSolarVariablesCount = sizeof(realTimeVirtualMqttSolarVariables) / sizeof(mqttSolarVariableMap);
 const uint8_t  statVirtualMqttSolarVariablesCount = sizeof(statVirtualMqttSolarVariables) / sizeof(mqttSolarVariableMap);
 
 #endif

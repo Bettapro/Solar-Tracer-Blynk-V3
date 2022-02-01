@@ -44,10 +44,10 @@ struct environrmentData
 #endif
 // mqtt
 #ifdef USE_MQTT
-    char mqttServerHostname[CONFIG_PERSISTENCE_WIFI_BLYNK_HOSTNAME_LEN + 1];
+    char mqttServerHostname[CONFIG_PERSISTENCE_MQTT_HOSTNAME_LEN + 1];
     uint16_t mqttServerPort;
-    char mqttUsername[CONFIG_PERSISTENCE_WIFI_MQTT_USERNAME_LEN + 1];
-    char mqttPassword[CONFIG_PERSISTENCE_WIFI_MQTT_PASSWORD_LEN + 1];
+    char mqttUsername[CONFIG_PERSISTENCE_MQTT_USERNAME_LEN + 1];
+    char mqttPassword[CONFIG_PERSISTENCE_MQTT_PASSWORD_LEN + 1];
 #endif
 #ifdef USE_OTA_UPDATE
     char otaHostname[CONFIG_PERSISTENCE_OTA_HOSTNAME_LEN + 1];
