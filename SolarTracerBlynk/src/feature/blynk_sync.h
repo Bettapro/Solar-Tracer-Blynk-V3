@@ -55,12 +55,12 @@ void blynkSetup()
   {
     blynkValuesCacheValid[index] = 0;
 
-    switch (SolarTracer::getVariableDatatype(index >= realTimeVirtualBlynkSolarVariablesCount ? statVirtualBlynkSolarVariables[index - realTimeVirtualBlynkSolarVariablesCount].solarVariable : realTimeVirtualBlynkSolarVariables[index].solarVariable))
+    switch (thisController->getVariableDatatype(index >= realTimeVirtualBlynkSolarVariablesCount ? statVirtualBlynkSolarVariables[index - realTimeVirtualBlynkSolarVariablesCount].solarVariable : realTimeVirtualBlynkSolarVariables[index].solarVariable))
     {
-    case SolarTracerVariablesDataType::FLOAT:
+    case SolarTracerVariablesDataType::DT_FLOAT:
       blynkValuesCache[index] = malloc(sizeof(float));
       break;
-    case SolarTracerVariablesDataType::STRING:
+    case SolarTracerVariablesDataType::DT_STRING:
       blynkValuesCache[index] = new char[BLYNK_VALUE_CACHES_STRING_LEN];
       break;
     }
@@ -122,9 +122,9 @@ bool updateBlynkVariable(bool isRT, uint8_t index, SolarTracerVariables variable
     void *cachedValue = blynkValuesCache[index + (isRT ? 0 : realTimeVirtualBlynkSolarVariablesCount)];
     uint8_t *cachedUntil = &(blynkValuesCacheValid[index + (isRT ? 0 : realTimeVirtualBlynkSolarVariablesCount)]);
 
-    switch (SolarTracer::getVariableDatatype(variable))
+    switch (thisController->getVariableDatatype(variable))
     {
-    case SolarTracerVariablesDataType::FLOAT:
+    case SolarTracerVariablesDataType::DT_FLOAT:
     {
       float currentValue = thisController->getFloatValue(variable);
       if (*cachedUntil <= 0 || (*(float *)cachedValue) != currentValue)
@@ -136,7 +136,7 @@ bool updateBlynkVariable(bool isRT, uint8_t index, SolarTracerVariables variable
       (*cachedUntil)--;
     }
     break;
-    case SolarTracerVariablesDataType::STRING:
+    case SolarTracerVariablesDataType::DT_STRING:
     {
       const char *currentValue = thisController->getStringValue(variable);
       if (*cachedUntil <= 0 || strcmp(currentValue, (const char *)cachedValue) != 0)

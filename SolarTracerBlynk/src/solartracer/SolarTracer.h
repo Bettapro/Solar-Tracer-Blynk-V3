@@ -24,10 +24,22 @@
 
 typedef enum
 {
-  UNDEFINED,
-  STRING,
-  FLOAT
+  DT_UNDEFINED,
+  DT_STRING,
+  DT_FLOAT
 } SolarTracerVariablesDataType;
+
+typedef enum
+{
+  UOM_UNDEFINED,
+  UOM_STATUS,
+  UOM_PERCENT,
+  UOM_VOLT,
+  UOM_WATT,
+  UOM_KILOWATTHOUR,
+  UOM_AMPERE,
+  UOM_TEMPERATURE_C
+} SolarTracerVariablesUOM;
 
 typedef enum
 {
@@ -77,81 +89,85 @@ typedef enum
   VARIABLES_COUNT
 } SolarTracerVariables;
 
+struct SolarTracerVariableDefinition
+{
+  float floatValue;
+  char *textValue;
+  /**
+   *  byte 0 - enabled
+   *  byte 1 - ready
+   */  
+  uint8_t status;
+  SolarTracerVariablesDataType datatype;
+  SolarTracerVariablesUOM uom;
+};
+
 class SolarTracer
 {
 public:
   SolarTracer()
   {
-    this->variableEnables = new bool[SolarTracerVariables::VARIABLES_COUNT + 1]();
-    this->variableReadReady = new bool[SolarTracerVariables::VARIABLES_COUNT + 1]();
-    this->charVars = new char *[SolarTracerVariables::VARIABLES_COUNT + 1]();
-    this->floatVars = new float[SolarTracerVariables::VARIABLES_COUNT + 1]();
+    this->variableDefine = new SolarTracerVariableDefinition[SolarTracerVariables::VARIABLES_COUNT]();
 
-    // make sure all variables are disabled and not read ready
-    for (uint16_t i = 0; i <= SolarTracerVariables::VARIABLES_COUNT; i++)
-    {
-      this->variableEnables[i] = this->variableReadReady[i] = false;
-      switch (this->getVariableDatatype((SolarTracerVariables)i))
-      {
-      case SolarTracerVariablesDataType::FLOAT:
-        // nothing to do
-        break;
-      case SolarTracerVariablesDataType::STRING:
-        // should specialize depending on the text
-        this->charVars[i] = new char[20];
-        break;
-      }
-    }
+    this->initVariableDefine(SolarTracerVariables::PV_VOLTAGE, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_VOLT);
+    this->initVariableDefine(SolarTracerVariables::PV_POWER, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_WATT);
+    this->initVariableDefine(SolarTracerVariables::PV_CURRENT, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_AMPERE);
+    this->initVariableDefine(SolarTracerVariables::LOAD_CURRENT, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_AMPERE);
+    this->initVariableDefine(SolarTracerVariables::LOAD_POWER, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_WATT);
+    this->initVariableDefine(SolarTracerVariables::BATTERY_TEMP, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_TEMPERATURE_C);
+    this->initVariableDefine(SolarTracerVariables::BATTERY_VOLTAGE, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_VOLT);
+    this->initVariableDefine(SolarTracerVariables::BATTERY_SOC, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_PERCENT);
+    this->initVariableDefine(SolarTracerVariables::CONTROLLER_TEMP, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_TEMPERATURE_C);
+    this->initVariableDefine(SolarTracerVariables::BATTERY_CHARGE_CURRENT, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_AMPERE);
+    this->initVariableDefine(SolarTracerVariables::BATTERY_CHARGE_POWER, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_WATT);
+    this->initVariableDefine(SolarTracerVariables::BATTERY_OVERALL_CURRENT, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_AMPERE);
+    this->initVariableDefine(SolarTracerVariables::REALTIME_CLOCK, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_UNDEFINED);
+    this->initVariableDefine(SolarTracerVariables::LOAD_FORCE_ONOFF, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_UNDEFINED);
+    this->initVariableDefine(SolarTracerVariables::LOAD_MANUAL_ONOFF, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_UNDEFINED);
+    this->initVariableDefine(SolarTracerVariables::REMOTE_BATTERY_TEMP, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_TEMPERATURE_C);
+    this->initVariableDefine(SolarTracerVariables::GENERATED_ENERGY_TODAY, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_KILOWATTHOUR);
+    this->initVariableDefine(SolarTracerVariables::GENERATED_ENERGY_MONTH, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_KILOWATTHOUR);
+    this->initVariableDefine(SolarTracerVariables::GENERATED_ENERGY_YEAR, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_KILOWATTHOUR);
+    this->initVariableDefine(SolarTracerVariables::GENERATED_ENERGY_TOTAL, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_KILOWATTHOUR);
+    this->initVariableDefine(SolarTracerVariables::MAXIMUM_PV_VOLTAGE_TODAY, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_VOLT);
+    this->initVariableDefine(SolarTracerVariables::MINIMUM_PV_VOLTAGE_TODAY, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_VOLT);
+    this->initVariableDefine(SolarTracerVariables::MAXIMUM_BATTERY_VOLTAGE_TODAY, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_VOLT);
+    this->initVariableDefine(SolarTracerVariables::MINIMUM_BATTERY_VOLTAGE_TODAY, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_VOLT);
+    this->initVariableDefine(SolarTracerVariables::BATTERY_BOOST_VOLTAGE, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_VOLT);
+    this->initVariableDefine(SolarTracerVariables::BATTERY_EQUALIZATION_VOLTAGE, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_VOLT);
+    this->initVariableDefine(SolarTracerVariables::BATTERY_FLOAT_VOLTAGE, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_VOLT);
+    this->initVariableDefine(SolarTracerVariables::BATTERY_FLOAT_MIN_VOLTAGE, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_VOLT);
+    this->initVariableDefine(SolarTracerVariables::BATTERY_CHARGING_LIMIT_VOLTAGE, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_VOLT);
+    this->initVariableDefine(SolarTracerVariables::BATTERY_DISCHARGING_LIMIT_VOLTAGE, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_VOLT);
+    this->initVariableDefine(SolarTracerVariables::BATTERY_LOW_VOLTAGE_DISCONNECT, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_VOLT);
+    this->initVariableDefine(SolarTracerVariables::BATTERY_LOW_VOLTAGE_RECONNECT, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_VOLT);
+    this->initVariableDefine(SolarTracerVariables::BATTERY_OVER_VOLTAGE_DISCONNECT, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_VOLT);
+    this->initVariableDefine(SolarTracerVariables::BATTERY_OVER_VOLTAGE_RECONNECT, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_VOLT);
+    this->initVariableDefine(SolarTracerVariables::BATTERY_UNDER_VOLTAGE_SET, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_VOLT);
+    this->initVariableDefine(SolarTracerVariables::BATTERY_UNDER_VOLTAGE_RESET, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_VOLT);
+    this->initVariableDefine(SolarTracerVariables::BATTERY_STATUS_TEXT, SolarTracerVariablesDataType::DT_STRING, SolarTracerVariablesUOM::UOM_UNDEFINED);
+    this->initVariableDefine(SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT, SolarTracerVariablesDataType::DT_STRING, SolarTracerVariablesUOM::UOM_UNDEFINED);
+    this->initVariableDefine(SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT, SolarTracerVariablesDataType::DT_STRING, SolarTracerVariablesUOM::UOM_UNDEFINED);
+    this->initVariableDefine(SolarTracerVariables::CHARGING_DEVICE_ONOFF, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_UNDEFINED);
+    this->initVariableDefine(SolarTracerVariables::HEATSINK_TEMP, SolarTracerVariablesDataType::DT_FLOAT, SolarTracerVariablesUOM::UOM_TEMPERATURE_C);
   }
 
-  static SolarTracerVariablesDataType getVariableDatatype(SolarTracerVariables variable)
+  SolarTracerVariablesDataType getVariableDatatype(SolarTracerVariables variable)
   {
-    switch (variable)
+    if (variable < SolarTracerVariables::VARIABLES_COUNT)
     {
-    case SolarTracerVariables::PV_VOLTAGE:
-    case SolarTracerVariables::PV_POWER:
-    case SolarTracerVariables::PV_CURRENT:
-    case SolarTracerVariables::LOAD_CURRENT:
-    case SolarTracerVariables::LOAD_POWER:
-    case SolarTracerVariables::BATTERY_TEMP:
-    case SolarTracerVariables::BATTERY_VOLTAGE:
-    case SolarTracerVariables::BATTERY_SOC:
-    case SolarTracerVariables::CONTROLLER_TEMP:
-    case SolarTracerVariables::BATTERY_CHARGE_CURRENT:
-    case SolarTracerVariables::BATTERY_CHARGE_POWER:
-    case SolarTracerVariables::BATTERY_OVERALL_CURRENT:
-    case SolarTracerVariables::LOAD_MANUAL_ONOFF:
-    case SolarTracerVariables::CHARGING_DEVICE_ONOFF:
-    case SolarTracerVariables::GENERATED_ENERGY_TODAY:
-    case SolarTracerVariables::GENERATED_ENERGY_MONTH:
-    case SolarTracerVariables::GENERATED_ENERGY_YEAR:
-    case SolarTracerVariables::GENERATED_ENERGY_TOTAL:
-    case SolarTracerVariables::MAXIMUM_PV_VOLTAGE_TODAY:
-    case SolarTracerVariables::MINIMUM_PV_VOLTAGE_TODAY:
-    case SolarTracerVariables::MAXIMUM_BATTERY_VOLTAGE_TODAY:
-    case SolarTracerVariables::MINIMUM_BATTERY_VOLTAGE_TODAY:
-    case SolarTracerVariables::REMOTE_BATTERY_TEMP:
-    case SolarTracerVariables::HEATSINK_TEMP:
-    case SolarTracerVariables::BATTERY_BOOST_VOLTAGE:
-    case SolarTracerVariables::BATTERY_EQUALIZATION_VOLTAGE:
-    case SolarTracerVariables::BATTERY_FLOAT_VOLTAGE:
-    case SolarTracerVariables::BATTERY_FLOAT_MIN_VOLTAGE:
-    case SolarTracerVariables::BATTERY_CHARGING_LIMIT_VOLTAGE:
-    case SolarTracerVariables::BATTERY_DISCHARGING_LIMIT_VOLTAGE:
-    case SolarTracerVariables::BATTERY_LOW_VOLTAGE_DISCONNECT:
-    case SolarTracerVariables::BATTERY_LOW_VOLTAGE_RECONNECT:
-    case SolarTracerVariables::BATTERY_OVER_VOLTAGE_DISCONNECT:
-    case SolarTracerVariables::BATTERY_OVER_VOLTAGE_RECONNECT:
-    case SolarTracerVariables::BATTERY_UNDER_VOLTAGE_SET:
-    case SolarTracerVariables::BATTERY_UNDER_VOLTAGE_RESET:
-      return SolarTracerVariablesDataType::FLOAT;
-    case SolarTracerVariables::BATTERY_STATUS_TEXT:
-    case SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT:
-    case SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT:
-      return SolarTracerVariablesDataType::STRING;
-    default:
-      return SolarTracerVariablesDataType::UNDEFINED;
+      return this->variableDefine[variable].datatype;
     }
+    return SolarTracerVariablesDataType::DT_UNDEFINED;
+  }
+
+  SolarTracerVariablesUOM getVariableUOM(SolarTracerVariables variable)
+  {
+    if (variable < SolarTracerVariables::VARIABLES_COUNT)
+    {
+      return this->variableDefine[variable].uom;
+    }
+    return SolarTracerVariablesUOM::UOM_UNDEFINED;
   }
 
   void setVariableEnabled(SolarTracerVariables variable)
@@ -160,9 +176,9 @@ public:
   }
   void setVariableEnable(SolarTracerVariables variable, bool enable)
   {
-    if (variable < SolarTracerVariables::VARIABLES_COUNT)
+    if (variable < SolarTracerVariables::VARIABLES_COUNT && this->isVariableEnabled(variable) != enable)
     {
-      this->variableEnables[variable] = enable;
+      this->variableDefine[variable].status += (enable ? 1 : -1);
     }
   }
 
@@ -170,16 +186,16 @@ public:
   {
     if (variable < SolarTracerVariables::VARIABLES_COUNT)
     {
-      return this->variableEnables[variable];
+      return this->variableDefine[variable].status & 1 > 0;
     }
     return false;
   }
 
   void setVariableReadReady(SolarTracerVariables variable, bool enable)
   {
-    if (variable < SolarTracerVariables::VARIABLES_COUNT)
+    if (variable < SolarTracerVariables::VARIABLES_COUNT && this->isVariableReadReady(variable) != enable)
     {
-      this->variableReadReady[variable] = enable;
+      this->variableDefine[variable].status += (enable ? 1 : -1) * 2;
     }
   }
 
@@ -200,7 +216,7 @@ public:
   {
     if (variable < SolarTracerVariables::VARIABLES_COUNT)
     {
-      return this->variableReadReady[variable];
+      return this->variableDefine[variable].status & 2 > 0;
     }
     return false;
   }
@@ -212,9 +228,9 @@ public:
       return "";
     }
 
-    if (this->getVariableDatatype(variable) == SolarTracerVariablesDataType::STRING)
+    if (this->getVariableDatatype(variable) == SolarTracerVariablesDataType::DT_STRING)
     {
-      return charVars[variable];
+      return this->variableDefine[variable].textValue;
     }
 
     // should raise an exception?
@@ -228,20 +244,20 @@ public:
       return 0;
     }
 
-    if (this->getVariableDatatype(variable) == SolarTracerVariablesDataType::FLOAT)
+    if (this->getVariableDatatype(variable) == SolarTracerVariablesDataType::DT_FLOAT)
     {
-      return floatVars[variable];
+      return this->variableDefine[variable].floatValue;
     }
 
     // should raise an exception?
     return 0.0;
   }
 
-
   /**
    * Return last status code, 0 means the controller is responding to requests correctly.
    */
-  const uint16_t getLastControllerCommunicationStatus(){
+  const uint16_t getLastControllerCommunicationStatus()
+  {
     return this->lastControllerCommunicationStatus;
   }
 
@@ -254,19 +270,30 @@ public:
   virtual bool testConnection() = 0;
 
 protected:
-  bool setVariableValue(SolarTracerVariables variable, void *value)
+  bool setFloatVariable(SolarTracerVariables variable, float value)
+  {
+    if (this->getVariableDatatype(variable) == SolarTracerVariablesDataType::DT_FLOAT)
+    {
+      this->variableDefine[variable].floatValue = value;
+      this->setVariableReadReady(variable, true);
+      return true;
+    }
+    return false;
+  }
+
+  bool setVariableValue(SolarTracerVariables variable, const void *value)
   {
     bool valueOk = value != nullptr;
     if (valueOk)
     {
       switch (this->getVariableDatatype(variable))
       {
-      case SolarTracerVariablesDataType::FLOAT:
-        this->floatVars[variable] = *(float *)value;
+      case SolarTracerVariablesDataType::DT_FLOAT:
+        this->variableDefine[variable].floatValue = *(float *)value;
         break;
-      case SolarTracerVariablesDataType::STRING:
+      case SolarTracerVariablesDataType::DT_STRING:
         // should specialize depending on the text
-        this->charVars[variable] = (char *)value;
+        strcpy(this->variableDefine[variable].textValue, (const char *)value);
         break;
       }
     }
@@ -274,14 +301,20 @@ protected:
     return valueOk;
   }
 
-  float *floatVars;
-  char **charVars;
-
   uint16_t lastControllerCommunicationStatus;
 
 private:
-  bool *variableEnables;
-  bool *variableReadReady;
+  void initVariableDefine(SolarTracerVariables variable, SolarTracerVariablesDataType datatype, SolarTracerVariablesUOM uom)
+  {
+    this->variableDefine[variable] = {
+        0,
+        datatype == SolarTracerVariablesDataType::DT_STRING ? new char[20] : nullptr,
+        0, // not enabled, not ready
+        datatype,
+        uom};
+  }
+
+  SolarTracerVariableDefinition *variableDefine;
 };
 
 #endif

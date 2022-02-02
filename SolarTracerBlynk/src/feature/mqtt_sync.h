@@ -195,9 +195,9 @@ bool uploadVariableToMqtt(const mqttSolarVariableMap *varDef)
 
   if (thisController->isVariableReadReady(varDef->solarVariable))
   {
-    switch (SolarTracer::getVariableDatatype(varDef->solarVariable))
+    switch (thisController->getVariableDatatype(varDef->solarVariable))
     {
-    case SolarTracerVariablesDataType::FLOAT:
+    case SolarTracerVariablesDataType::DT_FLOAT:
 #ifdef USE_MQTT_JSON_PUBLISH
       json[varDef->topic] = thisController->getFloatValue(varDef->solarVariable);
 #else
@@ -205,7 +205,7 @@ bool uploadVariableToMqtt(const mqttSolarVariableMap *varDef)
       mqttClient.publish(varDef->topic, mqttPublishBuffer, RETAIN_ALL_MSG);
 #endif
       break;
-    case SolarTracerVariablesDataType::STRING:
+    case SolarTracerVariablesDataType::DT_STRING:
 #ifdef USE_MQTT_JSON_PUBLISH
       json[varDef->topic] = thisController->getStringValue(varDef->solarVariable);
 #else

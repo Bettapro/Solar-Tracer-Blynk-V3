@@ -22,14 +22,10 @@
 #pragma once
 #include "../incl/project_config.h"
 
-
-
 WiFiClient wifiClient;
 
-
-
-HADevice* device;
-HAMqtt* mqtt;
+HADevice *device;
+HAMqtt *mqtt;
 
 #define RETAIN_ALL_MSG false
 #define MQTT_CONNECT_ATTEMPT 3
@@ -88,8 +84,6 @@ void mqttSetup()
     device = new HADevice(MQTT_HOME_ASSISTANT_DEVICE_ID);
     mqtt = new HAMqtt(wifiClient, *device);
 
-
-
     // set device's details
     device->setName(MQTT_HOME_ASSISTANT_DEVICE_NAME);
     device->setSoftwareVersion(PROJECT_VERSION);
@@ -105,8 +99,33 @@ void mqttSetup()
 
         haSensors[index] = new HASensor(solarVariable.topic);
         haSensors[index]->setName(solarVariable.topic);
-        haSensors[index]->setDeviceClass(solarVariable.topic);
 
+        switch (thisController->getVariableUOM(solarVariable.solarVariable))
+        {
+        case UOM_TEMPERATURE_C:
+            haSensors[index]->setDeviceClass("temperature");
+            haSensors[index]->setUnitOfMeasurement("°C");
+            break;
+        case UOM_WATT:
+            haSensors[index]->setDeviceClass("power");
+            haSensors[index]->setUnitOfMeasurement("W");
+            break;
+        case UOM_KILOWATTHOUR:
+            haSensors[index]->setDeviceClass("energy");
+            haSensors[index]->setUnitOfMeasurement("kWh");
+            break;
+        case UOM_PERCENT:
+            haSensors[index]->setUnitOfMeasurement("%");
+            break;
+        case UOM_AMPERE:
+            haSensors[index]->setDeviceClass("current");
+            haSensors[index]->setUnitOfMeasurement("A");
+            break;
+            case UOM_VOLT:
+            haSensors[index]->setDeviceClass("voltage");
+            haSensors[index]->setUnitOfMeasurement("V");
+            break;
+        }
     }
 
     mqttConnect();
@@ -133,7 +152,8 @@ void mqttLoop()
     {
         setStatusError(STATUS_ERR_NO_MQTT_CONNECTION);
     }
-    else{
+    else
+    {
         clearStatusError(STATUS_ERR_NO_MQTT_CONNECTION);
     }
     mqtt->loop();
@@ -146,12 +166,12 @@ bool uploadVariableToMqtt(boolean isRT, uint8_t index, const mqttSolarVariableMa
     if (thisController->isVariableReadReady(varDef->solarVariable))
     {
 
-        switch (SolarTracer::getVariableDatatype(varDef->solarVariable))
+        switch (thisController->getVariableDatatype(varDef->solarVariable))
         {
-        case SolarTracerVariablesDataType::FLOAT:
+        case SolarTracerVariablesDataType::DT_FLOAT:
             sensor->setValue(thisController->getFloatValue(varDef->solarVariable));
             break;
-        case SolarTracerVariablesDataType::STRING:
+        case SolarTracerVariablesDataType::DT_STRING:
             sensor->setValue(thisController->getStringValue(varDef->solarVariable));
             break;
         default:
@@ -165,7 +185,7 @@ bool uploadVariableToMqtt(boolean isRT, uint8_t index, const mqttSolarVariableMa
 // upload values stats
 void uploadStatsToMqtt()
 {
-    
+
     bool varNotReady = false;
     for (uint8_t index = 0; index < statVirtualMqttSolarVariablesCount; index++)
     {

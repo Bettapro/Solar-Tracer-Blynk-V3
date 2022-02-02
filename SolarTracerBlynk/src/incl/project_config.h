@@ -41,8 +41,20 @@
  * Include user + board + solar tracer configs
  */
 #include "../../config.h"
-#include "../board/board_config.h"
-#include "../solartracer/solartracer_config.h"
+
+#if defined ARDUINO_ARCH_ESP32
+    #include "../board/esp32_config.h"
+#elif defined ARDUINO_ARCH_ESP8266
+    #include "../board/esp8266_config.h"
+#else
+    #error This board is not supported.
+#endif
+
+#if ( SOLAR_TRACER_MODEL == EPEVER_SOLAR_TRACER_A | SOLAR_TRACER_MODEL == EPEVER_SOLAR_TRACER_B | SOLAR_TRACER_MODEL == EPEVER_SOLAR_TRACER_TRITON | SOLAR_TRACER_MODEL == EPEVER_SOLAR_TRACER_XTRA )
+    #include "../solartracer/epever/epever_config.h"
+#else
+    #error This Solar Tracer is not supported.
+#endif
 
 #include "../core/debug.h"
 
