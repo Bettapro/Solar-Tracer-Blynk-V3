@@ -20,7 +20,12 @@
  */
 
 #pragma once
+
 #include "../incl/project_config.h"
+
+#if !defined(ARDUINO_OTA_H) && defined(USE_OTA_UPDATE)
+#define ARDUINO_OTA_H
+
 
 void arduinoOtaSetup()
 {
@@ -76,3 +81,5 @@ void arduinoOtaSetup()
 
     ArduinoOTA.begin();
 }
+
+#endif

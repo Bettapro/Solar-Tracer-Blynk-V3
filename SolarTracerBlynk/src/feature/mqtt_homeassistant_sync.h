@@ -22,6 +22,9 @@
 #pragma once
 #include "../incl/project_config.h"
 
+#if ! defined(MQTT_HOMEASSISTANT_SYNC_H) && defined(USE_MQTT_HOME_ASSISTANT)
+#define MQTT_HOMEASSISTANT_SYNC_H
+
 WiFiClient wifiClient;
 
 HADevice *device;
@@ -36,12 +39,12 @@ void mqttLoop();
 
 char mqttPublishBuffer[20];
 
-HASensor *haSensors[statVirtualMqttSolarVariablesCount + realTimeVirtualMqttSolarVariablesCount];
+HASensor *haSensors[Variable::VARIABLES_COUNT];
 
 void uploadRealtimeToMqtt();
 void uploadStatsToMqtt();
 
-void executeFromMqttFloatWrite(SolarTracerVariables variable, float *value)
+void executeFromMqttFloatWrite(Variable variable, float *value)
 {
     if (!thisController->writeValue(variable, value))
     {
@@ -51,7 +54,7 @@ void executeFromMqttFloatWrite(SolarTracerVariables variable, float *value)
     uploadRealtimeToMqtt();
 }
 
-void executeFromMqttBoolWrite(SolarTracerVariables variable, bool *value)
+void executeFromMqttBoolWrite(Variable variable, bool *value)
 {
     if (!thisController->writeValue(variable, value))
     {
@@ -90,17 +93,15 @@ void mqttSetup()
 
     //mqttClient.setCallback(mqttCallback);
 
-    for (uint8_t index = 0; index < statVirtualMqttSolarVariablesCount + realTimeVirtualMqttSolarVariablesCount; index++)
+    for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++)
     {
 
-        const mqttSolarVariableMap solarVariable = (index >= realTimeVirtualMqttSolarVariablesCount)
-                                                       ? statVirtualMqttSolarVariables[index - realTimeVirtualMqttSolarVariablesCount]
-                                                       : realTimeVirtualMqttSolarVariables[index];
+        const VariableDefinition *def = VariableDefiner::getInstance().getDefinition((Variable)index);
 
-        haSensors[index] = new HASensor(solarVariable.topic);
-        haSensors[index]->setName(solarVariable.topic);
+        haSensors[index] = new HASensor(def->mqttTopic);
+        haSensors[index]->setName(def->text);
 
-        switch (thisController->getVariableUOM(solarVariable.solarVariable))
+        switch (def->uom)
         {
         case UOM_TEMPERATURE_C:
             haSensors[index]->setDeviceClass("temperature");
@@ -121,7 +122,7 @@ void mqttSetup()
             haSensors[index]->setDeviceClass("current");
             haSensors[index]->setUnitOfMeasurement("A");
             break;
-            case UOM_VOLT:
+        case UOM_VOLT:
             haSensors[index]->setDeviceClass("voltage");
             haSensors[index]->setUnitOfMeasurement("V");
             break;
@@ -159,39 +160,44 @@ void mqttLoop()
     mqtt->loop();
 }
 
-bool uploadVariableToMqtt(boolean isRT, uint8_t index, const mqttSolarVariableMap *varDef)
+// upload values stats
+uint8_t uploadDataToMqtt(bool uploadRealtime, bool uploadStat, bool uploadInternal)
 {
-    HASensor *sensor = haSensors[index + (isRT ? 0 : realTimeVirtualMqttSolarVariablesCount)];
 
-    if (thisController->isVariableReadReady(varDef->solarVariable))
+    uint8_t varNotReady = 0;
+    for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++)
     {
+        const VariableDefinition *def = VariableDefiner::getInstance().getDefinition((Variable)index);
+        if (def->mqttTopic != nullptr && ((uploadRealtime && def->source == VariableSource::SR_REALTIME) ||
+                                          (uploadStat && def->source == VariableSource::SR_INTERNAL) ||
+                                          (uploadInternal && def->source == VariableSource::SR_STATS)))
 
-        switch (thisController->getVariableDatatype(varDef->solarVariable))
-        {
-        case SolarTracerVariablesDataType::DT_FLOAT:
-            sensor->setValue(thisController->getFloatValue(varDef->solarVariable));
-            break;
-        case SolarTracerVariablesDataType::DT_STRING:
-            sensor->setValue(thisController->getStringValue(varDef->solarVariable));
-            break;
-        default:
-            break;
-        }
-        return true;
+            if (thisController->isVariableReadReady(def->variable))
+            {
+                HASensor *sensor = haSensors[index];
+                switch (def->datatype)
+                {
+                case VariableDatatype::DT_FLOAT:
+                    sensor->setValue(thisController->getFloatValue(def->variable));
+                    break;
+                case VariableDatatype::DT_STRING:
+                    sensor->setValue(thisController->getStringValue(def->variable));
+                    break;
+                default:
+                    break;
+                }
+            }
+        varNotReady++;
     }
-    return false;
+
+    return varNotReady;
 }
 
 // upload values stats
 void uploadStatsToMqtt()
 {
-
-    bool varNotReady = false;
-    for (uint8_t index = 0; index < statVirtualMqttSolarVariablesCount; index++)
-    {
-        varNotReady |= !uploadVariableToMqtt(false, index, &statVirtualMqttSolarVariables[index]);
-    }
-    if (varNotReady)
+    uint8_t uploadFailedCount = uploadDataToMqtt(false, true, true);
+    if (uploadFailedCount > 0)
     {
         debugPrintln("Some ST variables are not ready and not synced!");
         setStatusError(STATUS_ERR_SOLAR_TRACER_NO_SYNC_ST);
@@ -205,18 +211,17 @@ void uploadStatsToMqtt()
 // upload values realtime
 void uploadRealtimeToMqtt()
 {
-    bool varNotReady = false;
-    for (uint8_t index = 0; index < realTimeVirtualMqttSolarVariablesCount; index++)
+    uint8_t uploadFailedCount = uploadDataToMqtt(true, true, false);
+    if (uploadFailedCount > 0)
     {
-        varNotReady |= !uploadVariableToMqtt(true, index, &realTimeVirtualMqttSolarVariables[index]);
-    }
-    if (varNotReady)
-    {
-        debugPrintln("Some RT variables are not ready and not synced!");
-        setStatusError(STATUS_ERR_SOLAR_TRACER_NO_SYNC_RT);
+        debugPrintln("Some ST variables are not ready and not synced!");
+        setStatusError(STATUS_ERR_SOLAR_TRACER_NO_SYNC_ST);
     }
     else
     {
-        clearStatusError(STATUS_ERR_SOLAR_TRACER_NO_SYNC_RT);
+        clearStatusError(STATUS_ERR_SOLAR_TRACER_NO_SYNC_ST);
     }
 }
+
+
+#endif

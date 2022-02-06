@@ -19,8 +19,7 @@
  *
  */
 
- // specify the serial port to use 
- #pragma once
+#pragma once
 
 #if !defined(USE_SERIAL_STREAM)
 #error You must enable USE_SERIAL_STREAM !

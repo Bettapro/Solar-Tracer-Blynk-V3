@@ -22,6 +22,9 @@
 #pragma once
 #include "../incl/project_config.h"
 
+#if !defined(WIFI_MANAGER_H) && defined(USE_WIFI_AP_CONFIGURATION)
+#define WIFI_MANAGER_H
+
 bool formatLittleFS()
 {
   LittleFS.end();
@@ -181,3 +184,5 @@ void startWifiConfigurationAP(bool tryConnection)
     }
   }
 }
+
+#endif

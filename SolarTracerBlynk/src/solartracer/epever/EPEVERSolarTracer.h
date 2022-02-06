@@ -19,6 +19,8 @@
  *
  */
 
+
+
 #ifndef EPEVERSolarTracer_h
 #define EPEVERSolarTracer_h
 
@@ -39,10 +41,9 @@ public:
 
   virtual bool updateRun();
 
-  virtual bool fetchValue(SolarTracerVariables variable);
+  virtual bool fetchValue(Variable variable);
 
-  virtual bool writeValue(SolarTracerVariables variable, bool *value);
-  virtual bool writeValue(SolarTracerVariables variable, float *value);
+  virtual bool writeValue(Variable variable, void *value);
 
   bool readControllerSingleCoil(uint16_t address);
 
@@ -86,6 +87,7 @@ protected:
   bool writeControllerSingleCoil(uint16_t address, bool value);
   bool replaceControllerHoldingRegister(uint16_t address, uint16_t value, uint16_t fromAddress, uint8_t count);
 
+  static const uint8_t ONE_HUNDRED_FLOAT = 100.0;
   // MODBUS ADDRESS
   static const uint16_t MODBUS_ADDRESS_PV_VOLTAGE = 0x3100;
   static const uint16_t MODBUS_ADDRESS_PV_POWER = 0x3102;
@@ -126,5 +128,7 @@ protected:
   static const uint16_t MODBUS_ADDRESS_LOW_VOLTAGE_DISCONNECT = 0x900D;
   static const uint16_t MODBUS_ADDRESS_DISCHARGING_LIMIT_VOLTAGE = 0x900E;
 };
+
+
 
 #endif

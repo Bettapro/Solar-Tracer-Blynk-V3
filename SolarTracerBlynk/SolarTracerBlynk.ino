@@ -19,15 +19,12 @@
  *
  */
 
-    #define ARDUINOHA_DEBUG
-
-
+#include "src/incl/project_core_config.h"
 #include "src/incl/project_config.h"
-
-extern SimpleTimer *mainTimer;
 
 // -------------------------------------------------------------------------------
 // MISC
+
 
 void uploadRealtimeAll()
 {
@@ -59,7 +56,7 @@ void loop()
     // cannot trust return value of reconnect()
     if (!WiFi.isConnected())
     {
-      setStatusError(STATUS_ERR_NO_WIFI_CONNECTION);
+      Controller::getInstance().setStatusFlag(STATUS_ERR_NO_WIFI_CONNECTION, true);
     }
     else
     {
@@ -73,7 +70,7 @@ void loop()
   }
   else
   {
-    clearStatusError(STATUS_ERR_NO_WIFI_CONNECTION);
+    Controller::getInstance().setStatusFlag(STATUS_ERR_NO_WIFI_CONNECTION, false);
   }
 #if defined USE_BLYNK
   blynkLoop();
@@ -85,7 +82,7 @@ void loop()
 #ifdef USE_OTA_UPDATE
   ArduinoOTA.handle();
 #endif
-  mainTimer->run();
+  Controller::getInstance().getMainTimer()->run();
 }
 
 void setup()
@@ -113,7 +110,7 @@ void setup()
   }
 #endif
 
-  setStatusError(STATUS_RUN_BOOTING);
+  Controller::getInstance().setStatusFlag(STATUS_RUN_BOOTING, true);
 #ifdef USE_STATUS_LED
   ledSetupStart();
 #endif
@@ -188,12 +185,13 @@ void setup()
 #endif
 #endif
   debugPrintln(" ++ Setting Solar Charge Controller:");
-  controllerSetup();
+  Controller controllerInstance = Controller::getInstance();
+  controllerInstance.setup();
   debugPrint("Connection Test: ");
   uint8_t attemptControllerConnectionCount;
   for (attemptControllerConnectionCount = 1; attemptControllerConnectionCount < 4; attemptControllerConnectionCount++)
   {
-    if (thisController->testConnection())
+    if (controllerInstance.getSolarController()->testConnection())
     {
       break;
     }
@@ -207,7 +205,7 @@ void setup()
     debugPrint("OK");
     break;
   case 4:
-    debugPrintf("KO [err=%i]", thisController->getLastControllerCommunicationStatus());
+    debugPrintf("KO [err=%i]", controllerInstance.getSolarController()->getLastControllerCommunicationStatus());
     break;
   default:
     debugPrintf("OK [attempt=%i]", attemptControllerConnectionCount);
@@ -234,11 +232,11 @@ void setup()
   debugPrintln(" ++ Setting up solar tracer:");
 #ifdef SYNC_ST_TIME
   debugPrintln("Synchronize NTP time with controller");
-  thisController->syncRealtimeClock(getMyNowTm());
+  controllerInstance.getSolarController()->syncRealtimeClock(getMyNowTm());
   delay(500);
 #endif
   debugPrintln("Get all values");
-  thisController->fetchAllValues();
+  controllerInstance.getSolarController()->fetchAllValues();
   delay(1000);
   debugPrintln("Send updates to Blynk");
   uploadRealtimeAll();
@@ -248,17 +246,30 @@ void setup()
   debugPrintln("Starting timed actions...");
 
   // periodically refresh tracer values
-  mainTimer->setInterval(CONTROLLER_UPDATE_MS_PERIOD, updateSolarController);
+  controllerInstance.getMainTimer()->setInterval(CONTROLLER_UPDATE_MS_PERIOD, []()
+                         {
+                           if (Controller::getInstance().getSolarController()->updateRun())
+                           {
+                             debugPrintln("Update Solar-Tracer SUCCESS!");
+                             Controller::getInstance().setStatusFlag(STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION, false);
+                           }
+                           else
+                           {
+                             debugPrintf("Update Solar-Tracer FAILED! [err=%i]", Controller::getInstance().getSolarController()->getLastControllerCommunicationStatus());
+                             debugPrintln();
+                             Controller::getInstance().setStatusFlag(STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION, true);
+                           }
+                         });
   // periodically send STATS all value to blynk
-  mainTimer->setInterval(SYNC_STATS_MS_PERIOD, uploadStatsAll);
+  controllerInstance.getMainTimer()->setInterval(SYNC_STATS_MS_PERIOD, uploadStatsAll);
   // periodically send REALTIME  value to blynk
-  mainTimer->setInterval(SYNC_REALTIME_MS_PERIOD, uploadRealtimeAll);
+  controllerInstance.getMainTimer()->setInterval(SYNC_REALTIME_MS_PERIOD, uploadRealtimeAll);
 
   debugPrintln("SETUP OK!");
   debugPrintln("----------------------------");
   debugPrintln();
 
-  clearStatusError(STATUS_RUN_BOOTING);
+  Controller::getInstance().setStatusFlag(STATUS_RUN_BOOTING, false);
 #ifdef USE_STATUS_LED
   ledSetupStop();
 #endif

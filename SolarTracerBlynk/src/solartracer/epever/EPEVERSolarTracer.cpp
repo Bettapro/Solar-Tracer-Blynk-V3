@@ -23,6 +23,7 @@
 
 #define _EST_RS_POINTER(s, v) (s ? &v : nullptr)
 
+
 EPEVERSolarTracer::EPEVERSolarTracer(Stream &serialCom, uint16_t serialTimeoutMs, uint8_t slave, uint8_t max485_de, uint8_t max485_re_neg)
     : EPEVERSolarTracer(serialCom, serialTimeoutMs, slave)
 {
@@ -56,49 +57,49 @@ EPEVERSolarTracer::EPEVERSolarTracer(Stream &serialCom, uint16_t serialTimeoutMs
   this->rs485readSuccess = true;
 
   // set enabled variables
-  this->setVariableEnabled(SolarTracerVariables::PV_POWER);
-  this->setVariableEnabled(SolarTracerVariables::PV_CURRENT);
-  this->setVariableEnabled(SolarTracerVariables::PV_VOLTAGE);
-  this->setVariableEnabled(SolarTracerVariables::LOAD_CURRENT);
-  this->setVariableEnabled(SolarTracerVariables::LOAD_POWER);
-  this->setVariableEnabled(SolarTracerVariables::BATTERY_TEMP);
-  this->setVariableEnabled(SolarTracerVariables::BATTERY_VOLTAGE);
-  this->setVariableEnabled(SolarTracerVariables::BATTERY_SOC);
-  this->setVariableEnabled(SolarTracerVariables::CONTROLLER_TEMP);
-  this->setVariableEnabled(SolarTracerVariables::BATTERY_CHARGE_CURRENT);
-  this->setVariableEnabled(SolarTracerVariables::BATTERY_CHARGE_POWER);
-  this->setVariableEnabled(SolarTracerVariables::BATTERY_OVERALL_CURRENT);
-  this->setVariableEnabled(SolarTracerVariables::LOAD_MANUAL_ONOFF);
-  this->setVariableEnabled(SolarTracerVariables::CHARGING_DEVICE_ONOFF);
-  this->setVariableEnabled(SolarTracerVariables::BATTERY_STATUS_TEXT);
-  this->setVariableEnabled(SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT);
-  this->setVariableEnabled(SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT);
-  this->setVariableEnabled(SolarTracerVariables::GENERATED_ENERGY_TODAY);
-  this->setVariableEnabled(SolarTracerVariables::GENERATED_ENERGY_MONTH);
-  this->setVariableEnabled(SolarTracerVariables::GENERATED_ENERGY_YEAR);
-  this->setVariableEnabled(SolarTracerVariables::GENERATED_ENERGY_TOTAL);
-  this->setVariableEnabled(SolarTracerVariables::MAXIMUM_PV_VOLTAGE_TODAY);
-  this->setVariableEnabled(SolarTracerVariables::MINIMUM_PV_VOLTAGE_TODAY);
-  this->setVariableEnabled(SolarTracerVariables::MAXIMUM_BATTERY_VOLTAGE_TODAY);
-  this->setVariableEnabled(SolarTracerVariables::MINIMUM_BATTERY_VOLTAGE_TODAY);
-  this->setVariableEnabled(SolarTracerVariables::HEATSINK_TEMP);
-  this->setVariableEnabled(SolarTracerVariables::BATTERY_BOOST_VOLTAGE);
-  this->setVariableEnabled(SolarTracerVariables::BATTERY_EQUALIZATION_VOLTAGE);
-  this->setVariableEnabled(SolarTracerVariables::BATTERY_FLOAT_VOLTAGE);
-  this->setVariableEnabled(SolarTracerVariables::BATTERY_FLOAT_MIN_VOLTAGE);
-  this->setVariableEnabled(SolarTracerVariables::BATTERY_CHARGING_LIMIT_VOLTAGE);
-  this->setVariableEnabled(SolarTracerVariables::BATTERY_DISCHARGING_LIMIT_VOLTAGE);
-  this->setVariableEnabled(SolarTracerVariables::BATTERY_LOW_VOLTAGE_DISCONNECT);
-  this->setVariableEnabled(SolarTracerVariables::BATTERY_LOW_VOLTAGE_RECONNECT);
-  this->setVariableEnabled(SolarTracerVariables::BATTERY_OVER_VOLTAGE_DISCONNECT);
-  this->setVariableEnabled(SolarTracerVariables::BATTERY_OVER_VOLTAGE_RECONNECT);
-  this->setVariableEnabled(SolarTracerVariables::BATTERY_UNDER_VOLTAGE_SET);
-  this->setVariableEnabled(SolarTracerVariables::BATTERY_UNDER_VOLTAGE_RESET);
+  this->setVariableEnabled(Variable::PV_POWER);
+  this->setVariableEnabled(Variable::PV_CURRENT);
+  this->setVariableEnabled(Variable::PV_VOLTAGE);
+  this->setVariableEnabled(Variable::LOAD_CURRENT);
+  this->setVariableEnabled(Variable::LOAD_POWER);
+  this->setVariableEnabled(Variable::BATTERY_TEMP);
+  this->setVariableEnabled(Variable::BATTERY_VOLTAGE);
+  this->setVariableEnabled(Variable::BATTERY_SOC);
+  this->setVariableEnabled(Variable::CONTROLLER_TEMP);
+  this->setVariableEnabled(Variable::BATTERY_CHARGE_CURRENT);
+  this->setVariableEnabled(Variable::BATTERY_CHARGE_POWER);
+  this->setVariableEnabled(Variable::BATTERY_OVERALL_CURRENT);
+  this->setVariableEnabled(Variable::LOAD_MANUAL_ONOFF);
+  this->setVariableEnabled(Variable::CHARGING_DEVICE_ONOFF);
+  this->setVariableEnabled(Variable::BATTERY_STATUS_TEXT);
+  this->setVariableEnabled(Variable::CHARGING_EQUIPMENT_STATUS_TEXT);
+  this->setVariableEnabled(Variable::DISCHARGING_EQUIPMENT_STATUS_TEXT);
+  this->setVariableEnabled(Variable::GENERATED_ENERGY_TODAY);
+  this->setVariableEnabled(Variable::GENERATED_ENERGY_MONTH);
+  this->setVariableEnabled(Variable::GENERATED_ENERGY_YEAR);
+  this->setVariableEnabled(Variable::GENERATED_ENERGY_TOTAL);
+  this->setVariableEnabled(Variable::MAXIMUM_PV_VOLTAGE_TODAY);
+  this->setVariableEnabled(Variable::MINIMUM_PV_VOLTAGE_TODAY);
+  this->setVariableEnabled(Variable::MAXIMUM_BATTERY_VOLTAGE_TODAY);
+  this->setVariableEnabled(Variable::MINIMUM_BATTERY_VOLTAGE_TODAY);
+  this->setVariableEnabled(Variable::HEATSINK_TEMP);
+  this->setVariableEnabled(Variable::BATTERY_BOOST_VOLTAGE);
+  this->setVariableEnabled(Variable::BATTERY_EQUALIZATION_VOLTAGE);
+  this->setVariableEnabled(Variable::BATTERY_FLOAT_VOLTAGE);
+  this->setVariableEnabled(Variable::BATTERY_FLOAT_MIN_VOLTAGE);
+  this->setVariableEnabled(Variable::BATTERY_CHARGING_LIMIT_VOLTAGE);
+  this->setVariableEnabled(Variable::BATTERY_DISCHARGING_LIMIT_VOLTAGE);
+  this->setVariableEnabled(Variable::BATTERY_LOW_VOLTAGE_DISCONNECT);
+  this->setVariableEnabled(Variable::BATTERY_LOW_VOLTAGE_RECONNECT);
+  this->setVariableEnabled(Variable::BATTERY_OVER_VOLTAGE_DISCONNECT);
+  this->setVariableEnabled(Variable::BATTERY_OVER_VOLTAGE_RECONNECT);
+  this->setVariableEnabled(Variable::BATTERY_UNDER_VOLTAGE_SET);
+  this->setVariableEnabled(Variable::BATTERY_UNDER_VOLTAGE_RESET);
 }
 
 bool EPEVERSolarTracer::testConnection()
 {
-  return this->fetchValue(SolarTracerVariables::LOAD_MANUAL_ONOFF);
+  return this->fetchValue(Variable::LOAD_MANUAL_ONOFF);
 }
 
 bool EPEVERSolarTracer::syncRealtimeClock(struct tm *ti)
@@ -127,8 +128,8 @@ void EPEVERSolarTracer::fetchAllValues()
   this->AddressRegistry_3110();
   this->AddressRegistry_311A();
   this->AddressRegistry_331B();
-  this->fetchValue(SolarTracerVariables::LOAD_MANUAL_ONOFF);
-  this->fetchValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF);
+  this->fetchValue(Variable::LOAD_MANUAL_ONOFF);
+  this->fetchValue(Variable::CHARGING_DEVICE_ONOFF);
   this->fetchAddressStatusVariables();
 }
 
@@ -160,8 +161,8 @@ bool EPEVERSolarTracer::updateRun()
       this->AddressRegistry_331B();
       break;
     case 4:
-      this->fetchValue(SolarTracerVariables::LOAD_MANUAL_ONOFF);
-      this->fetchValue(SolarTracerVariables::CHARGING_DEVICE_ONOFF);
+      this->fetchValue(Variable::LOAD_MANUAL_ONOFF);
+      this->fetchValue(Variable::CHARGING_DEVICE_ONOFF);
       this->fetchAddressStatusVariables();
     }
     currentRealtimeUpdateCounter--;
@@ -169,19 +170,19 @@ bool EPEVERSolarTracer::updateRun()
   return rs485readSuccess;
 }
 
-bool EPEVERSolarTracer::fetchValue(SolarTracerVariables variable)
+bool EPEVERSolarTracer::fetchValue(Variable variable)
 {
   float value;
   switch (variable)
   {
-  case SolarTracerVariables::LOAD_FORCE_ONOFF:
+  case Variable::LOAD_FORCE_ONOFF:
     // seems not doing anything
     value = this->readControllerSingleCoil(MODBUS_ADDRESS_LOAD_FORCE_ONOFF);
     return this->setVariableValue(variable, _EST_RS_POINTER(rs485readSuccess, value));
-  case SolarTracerVariables::LOAD_MANUAL_ONOFF:
+  case Variable::LOAD_MANUAL_ONOFF:
     value = this->readControllerSingleCoil(MODBUS_ADDRESS_LOAD_MANUAL_ONOFF);
     return this->setVariableValue(variable, _EST_RS_POINTER(rs485readSuccess, value));
-  case SolarTracerVariables::CHARGING_DEVICE_ONOFF:
+  case Variable::CHARGING_DEVICE_ONOFF:
     value = this->readControllerSingleCoil(MODBUS_ADDRESS_BATTERY_CHARGE_ONOFF);
     return this->setVariableValue(variable, _EST_RS_POINTER(rs485readSuccess, value));
   default:
@@ -191,66 +192,55 @@ bool EPEVERSolarTracer::fetchValue(SolarTracerVariables variable)
   return false;
 }
 
-bool EPEVERSolarTracer::writeValue(SolarTracerVariables variable, bool *value)
-{
-  if (!this->isVariableEnabled(variable))
-  {
-    return false;
-  }
 
-  switch (variable)
-  {
-  case SolarTracerVariables::LOAD_FORCE_ONOFF:
-    return this->writeControllerSingleCoil(MODBUS_ADDRESS_LOAD_FORCE_ONOFF, *value);
-  case SolarTracerVariables::LOAD_MANUAL_ONOFF:
-    return this->writeControllerSingleCoil(MODBUS_ADDRESS_LOAD_MANUAL_ONOFF, *value);
-  case SolarTracerVariables::CHARGING_DEVICE_ONOFF:
-    return this->writeControllerSingleCoil(MODBUS_ADDRESS_BATTERY_CHARGE_ONOFF, *value);
-  }
-
-  return false;
-}
-
-bool EPEVERSolarTracer::writeValue(SolarTracerVariables variable, float *value)
+bool EPEVERSolarTracer::writeValue(Variable variable, void *value)
 {
   if (!this->isVariableEnabled(variable))
   {
     return false;
   }
   /**
+   * 0x9000 - 0x900E
+   * 
    * https://diysolarforum.com/threads/setting-registers-in-epever-controller-with-python.25406/
    * Some holding registers cannot be set directly - error 04, it's mandatory to write a block of
    * xx registers at once - direct write not allowed on single holding register
    * 
-   * 0x9000 - 0x900E
    **/
 
   switch (variable)
   {
-  case SolarTracerVariables::BATTERY_OVER_VOLTAGE_DISCONNECT:
-    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_HIGH_VOLTAGE_DISCONNECT, (*value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
-  case SolarTracerVariables::BATTERY_CHARGING_LIMIT_VOLTAGE:
-    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_CHARGING_LIMIT_VOLTAGE, (*value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
-  case SolarTracerVariables::BATTERY_OVER_VOLTAGE_RECONNECT:
-    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_OVER_VOLTAGE_RECONNECT, (*value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
-  case SolarTracerVariables::BATTERY_EQUALIZATION_VOLTAGE:
-    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_EQUALIZATION_VOLTAGE, (*value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
-  case SolarTracerVariables::BATTERY_BOOST_VOLTAGE:
-    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_BOOST_VOLTAGE, (*value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
-  case SolarTracerVariables::BATTERY_FLOAT_VOLTAGE:
-    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_FLOAT_VOLTAGE, (*value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
-  case SolarTracerVariables::BATTERY_FLOAT_MIN_VOLTAGE:
-    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_BOOST_RECONNECT_VOLTAGE, (*value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
-  case SolarTracerVariables::BATTERY_LOW_VOLTAGE_RECONNECT:
-    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_LOW_VOLTAGE_RECONNECT, (*value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
-  case SolarTracerVariables::BATTERY_UNDER_VOLTAGE_RESET:
-    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_UNDER_VOLTAGE_RECOVER, (*value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
-  case SolarTracerVariables::BATTERY_UNDER_VOLTAGE_SET:
-    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_UNDER_VOLTAGE_WARNING, (*value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
-  case SolarTracerVariables::BATTERY_LOW_VOLTAGE_DISCONNECT:
-    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_LOW_VOLTAGE_DISCONNECT, (*value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
-  case SolarTracerVariables::BATTERY_DISCHARGING_LIMIT_VOLTAGE:
-    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_DISCHARGING_LIMIT_VOLTAGE, (*value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+  case Variable::LOAD_FORCE_ONOFF:
+    return this->writeControllerSingleCoil(MODBUS_ADDRESS_LOAD_FORCE_ONOFF, *(bool *)value);
+  case Variable::LOAD_MANUAL_ONOFF:
+    return this->writeControllerSingleCoil(MODBUS_ADDRESS_LOAD_MANUAL_ONOFF, *(bool *)value);
+  case Variable::CHARGING_DEVICE_ONOFF:
+    return this->writeControllerSingleCoil(MODBUS_ADDRESS_BATTERY_CHARGE_ONOFF, *(bool *)value);
+    //
+  case Variable::BATTERY_OVER_VOLTAGE_DISCONNECT:
+    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_HIGH_VOLTAGE_DISCONNECT, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+  case Variable::BATTERY_CHARGING_LIMIT_VOLTAGE:
+    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_CHARGING_LIMIT_VOLTAGE, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+  case Variable::BATTERY_OVER_VOLTAGE_RECONNECT:
+    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_OVER_VOLTAGE_RECONNECT, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+  case Variable::BATTERY_EQUALIZATION_VOLTAGE:
+    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_EQUALIZATION_VOLTAGE, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+  case Variable::BATTERY_BOOST_VOLTAGE:
+    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_BOOST_VOLTAGE, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+  case Variable::BATTERY_FLOAT_VOLTAGE:
+    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_FLOAT_VOLTAGE, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+  case Variable::BATTERY_FLOAT_MIN_VOLTAGE:
+    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_BOOST_RECONNECT_VOLTAGE, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+  case Variable::BATTERY_LOW_VOLTAGE_RECONNECT:
+    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_LOW_VOLTAGE_RECONNECT, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+  case Variable::BATTERY_UNDER_VOLTAGE_RESET:
+    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_UNDER_VOLTAGE_RECOVER, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+  case Variable::BATTERY_UNDER_VOLTAGE_SET:
+    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_UNDER_VOLTAGE_WARNING, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+  case Variable::BATTERY_LOW_VOLTAGE_DISCONNECT:
+    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_LOW_VOLTAGE_DISCONNECT, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+  case Variable::BATTERY_DISCHARGING_LIMIT_VOLTAGE:
+    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_DISCHARGING_LIMIT_VOLTAGE, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
   }
 
   return false;
@@ -307,26 +297,26 @@ void EPEVERSolarTracer::AddressRegistry_3100()
   if (rs485readSuccess)
   {
 
-    this->setFloatVariable(SolarTracerVariables::PV_VOLTAGE, this->node.getResponseBuffer(0x00) / 100.0f);
-    this->setFloatVariable(SolarTracerVariables::PV_CURRENT, this->node.getResponseBuffer(0x01) / 100.0f);
-    this->setFloatVariable(SolarTracerVariables::PV_POWER, (this->node.getResponseBuffer(0x02) | this->node.getResponseBuffer(0x03) << 16) / 100.0f);
-    this->setFloatVariable(SolarTracerVariables::BATTERY_VOLTAGE, this->node.getResponseBuffer(0x04) / 100.0f);
-    this->setFloatVariable(SolarTracerVariables::BATTERY_CHARGE_CURRENT, this->node.getResponseBuffer(0x05) / 100.0f);
-    this->setFloatVariable(SolarTracerVariables::BATTERY_CHARGE_POWER, (this->node.getResponseBuffer(0x06) | this->node.getResponseBuffer(0x07) << 16) / 100.0f);
-    this->setFloatVariable(SolarTracerVariables::LOAD_CURRENT, this->node.getResponseBuffer(0x0D) / 100.0f);
-    this->setFloatVariable(SolarTracerVariables::LOAD_POWER, (this->node.getResponseBuffer(0x0E) | this->node.getResponseBuffer(0x02) << 16) / 100.0f);
+    this->setFloatVariable(Variable::PV_VOLTAGE, this->node.getResponseBuffer(0x00) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::PV_CURRENT, this->node.getResponseBuffer(0x01) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::PV_POWER, (this->node.getResponseBuffer(0x02) | this->node.getResponseBuffer(0x03) << 16) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::BATTERY_VOLTAGE, this->node.getResponseBuffer(0x04) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::BATTERY_CHARGE_CURRENT, this->node.getResponseBuffer(0x05) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::BATTERY_CHARGE_POWER, (this->node.getResponseBuffer(0x06) | this->node.getResponseBuffer(0x07) << 16) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::LOAD_CURRENT, this->node.getResponseBuffer(0x0D) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::LOAD_POWER, (this->node.getResponseBuffer(0x0E) | this->node.getResponseBuffer(0x02) << 16) / ONE_HUNDRED_FLOAT);
     return;
   }
 
   this->setVariableReadReady(8, rs485readSuccess,
-                             SolarTracerVariables::PV_VOLTAGE,
-                             SolarTracerVariables::PV_CURRENT,
-                             SolarTracerVariables::PV_POWER,
-                             SolarTracerVariables::BATTERY_VOLTAGE,
-                             SolarTracerVariables::BATTERY_CHARGE_CURRENT,
-                             SolarTracerVariables::BATTERY_CHARGE_POWER,
-                             SolarTracerVariables::LOAD_CURRENT,
-                             SolarTracerVariables::LOAD_POWER);
+                             Variable::PV_VOLTAGE,
+                             Variable::PV_CURRENT,
+                             Variable::PV_POWER,
+                             Variable::BATTERY_VOLTAGE,
+                             Variable::BATTERY_CHARGE_CURRENT,
+                             Variable::BATTERY_CHARGE_POWER,
+                             Variable::LOAD_CURRENT,
+                             Variable::LOAD_POWER);
 }
 
 void EPEVERSolarTracer::AddressRegistry_3110()
@@ -337,17 +327,17 @@ void EPEVERSolarTracer::AddressRegistry_3110()
   rs485readSuccess = this->lastControllerCommunicationStatus == this->node.ku8MBSuccess;
   if (rs485readSuccess)
   {
-    this->setFloatVariable(SolarTracerVariables::BATTERY_TEMP, this->node.getResponseBuffer(0x00) / 100.0f);
-    this->setFloatVariable(SolarTracerVariables::CONTROLLER_TEMP, this->node.getResponseBuffer(0x01) / 100.0f);
-    this->setFloatVariable(SolarTracerVariables::HEATSINK_TEMP, this->node.getResponseBuffer(0x02) / 100.0f);
+    this->setFloatVariable(Variable::BATTERY_TEMP, this->node.getResponseBuffer(0x00) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::CONTROLLER_TEMP, this->node.getResponseBuffer(0x01) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::HEATSINK_TEMP, this->node.getResponseBuffer(0x02) / ONE_HUNDRED_FLOAT);
 
     return;
   }
 
   this->setVariableReadReady(3, rs485readSuccess,
-                             SolarTracerVariables::BATTERY_TEMP,
-                             SolarTracerVariables::CONTROLLER_TEMP,
-                             SolarTracerVariables::HEATSINK_TEMP);
+                             Variable::BATTERY_TEMP,
+                             Variable::CONTROLLER_TEMP,
+                             Variable::HEATSINK_TEMP);
 }
 
 void EPEVERSolarTracer::AddressRegistry_311A()
@@ -357,15 +347,15 @@ void EPEVERSolarTracer::AddressRegistry_311A()
   rs485readSuccess = this->lastControllerCommunicationStatus == this->node.ku8MBSuccess;
   if (rs485readSuccess)
   {
-    this->setFloatVariable(SolarTracerVariables::BATTERY_SOC, this->node.getResponseBuffer(0x00) / 1.0f);
-    this->setFloatVariable(SolarTracerVariables::REMOTE_BATTERY_TEMP, this->node.getResponseBuffer(0x01) / 100.0f);
+    this->setFloatVariable(Variable::BATTERY_SOC, this->node.getResponseBuffer(0x00) / 1.0f);
+    this->setFloatVariable(Variable::REMOTE_BATTERY_TEMP, this->node.getResponseBuffer(0x01) / ONE_HUNDRED_FLOAT);
 
     return;
   }
 
   this->setVariableReadReady(2, rs485readSuccess,
-                             SolarTracerVariables::BATTERY_SOC,
-                             SolarTracerVariables::REMOTE_BATTERY_TEMP);
+                             Variable::BATTERY_SOC,
+                             Variable::REMOTE_BATTERY_TEMP);
 }
 
 void EPEVERSolarTracer::AddressRegistry_331B()
@@ -375,10 +365,10 @@ void EPEVERSolarTracer::AddressRegistry_331B()
   rs485readSuccess = this->lastControllerCommunicationStatus == this->node.ku8MBSuccess;
   if (rs485readSuccess)
   {
-    this->setFloatVariable(SolarTracerVariables::BATTERY_OVERALL_CURRENT, (this->node.getResponseBuffer(0x00) | this->node.getResponseBuffer(0x01) << 16) / 100.0f);
+    this->setFloatVariable(Variable::BATTERY_OVERALL_CURRENT, (this->node.getResponseBuffer(0x00) | this->node.getResponseBuffer(0x01) << 16) / ONE_HUNDRED_FLOAT);
   }
 
-  this->setVariableReadReady(SolarTracerVariables::BATTERY_OVERALL_CURRENT, rs485readSuccess);
+  this->setVariableReadReady(Variable::BATTERY_OVERALL_CURRENT, rs485readSuccess);
 }
 
 void EPEVERSolarTracer::AddressRegistry_9003()
@@ -388,33 +378,33 @@ void EPEVERSolarTracer::AddressRegistry_9003()
   rs485readSuccess = this->lastControllerCommunicationStatus == this->node.ku8MBSuccess;
   if (rs485readSuccess)
   {
-    this->setFloatVariable(SolarTracerVariables::BATTERY_OVER_VOLTAGE_DISCONNECT, this->node.getResponseBuffer(0x00) / 100.0f);
-    this->setFloatVariable(SolarTracerVariables::BATTERY_CHARGING_LIMIT_VOLTAGE, this->node.getResponseBuffer(0x01) / 100.0f);
-    this->setFloatVariable(SolarTracerVariables::BATTERY_OVER_VOLTAGE_RECONNECT, this->node.getResponseBuffer(0x02) / 100.0f);
-    this->setFloatVariable(SolarTracerVariables::BATTERY_EQUALIZATION_VOLTAGE, this->node.getResponseBuffer(0x03) / 100.0f);
-    this->setFloatVariable(SolarTracerVariables::BATTERY_BOOST_VOLTAGE, this->node.getResponseBuffer(0x04) / 100.0f);
-    this->setFloatVariable(SolarTracerVariables::BATTERY_FLOAT_VOLTAGE, this->node.getResponseBuffer(0x05) / 100.0f);
-    this->setFloatVariable(SolarTracerVariables::BATTERY_FLOAT_MIN_VOLTAGE, this->node.getResponseBuffer(0x06) / 100.0f);
-    this->setFloatVariable(SolarTracerVariables::BATTERY_LOW_VOLTAGE_RECONNECT, this->node.getResponseBuffer(0x07) / 100.0f);
-    this->setFloatVariable(SolarTracerVariables::BATTERY_UNDER_VOLTAGE_RESET, this->node.getResponseBuffer(0x08) / 100.0f);
-    this->setFloatVariable(SolarTracerVariables::BATTERY_UNDER_VOLTAGE_SET, this->node.getResponseBuffer(0x09) / 100.0f);
-    this->setFloatVariable(SolarTracerVariables::BATTERY_LOW_VOLTAGE_DISCONNECT, this->node.getResponseBuffer(0x0A) / 100.0f);
-    this->setFloatVariable(SolarTracerVariables::BATTERY_DISCHARGING_LIMIT_VOLTAGE, this->node.getResponseBuffer(0x0B) / 100.0f);
+    this->setFloatVariable(Variable::BATTERY_OVER_VOLTAGE_DISCONNECT, this->node.getResponseBuffer(0x00) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::BATTERY_CHARGING_LIMIT_VOLTAGE, this->node.getResponseBuffer(0x01) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::BATTERY_OVER_VOLTAGE_RECONNECT, this->node.getResponseBuffer(0x02) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::BATTERY_EQUALIZATION_VOLTAGE, this->node.getResponseBuffer(0x03) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::BATTERY_BOOST_VOLTAGE, this->node.getResponseBuffer(0x04) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::BATTERY_FLOAT_VOLTAGE, this->node.getResponseBuffer(0x05) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::BATTERY_FLOAT_MIN_VOLTAGE, this->node.getResponseBuffer(0x06) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::BATTERY_LOW_VOLTAGE_RECONNECT, this->node.getResponseBuffer(0x07) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::BATTERY_UNDER_VOLTAGE_RESET, this->node.getResponseBuffer(0x08) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::BATTERY_UNDER_VOLTAGE_SET, this->node.getResponseBuffer(0x09) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::BATTERY_LOW_VOLTAGE_DISCONNECT, this->node.getResponseBuffer(0x0A) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::BATTERY_DISCHARGING_LIMIT_VOLTAGE, this->node.getResponseBuffer(0x0B) / ONE_HUNDRED_FLOAT);
   }
 
   this->setVariableReadReady(12, rs485readSuccess,
-                             SolarTracerVariables::BATTERY_OVER_VOLTAGE_DISCONNECT,
-                             SolarTracerVariables::BATTERY_CHARGING_LIMIT_VOLTAGE,
-                             SolarTracerVariables::BATTERY_OVER_VOLTAGE_RECONNECT,
-                             SolarTracerVariables::BATTERY_EQUALIZATION_VOLTAGE,
-                             SolarTracerVariables::BATTERY_BOOST_VOLTAGE,
-                             SolarTracerVariables::BATTERY_FLOAT_VOLTAGE,
-                             SolarTracerVariables::BATTERY_FLOAT_MIN_VOLTAGE,
-                             SolarTracerVariables::BATTERY_LOW_VOLTAGE_RECONNECT,
-                             SolarTracerVariables::BATTERY_UNDER_VOLTAGE_RESET,
-                             SolarTracerVariables::BATTERY_UNDER_VOLTAGE_SET,
-                             SolarTracerVariables::BATTERY_LOW_VOLTAGE_DISCONNECT,
-                             SolarTracerVariables::BATTERY_DISCHARGING_LIMIT_VOLTAGE);
+                             Variable::BATTERY_OVER_VOLTAGE_DISCONNECT,
+                             Variable::BATTERY_CHARGING_LIMIT_VOLTAGE,
+                             Variable::BATTERY_OVER_VOLTAGE_RECONNECT,
+                             Variable::BATTERY_EQUALIZATION_VOLTAGE,
+                             Variable::BATTERY_BOOST_VOLTAGE,
+                             Variable::BATTERY_FLOAT_VOLTAGE,
+                             Variable::BATTERY_FLOAT_MIN_VOLTAGE,
+                             Variable::BATTERY_LOW_VOLTAGE_RECONNECT,
+                             Variable::BATTERY_UNDER_VOLTAGE_RESET,
+                             Variable::BATTERY_UNDER_VOLTAGE_SET,
+                             Variable::BATTERY_LOW_VOLTAGE_DISCONNECT,
+                             Variable::BATTERY_DISCHARGING_LIMIT_VOLTAGE);
 }
 
 void EPEVERSolarTracer::fetchAddressStatusVariables()
@@ -431,37 +421,37 @@ void EPEVERSolarTracer::fetchAddressStatusVariables()
       switch (batteryStatus & 3)
       {
       case 1:
-        this->setVariableValue(SolarTracerVariables::BATTERY_STATUS_TEXT, "! OVER VOLT");
+        this->setVariableValue(Variable::BATTERY_STATUS_TEXT, "! OVER VOLT");
         break;
       case 2:
-        this->setVariableValue(SolarTracerVariables::BATTERY_STATUS_TEXT, "! UNDER VOLT");
+        this->setVariableValue(Variable::BATTERY_STATUS_TEXT, "! UNDER VOLT");
         break;
       case 3:
-        this->setVariableValue(SolarTracerVariables::BATTERY_STATUS_TEXT, "! LOW VOLT");
+        this->setVariableValue(Variable::BATTERY_STATUS_TEXT, "! LOW VOLT");
         break;
       case 4:
-        this->setVariableValue(SolarTracerVariables::BATTERY_STATUS_TEXT, "! FAULT");
+        this->setVariableValue(Variable::BATTERY_STATUS_TEXT, "! FAULT");
         break;
       }
 
       switch ((batteryStatus >> 4) & 3)
       {
       case 1:
-        this->setVariableValue(SolarTracerVariables::BATTERY_STATUS_TEXT, "! OVER TEMP");
+        this->setVariableValue(Variable::BATTERY_STATUS_TEXT, "! OVER TEMP");
         break;
       case 2:
-        this->setVariableValue(SolarTracerVariables::BATTERY_STATUS_TEXT, "! LOW TEMP");
+        this->setVariableValue(Variable::BATTERY_STATUS_TEXT, "! LOW TEMP");
         break;
       }
 
       if (batteryStatus >> 8)
       {
-        this->setVariableValue(SolarTracerVariables::BATTERY_STATUS_TEXT, "! ABN BATT. RESIST.");
+        this->setVariableValue(Variable::BATTERY_STATUS_TEXT, "! ABN BATT. RESIST.");
       }
     }
     else
     {
-      this->setVariableValue(SolarTracerVariables::BATTERY_STATUS_TEXT, "Normal");
+      this->setVariableValue(Variable::BATTERY_STATUS_TEXT, "Normal");
     }
 
     uint16_t chargingStatus = node.getResponseBuffer(0x01);
@@ -472,69 +462,25 @@ void EPEVERSolarTracer::fetchAddressStatusVariables()
       // 0: Not charging, 1: Charging
       // FAULTs are detected by checking all fault bits bit13-4
       // chargingStatus & 0xFF0 == 0 means no fault
-      if (chargingStatus & 16)
-      {
-        this->setVariableValue(SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT, "! PV INPUT SHORT");
-      }
-      else if (chargingStatus & 32)
-      {
-        this->setVariableValue(SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT, "! ?? D5"); // not specified in doc
-      }
-      else if (chargingStatus & 64)
-      {
-        this->setVariableValue(SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT, "! ?? D6"); // not specified in doc
-      }
-      else if (chargingStatus & 128)
-      {
-        this->setVariableValue(SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT, "! LOAD MOS. SHORT");
-      }
-      else if (chargingStatus & 256)
-      {
-        this->setVariableValue(SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT, "! LOAD SHORT");
-      }
-      else if (chargingStatus & 512)
-      {
-        this->setVariableValue(SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT, "! LOAD OVER CURR.");
-      }
-      else if (chargingStatus & 1024)
-      {
-        this->setVariableValue(SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT, "! INPUT OVER CURR.");
-      }
-      else if (chargingStatus & 2048)
-      {
-        this->setVariableValue(SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT, "! ANTI REV. MOS. SHORT");
-      }
-      else if (chargingStatus & 4096)
-      {
-        this->setVariableValue(SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT, "! CHRG./ ANTI REV. MOS. SHORT");
-      }
-      else if (chargingStatus & 8192)
-      {
-        this->setVariableValue(SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT, "! CHRG. MOS SHORT");
-      }
-      else
-      {
-        this->setVariableValue(SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT, "! ??");
-      }
     }
     else
     {
       switch ((chargingStatus >> 2) & 3)
       {
       case 0:
-        this->setVariableValue(SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT, "Standby");
+        this->setVariableValue(Variable::CHARGING_EQUIPMENT_STATUS_TEXT, "Standby");
         break;
       case 1:
-        this->setVariableValue(SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT, "Float");
+        this->setVariableValue(Variable::CHARGING_EQUIPMENT_STATUS_TEXT, "Float");
         break;
       case 2:
-        this->setVariableValue(SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT, "Boost");
+        this->setVariableValue(Variable::CHARGING_EQUIPMENT_STATUS_TEXT, "Boost");
         break;
       case 3:
-        this->setVariableValue(SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT, "Equalization");
+        this->setVariableValue(Variable::CHARGING_EQUIPMENT_STATUS_TEXT, "Equalization");
         break;
       default:
-        this->setVariableValue(SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT, "??");
+        this->setVariableValue(Variable::CHARGING_EQUIPMENT_STATUS_TEXT, "??");
       }
     }
 
@@ -544,59 +490,59 @@ void EPEVERSolarTracer::fetchAddressStatusVariables()
       // fault
       if (dischargingStatus & 16)
       {
-        this->setVariableValue(SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT, "! OUT OVER VOLT.");
+        this->setVariableValue(Variable::DISCHARGING_EQUIPMENT_STATUS_TEXT, "! OUT OVER VOLT.");
       }
       else if (dischargingStatus & 32)
       {
-        this->setVariableValue(SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT, "! BOOST OVER VOLT");
+        this->setVariableValue(Variable::DISCHARGING_EQUIPMENT_STATUS_TEXT, "! BOOST OVER VOLT");
       }
       else if (dischargingStatus & 64)
       {
-        this->setVariableValue(SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT, "! HV SIDE SHORT");
+        this->setVariableValue(Variable::DISCHARGING_EQUIPMENT_STATUS_TEXT, "! HV SIDE SHORT");
       }
       else if (dischargingStatus & 128)
       {
-        this->setVariableValue(SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT, "! INPUT OVER VOLT.");
+        this->setVariableValue(Variable::DISCHARGING_EQUIPMENT_STATUS_TEXT, "! INPUT OVER VOLT.");
       }
       else if (dischargingStatus & 256)
       {
-        this->setVariableValue(SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT, "! OUT VOLT. ABN");
+        this->setVariableValue(Variable::DISCHARGING_EQUIPMENT_STATUS_TEXT, "! OUT VOLT. ABN");
       }
       else if (dischargingStatus & 512)
       {
-        this->setVariableValue(SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT, "! UNABLE STOP DISC.");
+        this->setVariableValue(Variable::DISCHARGING_EQUIPMENT_STATUS_TEXT, "! UNABLE STOP DISC.");
       }
       else if (dischargingStatus & 1024)
       {
-        this->setVariableValue(SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT, "! UNABLE DISC.");
+        this->setVariableValue(Variable::DISCHARGING_EQUIPMENT_STATUS_TEXT, "! UNABLE DISC.");
       }
       else if (dischargingStatus & 2048)
       {
-        this->setVariableValue(SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT, "! SHORT");
+        this->setVariableValue(Variable::DISCHARGING_EQUIPMENT_STATUS_TEXT, "! SHORT");
       }
       else
       {
-        this->setVariableValue(SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT, "! ??");
+        this->setVariableValue(Variable::DISCHARGING_EQUIPMENT_STATUS_TEXT, "! ??");
       }
     }
     else
     {
       if (dischargingStatus & 1)
       {
-        this->setVariableValue(SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT, "Running");
+        this->setVariableValue(Variable::DISCHARGING_EQUIPMENT_STATUS_TEXT, "Running");
       }
       else
       {
-        this->setVariableValue(SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT, "Standby");
+        this->setVariableValue(Variable::DISCHARGING_EQUIPMENT_STATUS_TEXT, "Standby");
       }
     }
     return;
   }
 
   this->setVariableReadReady(3, rs485readSuccess,
-                             SolarTracerVariables::BATTERY_STATUS_TEXT,
-                             SolarTracerVariables::CHARGING_EQUIPMENT_STATUS_TEXT,
-                             SolarTracerVariables::DISCHARGING_EQUIPMENT_STATUS_TEXT);
+                             Variable::BATTERY_STATUS_TEXT,
+                             Variable::CHARGING_EQUIPMENT_STATUS_TEXT,
+                             Variable::DISCHARGING_EQUIPMENT_STATUS_TEXT);
 }
 
 void EPEVERSolarTracer::updateStats()
@@ -607,26 +553,26 @@ void EPEVERSolarTracer::updateStats()
   if (rs485readSuccess)
   {
 
-    this->setFloatVariable(SolarTracerVariables::MAXIMUM_PV_VOLTAGE_TODAY, this->node.getResponseBuffer(0x00) / 100.0f);
-    this->setFloatVariable(SolarTracerVariables::MINIMUM_PV_VOLTAGE_TODAY, this->node.getResponseBuffer(0x01) / 100.0f);
-    this->setFloatVariable(SolarTracerVariables::MAXIMUM_BATTERY_VOLTAGE_TODAY, this->node.getResponseBuffer(0x02) / 100.0f);
-    this->setFloatVariable(SolarTracerVariables::MINIMUM_BATTERY_VOLTAGE_TODAY, this->node.getResponseBuffer(0x03) / 100.0f);
+    this->setFloatVariable(Variable::MAXIMUM_PV_VOLTAGE_TODAY, this->node.getResponseBuffer(0x00) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::MINIMUM_PV_VOLTAGE_TODAY, this->node.getResponseBuffer(0x01) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::MAXIMUM_BATTERY_VOLTAGE_TODAY, this->node.getResponseBuffer(0x02) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::MINIMUM_BATTERY_VOLTAGE_TODAY, this->node.getResponseBuffer(0x03) / ONE_HUNDRED_FLOAT);
 
-    this->setFloatVariable(SolarTracerVariables::GENERATED_ENERGY_TODAY, (this->node.getResponseBuffer(12) | this->node.getResponseBuffer(13) << 16) / 100.0f);
-    this->setFloatVariable(SolarTracerVariables::GENERATED_ENERGY_MONTH, (this->node.getResponseBuffer(14) | this->node.getResponseBuffer(15) << 16) / 100.0f);
-    this->setFloatVariable(SolarTracerVariables::GENERATED_ENERGY_YEAR, (this->node.getResponseBuffer(16) | this->node.getResponseBuffer(17) << 16) / 100.0f);
-    this->setFloatVariable(SolarTracerVariables::GENERATED_ENERGY_TOTAL, (this->node.getResponseBuffer(18) | this->node.getResponseBuffer(19) << 16) / 100.0f);
+    this->setFloatVariable(Variable::GENERATED_ENERGY_TODAY, (this->node.getResponseBuffer(12) | this->node.getResponseBuffer(13) << 16) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::GENERATED_ENERGY_MONTH, (this->node.getResponseBuffer(14) | this->node.getResponseBuffer(15) << 16) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::GENERATED_ENERGY_YEAR, (this->node.getResponseBuffer(16) | this->node.getResponseBuffer(17) << 16) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::GENERATED_ENERGY_TOTAL, (this->node.getResponseBuffer(18) | this->node.getResponseBuffer(19) << 16) / ONE_HUNDRED_FLOAT);
   }
 
   this->setVariableReadReady(8, rs485readSuccess,
-                             SolarTracerVariables::MINIMUM_PV_VOLTAGE_TODAY,
-                             SolarTracerVariables::MAXIMUM_PV_VOLTAGE_TODAY,
-                             SolarTracerVariables::MINIMUM_BATTERY_VOLTAGE_TODAY,
-                             SolarTracerVariables::MAXIMUM_BATTERY_VOLTAGE_TODAY,
-                             SolarTracerVariables::GENERATED_ENERGY_TODAY,
-                             SolarTracerVariables::GENERATED_ENERGY_MONTH,
-                             SolarTracerVariables::GENERATED_ENERGY_YEAR,
-                             SolarTracerVariables::GENERATED_ENERGY_TOTAL);
+                             Variable::MINIMUM_PV_VOLTAGE_TODAY,
+                             Variable::MAXIMUM_PV_VOLTAGE_TODAY,
+                             Variable::MINIMUM_BATTERY_VOLTAGE_TODAY,
+                             Variable::MAXIMUM_BATTERY_VOLTAGE_TODAY,
+                             Variable::GENERATED_ENERGY_TODAY,
+                             Variable::GENERATED_ENERGY_MONTH,
+                             Variable::GENERATED_ENERGY_YEAR,
+                             Variable::GENERATED_ENERGY_TOTAL);
 }
 
 void EPEVERSolarTracer::onModbusPreTransmission()

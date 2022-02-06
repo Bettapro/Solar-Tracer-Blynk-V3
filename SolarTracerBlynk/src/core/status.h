@@ -19,12 +19,15 @@
  *
  */
 
+/*
 #pragma once
 
-#include "../incl/project_config.h"
+#ifndef status_h
+#define status_h
+
+#include "../incl/project_core_config.h"
 
 uint8_t internalStatus = 0;
-
 
 void setStatusError(const uint8_t status)
 {
@@ -49,3 +52,6 @@ void clearStatusError(const uint8_t status)
     internalStatus = tStatus;
   }
 }
+
+#endif
+*/

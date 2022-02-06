@@ -20,27 +20,68 @@
  */
 
 #pragma once
+
 #include "../incl/project_config.h"
 
-SolarTracer *thisController;
 
-void controllerSetup()
+#ifndef CONTROLLER_H
+#define CONTROLLER_H
+
+class Controller
 {
-  thisController = new SOLAR_TRACER_INSTANCE;
-}
+public:
+    static Controller &getInstance()
+    {
+        static Controller controller;
+        return controller;
+    }
 
-void updateSolarController()
-{
+    void setup()
+    {
+        mainTimer = new SimpleTimer();
+        thisController = new SOLAR_TRACER_INSTANCE;
+    }
 
-  if (thisController->updateRun())
-  {
-    debugPrintln("Update Solar-Tracer SUCCESS!");
-    clearStatusError(STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION);
-  }
-  else
-  {
-    debugPrintf("Update Solar-Tracer FAILED! [err=%i]", thisController->getLastControllerCommunicationStatus());
-    debugPrintln();
-    setStatusError(STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION);
-  }
-}
+    void loop()
+    {
+        this->mainTimer->run();
+    }
+
+    void setStatusFlag(const uint8_t status, bool error)
+    {
+        if (((internalStatus & status) > 0 ) != error)
+        {
+            uint8_t tStatus = internalStatus + (error ? -1 : 1) * status;
+#ifdef USE_STATUS_LED
+            notifyStatusLed(tStatus);
+#endif
+            internalStatus = tStatus;
+        }
+    }
+
+
+    const uint8_t getStatus(){
+        return this->internalStatus;
+    }
+
+    SolarTracer *getSolarController()
+    {
+        return this->thisController;
+    }
+
+    SimpleTimer *getMainTimer()
+    {
+        return this->mainTimer;
+    }
+
+private:
+    Controller()
+    {
+    }
+
+    SimpleTimer *mainTimer;
+    SolarTracer *thisController;
+    uint8_t internalStatus = 0;
+};
+
+#endif

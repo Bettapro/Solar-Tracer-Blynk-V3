@@ -22,6 +22,9 @@
 #pragma once
 #include "../incl/project_config.h"
 
+#if !defined(MQTT_SYNC_H) && defined(USE_MQTT) && !defined(USE_MQTT_HOME_ASSISTANT)
+#define MQTT_SYNC_H
+
 WiFiClient espClient;
 PubSubClient mqttClient(espClient);
 
@@ -303,3 +306,6 @@ void uploadRealtimeToMqtt()
   }
 #endif
 }
+
+
+#endif
