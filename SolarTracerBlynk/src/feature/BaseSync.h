@@ -21,42 +21,22 @@
 
 #pragma once
 
-#ifndef project_core_config_h
-#define project_core_config_h
+#ifndef BASE_SYNC_H
+#define BASE_SYNC_H
 
-#define PROJECT_NAME "SolarTracer"
-#define PROJECT_VERSION "v3.0.4"
-#define PROJECT_SUBVERSION 1
+#include "../core/VariableDefiner.h"
 
+class BaseSync
+{
+public:
+    virtual void setup() = 0;
+    virtual void connect() = 0;
+    virtual void loop() = 0;
+    virtual bool sendUpdateToVariable(Variable variable, const void *value) = 0;
+    virtual bool isVariableAllowed(const VariableDefinition *def) = 0;
 
-#include <Arduino.h>
+    void applyUpdateToVariable(Variable variable, const void *value, bool silent = true);
 
-/**
- *  Main defs
- */
-#include "solartracer_all.h"
-#include "communication_protocol_all.h"
-#include "status_all.h"
-#include "config_persistence.h"
-
-
-/**
- * Include user + board + solar tracer configs
- */
-#include "../../config.h"
-
-
-
-/**
- * Conditional includes depending on the BOARD
- */
-#if defined ESP32
-#include "../board/esp32_config.h"
-#elif defined ESP8266
-#include "../board/esp8266_config.h"
-#else
-#error This board is not supported.
-#endif
-
-
+    uint8_t sendUpdateAllBySource(VariableSource allowedSource, bool silent = true);
+};
 #endif

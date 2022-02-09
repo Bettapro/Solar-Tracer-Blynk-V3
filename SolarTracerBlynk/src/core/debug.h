@@ -1,6 +1,6 @@
 /**
  * Solar Tracer Blynk V3 [https://github.com/Bettapro/Solar-Tracer-Blynk-V3]
- * Copyright (c) 2021 Alberto Bettin 
+ * Copyright (c) 2021 Alberto Bettin
  *
  * Based on the work of @jaminNZx and @tekk.
  *
@@ -21,84 +21,22 @@
 
 #pragma once
 
-#include "../incl/project_config.h"
+#ifndef DEBUG_H
+#define DEBUG_H
 
-#include <stdio.h> // vsnprintf
+#include "../incl/project_core_config.h"
 
-#define DEBUG_REGISTER_CALLBACKS_MAX 2
+void debugAddRegisterCallback(void (*regCallback)(String));
+void debugDispactMessageRegisterCallback(String msg);
+void debugPrint(String message);
+void debugPrintln();
+void debugPrintln(const String msgString);
+void debugPrintln(const char *msgChar);
+void debugPrint(const char *msgChar);
+void debugPrintln(const int num);
+void debugPrint(const int num);
+void debugPrintln(const unsigned char num);
+void debugPrint(const unsigned char num);
+void debugPrintf(const char *format, ...);
 
-uint8_t regCallbacksIndex = 0;
-void (*regCallbacks[DEBUG_REGISTER_CALLBACKS_MAX])(String);
-
-void debugAddRegisterCallback(void (*regCallback)(String))
-{
-    if (regCallbacksIndex < DEBUG_REGISTER_CALLBACKS_MAX)
-    {
-        regCallbacks[regCallbacksIndex++] = regCallback;
-    }
-}
-
-void debugDispactMessageRegisterCallback(String msg){
-    for(uint8_t index = 0; index < regCallbacksIndex; index ++){
-        (*regCallbacks[index])(msg);
-    }
-}
-
-void debugPrint(String message)
-{
-    BOARD_DEBUG_SERIAL_STREAM.print(message);
-    for(uint8_t index = 0; index < regCallbacksIndex; index ++){
-        (*regCallbacks[index])(message);
-    }
-}
-
-void debugPrintln()
-{
-    debugPrint("\r\n");
-}
-
-void debugPrintln(const String msgString)
-{
-    debugPrint(msgString +"\r\n");
-}
-
-void debugPrintln(const char *msgChar)
-{
-    debugPrint(String(msgChar) +"\r\n");
-}
-
-void debugPrint(const char *msgChar)
-{
-    debugPrint(String(msgChar));
-}
-
-void debugPrintln(const int num)
-{
-    debugPrint(String(num) + "\r\n");
-}
-
-void debugPrint(const int num)
-{
-    debugPrint(String(num));
-}
-
-void debugPrintln(const unsigned char num)
-{
-    debugPrint(String(num) + "\r\n");
-}
-
-void debugPrint(const unsigned char num)
-{
-    debugPrint(String(num));
-}
-
-void debugPrintf(const char *format, ...)
-{
-    char buffer[256];
-
-    va_list args;
-    va_start(args, format);
-    vsnprintf(buffer, 256, format, args);
-    debugPrint(String(buffer));
-    va_end(args);
-}
+#endif

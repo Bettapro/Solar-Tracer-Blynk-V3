@@ -1,6 +1,6 @@
 /**
  * Solar Tracer Blynk V3 [https://github.com/Bettapro/Solar-Tracer-Blynk-V3]
- * Copyright (c) 2021 Alberto Bettin 
+ * Copyright (c) 2021 Alberto Bettin
  *
  * Based on the work of @jaminNZx and @tekk.
  *
@@ -21,19 +21,19 @@
 
 #pragma once
 
-#include "../incl/project_config.h"
-
-
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
+
+#include "../incl/project_include.h"
+#include "../solartracer/incl/solar_config.h"
 
 class Controller
 {
 public:
     static Controller &getInstance()
     {
-        static Controller controller;
-        return controller;
+        static Controller instance;
+        return instance;
     }
 
     void setup()
@@ -47,41 +47,35 @@ public:
         this->mainTimer->run();
     }
 
-    void setStatusFlag(const uint8_t status, bool error)
-    {
-        if (((internalStatus & status) > 0 ) != error)
-        {
-            uint8_t tStatus = internalStatus + (error ? -1 : 1) * status;
-#ifdef USE_STATUS_LED
-            notifyStatusLed(tStatus);
-#endif
-            internalStatus = tStatus;
-        }
-    }
+    void setStatusFlag(const uint8_t status, bool error);
 
+    inline const uint8_t getStatus();
 
-    const uint8_t getStatus(){
-        return this->internalStatus;
-    }
+    inline SolarTracer *getSolarController();
 
-    SolarTracer *getSolarController()
-    {
-        return this->thisController;
-    }
-
-    SimpleTimer *getMainTimer()
-    {
-        return this->mainTimer;
-    }
+    inline SimpleTimer *getMainTimer();
 
 private:
-    Controller()
-    {
-    }
-
     SimpleTimer *mainTimer;
     SolarTracer *thisController;
     uint8_t internalStatus = 0;
 };
+
+
+const uint8_t Controller::getStatus()
+{
+    return this->internalStatus;
+}
+
+SolarTracer *Controller::getSolarController()
+{
+    return this->thisController;
+}
+
+SimpleTimer *Controller::getMainTimer()
+{
+    return this->mainTimer;
+}
+
 
 #endif

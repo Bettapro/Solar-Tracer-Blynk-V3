@@ -43,7 +43,7 @@ public:
 
   virtual bool fetchValue(Variable variable);
 
-  virtual bool writeValue(Variable variable, void *value);
+  virtual bool writeValue(Variable variable, const void *value);
 
   bool readControllerSingleCoil(uint16_t address);
 

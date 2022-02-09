@@ -214,50 +214,50 @@
 
   // virtual pins definition and mapping
 
-  #define vPIN_PV_POWER                                   V1
-  #define vPIN_PV_CURRENT                                 V2
-  #define vPIN_PV_VOLTAGE                                 V3
-  #define vPIN_LOAD_CURRENT                               V4
-  #define vPIN_LOAD_POWER                                 V5
-  #define vPIN_BATT_TEMP                                  V6
-  #define vPIN_BATT_VOLTAGE                               V7
-  #define vPIN_BATT_REMAIN                                V8
-  #define vPIN_CONTROLLER_TEMP                            V9
-  #define vPIN_BATTERY_CHARGE_CURRENT                     V10
-  #define vPIN_BATTERY_CHARGE_POWER                       V11
-  #define vPIN_BATTERY_OVERALL_CURRENT                    V12
-  #define vPIN_LOAD_ENABLED                               V14
-  #define vPIN_STAT_ENERGY_GENERATED_TODAY                V15
-  #define vPIN_STAT_ENERGY_GENERATED_THIS_MONTH           V16
-  #define vPIN_STAT_ENERGY_GENERATED_THIS_YEAR            V17
-  #define vPIN_STAT_ENERGY_GENERATED_TOTAL                V18
-  #define vPIN_MIN_BATTERY_VOLTAGE_TODAY                  V19
-  #define vPIN_MAX_BATTERY_VOLTAGE_TODAY                  V20
-  #define vPIN_BATTERY_STATUS_TEXT                        V23
-  #define vPIN_CHARGING_EQUIPMENT_STATUS_TEXT             V24
-  #define vPIN_DISCHARGING_EQUIPMENT_STATUS_TEXT          V25
-  #define vPIN_CHARGE_DEVICE_ENABLED                      V26
-  #define vPIN_CONTROLLER_HEATSINK_TEMP                   V29
-  #define vPIN_BATTERY_BOOST_VOLTAGE                      V30
-  #define vPIN_BATTERY_EQUALIZATION_VOLTAGE               V31
-  #define vPIN_BATTERY_FLOAT_VOLTAGE                      V32
-  #define vPIN_BATTERY_FLOAT_MIN_VOLTAGE                  V33
-  #define vPIN_BATTERY_CHARGING_LIMIT_VOLTAGE             V34
-  #define vPIN_BATTERY_DISCHARGING_LIMIT_VOLTAGE          V35
-  #define vPIN_BATTERY_LOW_VOLTAGE_DISCONNECT             V36
-  #define vPIN_BATTERY_LOW_VOLTAGE_RECONNECT              V37
-  #define vPIN_BATTERY_OVER_VOLTAGE_DISCONNECT            V38
-  #define vPIN_BATTERY_OVER_VOLTAGE_RECONNECT             V39
-  #define vPIN_BATTERY_UNDER_VOLTAGE_RESET                V40
-  #define vPIN_BATTERY_UNDER_VOLTAGE_SET                  V41
-  #define vPIN_MIN_PV_VOLTAGE_TODAY                       V42
-  #define vPIN_MAX_PV_VOLTAGE_TODAY                       V43
+  #define vPIN_PV_POWER                                   1
+  #define vPIN_PV_CURRENT                                 2
+  #define vPIN_PV_VOLTAGE                                 3
+  #define vPIN_LOAD_CURRENT                               4
+  #define vPIN_LOAD_POWER                                 5
+  #define vPIN_BATT_TEMP                                  6
+  #define vPIN_BATT_VOLTAGE                               7
+  #define vPIN_BATT_REMAIN                                8
+  #define vPIN_CONTROLLER_TEMP                            9
+  #define vPIN_BATTERY_CHARGE_CURRENT                     10
+  #define vPIN_BATTERY_CHARGE_POWER                       11
+  #define vPIN_BATTERY_OVERALL_CURRENT                    12
+  #define vPIN_LOAD_ENABLED                               14
+  #define vPIN_STAT_ENERGY_GENERATED_TODAY                15
+  #define vPIN_STAT_ENERGY_GENERATED_THIS_MONTH           16
+  #define vPIN_STAT_ENERGY_GENERATED_THIS_YEAR            17
+  #define vPIN_STAT_ENERGY_GENERATED_TOTAL                18
+  #define vPIN_MIN_BATTERY_VOLTAGE_TODAY                  19
+  #define vPIN_MAX_BATTERY_VOLTAGE_TODAY                  20
+  #define vPIN_BATTERY_STATUS_TEXT                        23
+  #define vPIN_CHARGING_EQUIPMENT_STATUS_TEXT             24
+  #define vPIN_DISCHARGING_EQUIPMENT_STATUS_TEXT          25
+  #define vPIN_CHARGE_DEVICE_ENABLED                      26
+  #define vPIN_CONTROLLER_HEATSINK_TEMP                   29
+  #define vPIN_BATTERY_BOOST_VOLTAGE                      30
+  #define vPIN_BATTERY_EQUALIZATION_VOLTAGE               31
+  #define vPIN_BATTERY_FLOAT_VOLTAGE                      32
+  #define vPIN_BATTERY_FLOAT_MIN_VOLTAGE                  33
+  #define vPIN_BATTERY_CHARGING_LIMIT_VOLTAGE             34
+  #define vPIN_BATTERY_DISCHARGING_LIMIT_VOLTAGE          35
+  #define vPIN_BATTERY_LOW_VOLTAGE_DISCONNECT             36
+  #define vPIN_BATTERY_LOW_VOLTAGE_RECONNECT              37
+  #define vPIN_BATTERY_OVER_VOLTAGE_DISCONNECT            38
+  #define vPIN_BATTERY_OVER_VOLTAGE_RECONNECT             39
+  #define vPIN_BATTERY_UNDER_VOLTAGE_RESET                40
+  #define vPIN_BATTERY_UNDER_VOLTAGE_SET                  41
+  #define vPIN_MIN_PV_VOLTAGE_TODAY                       42
+  #define vPIN_MAX_PV_VOLTAGE_TODAY                       43
   // internal
-  #define vPIN_INTERNAL_STATUS                            V27
-  //#define vPIN_INTERNAL_DEBUG_TERMINAL                    V44
+  #define vPIN_INTERNAL_STATUS                            27
+  //#define vPIN_INTERNAL_DEBUG_TERMINAL                    44
   //action
-  #define vPIN_UPDATE_ALL_CONTROLLER_DATA                 V28
-  #define vPIN_UPDATE_CONTROLLER_DATETIME                 V45
+  #define vPIN_UPDATE_ALL_CONTROLLER_DATA                 28
+  #define vPIN_UPDATE_CONTROLLER_DATETIME                 45
 #endif
 
 
@@ -281,7 +281,7 @@
   // client id
   #define MQTT_CLIENT_ID "solarTracer1"
 
-  #define USE_MQTT_HOME_ASSISTANT
+  //#define USE_MQTT_HOME_ASSISTANT
   #ifdef USE_MQTT_HOME_ASSISTANT
     #define MQTT_HOME_ASSISTANT_DEVICE_NAME "SolarTracer1"
 

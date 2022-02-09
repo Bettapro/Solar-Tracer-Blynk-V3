@@ -1,6 +1,6 @@
 /**
  * Solar Tracer Blynk V3 [https://github.com/Bettapro/Solar-Tracer-Blynk-V3]
- * Copyright (c) 2021 Alberto Bettin 
+ * Copyright (c) 2021 Alberto Bettin
  *
  * Based on the work of @jaminNZx and @tekk.
  *
@@ -19,39 +19,16 @@
  *
  */
 
-/*
-#pragma once
+#include "Controller.h"
 
-#ifndef status_h
-#define status_h
-
-#include "../incl/project_core_config.h"
-
-uint8_t internalStatus = 0;
-
-void setStatusError(const uint8_t status)
+void Controller::setStatusFlag(const uint8_t status, bool error)
 {
-  if ((internalStatus & status) == 0)
-  {
-    uint8_t tStatus = internalStatus + status;
+    if (((internalStatus & status) > 0) != error)
+    {
+        uint8_t tStatus = internalStatus + (error ? -1 : 1) * status;
 #ifdef USE_STATUS_LED
-    notifyStatusLed(tStatus);
+        notifyStatusLed(tStatus);
 #endif
-    internalStatus = tStatus;
-  }
+        internalStatus = tStatus;
+    }
 }
-
-void clearStatusError(const uint8_t status)
-{
-  if ((internalStatus & status) > 0)
-  {
-    uint8_t tStatus = internalStatus - status;
-#ifdef USE_STATUS_LED
-    notifyStatusLed(tStatus);
-#endif
-    internalStatus = tStatus;
-  }
-}
-
-#endif
-*/

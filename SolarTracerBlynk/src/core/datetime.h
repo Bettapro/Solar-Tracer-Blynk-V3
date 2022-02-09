@@ -20,25 +20,16 @@
  */
 
 #pragma once
-#include "../incl/project_config.h"
+
+#ifndef DATETIME_H
+#define DATETIME_H
+
+#include "../incl/project_core_config.h"
 
 #ifdef USE_NTP_SERVER
-void setupDatetimeFromNTP()
-{
-    debugPrint("Waiting for NTP time...");
-    configTzTime(envData.ntpTimezone, envData.ntpServer);
-
-    while (time(nullptr) < 100000ul)
-    {
-        debugPrint(".");
-        delay(500);
-    }
-    debugPrintln("OK");
-}
+void setupDatetimeFromNTP();
 #endif
 
-struct tm *getMyNowTm()
-{
-    time_t tnow = time(nullptr) + 1;
-    return localtime(&tnow);
-}
+struct tm *getMyNowTm();
+
+#endif

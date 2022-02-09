@@ -18,8 +18,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
+//
 #include "src/incl/project_core_config.h"
+#include "src/incl/project_include.h"
+
+#include "src/core/Controller.h"
 #include "src/incl/project_config.h"
 
 // -------------------------------------------------------------------------------
@@ -29,7 +32,7 @@
 void uploadRealtimeAll()
 {
 #if defined USE_BLYNK
-  uploadRealtimeToBlynk();
+  BlynkSync::getInstance().uploadRealtimeToBlynk();
 #endif
 #if defined USE_MQTT
   uploadRealtimeToMqtt();
@@ -38,7 +41,7 @@ void uploadRealtimeAll()
 void uploadStatsAll()
 {
 #if defined USE_BLYNK
-  uploadStatsToBlynk();
+  BlynkSync::getInstance().uploadStatsToBlynk();
 #endif
 #if defined USE_MQTT
   uploadStatsToMqtt();
@@ -61,7 +64,7 @@ void loop()
     else
     {
 #if defined USE_BLYNK
-      blynkConnect();
+      BlynkSync::getInstance().connect();
 #endif
 #if defined USE_MQTT
       mqttConnect();
@@ -73,7 +76,7 @@ void loop()
     Controller::getInstance().setStatusFlag(STATUS_ERR_NO_WIFI_CONNECTION, false);
   }
 #if defined USE_BLYNK
-  blynkLoop();
+  BlynkSync::getInstance().loop();
 #endif
 #if defined USE_MQTT
   mqttLoop();
@@ -90,7 +93,7 @@ void setup()
   BOARD_DEBUG_SERIAL_STREAM.begin(BOARD_DEBUG_SERIAL_STREAM_BAUDRATE);
   debugPrintf(" ++ STARTING TRACER-RS485-MODBUS-BLYNK %s [%d]", PROJECT_VERSION, PROJECT_SUBVERSION);
   debugPrintln();
-  loadEnvData();
+  Environment::loadEnvData();
 
 #if defined(USE_PIN_RESET_CONFIGURATION_TRIGGER)
   pinMode(PIN_RESET_TRIGGER_PIN, INPUT);
@@ -104,7 +107,7 @@ void setup()
     if (readCount == 0)
     {
       debugPrintln(" ++ Reset configuration");
-      resetEnvData();
+      Environment::resetEnvData();
       ESP.restart();
     }
   }
@@ -118,7 +121,7 @@ void setup()
   debugPrintln(" ++ Setting up WIFI:");
 
   WiFi.mode(WIFI_STA);
-  WiFi.begin(envData.wifiSSID, envData.wifiPassword);
+  WiFi.begin(Environment::getData()->wifiSSID, Environment::getData()->wifiPassword);
 
 #if defined(USE_HALL_AP_CONFIGURATION_TRIGGER)
   for (uint8_t readCount = 3; readCount >= 0; readCount--)
@@ -185,13 +188,12 @@ void setup()
 #endif
 #endif
   debugPrintln(" ++ Setting Solar Charge Controller:");
-  Controller controllerInstance = Controller::getInstance();
-  controllerInstance.setup();
+  Controller::getInstance().setup();
   debugPrint("Connection Test: ");
   uint8_t attemptControllerConnectionCount;
   for (attemptControllerConnectionCount = 1; attemptControllerConnectionCount < 4; attemptControllerConnectionCount++)
   {
-    if (controllerInstance.getSolarController()->testConnection())
+    if (Controller::getInstance().getSolarController()->testConnection())
     {
       break;
     }
@@ -205,7 +207,7 @@ void setup()
     debugPrint("OK");
     break;
   case 4:
-    debugPrintf("KO [err=%i]", controllerInstance.getSolarController()->getLastControllerCommunicationStatus());
+    debugPrintf("KO [err=%i]", Controller::getInstance().getSolarController()->getLastControllerCommunicationStatus());
     break;
   default:
     debugPrintf("OK [attempt=%i]", attemptControllerConnectionCount);
@@ -221,7 +223,7 @@ void setup()
   debugPrintln();
 #endif
 #if defined USE_BLYNK
-  blynkSetup();
+  BlynkSync::getInstance().setup();
   debugPrintln("Connected to Blynk.");
 #endif
 #if defined USE_MQTT
@@ -232,11 +234,11 @@ void setup()
   debugPrintln(" ++ Setting up solar tracer:");
 #ifdef SYNC_ST_TIME
   debugPrintln("Synchronize NTP time with controller");
-  controllerInstance.getSolarController()->syncRealtimeClock(getMyNowTm());
+  Controller::getInstance().getSolarController()->syncRealtimeClock(getMyNowTm());
   delay(500);
 #endif
   debugPrintln("Get all values");
-  controllerInstance.getSolarController()->fetchAllValues();
+  Controller::getInstance().getSolarController()->fetchAllValues();
   delay(1000);
   debugPrintln("Send updates to Blynk");
   uploadRealtimeAll();
@@ -246,7 +248,7 @@ void setup()
   debugPrintln("Starting timed actions...");
 
   // periodically refresh tracer values
-  controllerInstance.getMainTimer()->setInterval(CONTROLLER_UPDATE_MS_PERIOD, []()
+  Controller::getInstance().getMainTimer()->setInterval(CONTROLLER_UPDATE_MS_PERIOD, []()
                          {
                            if (Controller::getInstance().getSolarController()->updateRun())
                            {
@@ -261,9 +263,9 @@ void setup()
                            }
                          });
   // periodically send STATS all value to blynk
-  controllerInstance.getMainTimer()->setInterval(SYNC_STATS_MS_PERIOD, uploadStatsAll);
+  Controller::getInstance().getMainTimer()->setInterval(SYNC_STATS_MS_PERIOD, uploadStatsAll);
   // periodically send REALTIME  value to blynk
-  controllerInstance.getMainTimer()->setInterval(SYNC_REALTIME_MS_PERIOD, uploadRealtimeAll);
+  Controller::getInstance().getMainTimer()->setInterval(SYNC_REALTIME_MS_PERIOD, uploadRealtimeAll);
 
   debugPrintln("SETUP OK!");
   debugPrintln("----------------------------");

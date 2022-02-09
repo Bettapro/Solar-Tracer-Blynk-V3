@@ -193,7 +193,7 @@ bool EPEVERSolarTracer::fetchValue(Variable variable)
 }
 
 
-bool EPEVERSolarTracer::writeValue(Variable variable, void *value)
+bool EPEVERSolarTracer::writeValue(Variable variable, const void *value)
 {
   if (!this->isVariableEnabled(variable))
   {

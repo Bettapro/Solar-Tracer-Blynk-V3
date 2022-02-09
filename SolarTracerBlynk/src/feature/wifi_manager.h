@@ -20,10 +20,18 @@
  */
 
 #pragma once
-#include "../incl/project_config.h"
 
-#if !defined(WIFI_MANAGER_H) && defined(USE_WIFI_AP_CONFIGURATION)
+
+#ifndef WIFI_MANAGER_H
 #define WIFI_MANAGER_H
+
+#include "../incl/project_core_config.h"
+
+#ifdef USE_WIFI_AP_CONFIGURATION
+
+#include "../incl/project_include.h"
+#include "../core/debug.h"
+#include "../core/Environment.h"
 
 bool formatLittleFS()
 {
@@ -57,19 +65,19 @@ void startWifiConfigurationAP(bool tryConnection)
   wifiManager.setConfigPortalBlocking(true);
   wifiManager.setDebugOutput(false);
 
-  WiFiManagerParameter custom_wmSSID("wmApSSID", "Access Point SSID", envData.wmApSSID, CONFIG_PERSISTENCE_WM_AP_SSID_LEN);
-  WiFiManagerParameter custom_wmPassword("wmApPassword", "Access Point Password", envData.wmApPassword, CONFIG_PERSISTENCE_WM_AP_PASSWORD_LEN);
+  WiFiManagerParameter custom_wmSSID("wmApSSID", "Access Point SSID", Environment::getData()->wmApSSID, CONFIG_PERSISTENCE_WM_AP_SSID_LEN);
+  WiFiManagerParameter custom_wmPassword("wmApPassword", "Access Point Password", Environment::getData()->wmApPassword, CONFIG_PERSISTENCE_WM_AP_PASSWORD_LEN);
 
 #ifdef USE_BLYNK
-  WiFiManagerParameter custom_BlynkAuth("blynkAuth", "Blynk API key", envData.blynkAuth, CONFIG_PERSISTENCE_BLYNK_AUTH_LEN);
+  WiFiManagerParameter custom_BlynkAuth("blynkAuth", "Blynk API key", Environment::getData()->blynkAuth, CONFIG_PERSISTENCE_BLYNK_AUTH_LEN);
 
   wifiManager.addParameter(&custom_BlynkAuth);
 
 #ifndef USE_BLYNK_2
   WiFiManagerParameter custom_blynkLocalServerText("<p><b>BLYNK LOCAL SERVER ONLY:</b></p>");
 
-  WiFiManagerParameter customBlynkServerHostname("blynkServerHostname", "Blynk Server Hostname", envData.blynkServerHostname, CONFIG_PERSISTENCE_BLYNK_HOSTNAME_LEN);
-  WiFiManagerParameter custom_BlynkServerPort("blynkServerPort", "Blynk Server Port", String(envData.blynkServerPort).c_str(), 5, "type=\"number\" min=\"0\"");
+  WiFiManagerParameter customBlynkServerHostname("blynkServerHostname", "Blynk Server Hostname", Environment::getData()->blynkServerHostname, CONFIG_PERSISTENCE_BLYNK_HOSTNAME_LEN);
+  WiFiManagerParameter custom_BlynkServerPort("blynkServerPort", "Blynk Server Port", String(Environment::getData()->blynkServerPort).c_str(), 5, "type=\"number\" min=\"0\"");
 
   wifiManager.addParameter(&custom_blynkLocalServerText);
   wifiManager.addParameter(&customBlynkServerHostname);
@@ -80,8 +88,8 @@ void startWifiConfigurationAP(bool tryConnection)
 #ifdef USE_OTA_UPDATE
   WiFiManagerParameter customOtaUpdateText("<p><b>OTA UPDATE:</b></p>");
 
-  WiFiManagerParameter customOtaHostname("otaHostname", "OTA Hostname", envData.otaHostname, CONFIG_PERSISTENCE_OTA_HOSTNAME_LEN);
-  WiFiManagerParameter customOtaPassword("otaPassword", "OTA Password", envData.otaPassword, CONFIG_PERSISTENCE_OTA_PASSWORD_LEN);
+  WiFiManagerParameter customOtaHostname("otaHostname", "OTA Hostname", Environment::getData()->otaHostname, CONFIG_PERSISTENCE_OTA_HOSTNAME_LEN);
+  WiFiManagerParameter customOtaPassword("otaPassword", "OTA Password", Environment::getData()->otaPassword, CONFIG_PERSISTENCE_OTA_PASSWORD_LEN);
 
   wifiManager.addParameter(&customOtaUpdateText);
   wifiManager.addParameter(&customOtaHostname);
@@ -91,8 +99,8 @@ void startWifiConfigurationAP(bool tryConnection)
 #ifdef USE_NTP_SERVER
   WiFiManagerParameter customNtpText("<p><b>NTP settings:</b></p>");
 
-  WiFiManagerParameter customNtpServer("ntpServer", "NTP Server", envData.ntpServer, CONFIG_PERSISTENCE_NTP_SERVER_LEN);
-  WiFiManagerParameter customNtpTimezone("ntpTimezone", "Timezone", envData.ntpTimezone, CONFIG_PERSISTENCE_NTP_TIMEZONE_LEN);
+  WiFiManagerParameter customNtpServer("ntpServer", "NTP Server", Environment::getData()->ntpServer, CONFIG_PERSISTENCE_NTP_SERVER_LEN);
+  WiFiManagerParameter customNtpTimezone("ntpTimezone", "Timezone", Environment::getData()->ntpTimezone, CONFIG_PERSISTENCE_NTP_TIMEZONE_LEN);
 
   wifiManager.addParameter(&customNtpText);
   wifiManager.addParameter(&customNtpServer);
@@ -105,32 +113,32 @@ void startWifiConfigurationAP(bool tryConnection)
   wifiManager.addParameter(&custom_wmSSID);
   wifiManager.addParameter(&custom_wmPassword);
 
-  wifiManager.startConfigPortal(envData.wmApSSID, envData.wmApPassword);
+  wifiManager.startConfigPortal(Environment::getData()->wmApSSID, Environment::getData()->wmApPassword);
 
   if (shouldSaveConfig)
   {
     debugPrintln("Saving wifimanager parameters...");
 
-    strcpy(envData.wmApSSID, custom_wmSSID.getValue());
-    strcpy(envData.wmApPassword, custom_wmPassword.getValue());
+    strcpy(Environment::getData()->wmApSSID, custom_wmSSID.getValue());
+    strcpy(Environment::getData()->wmApPassword, custom_wmPassword.getValue());
 
 #ifdef USE_BLYNK
 #ifndef USE_BLYNK_2
-    envData.blynkLocalServer = strlen(customBlynkServerHostname.getValue()) > 0;
-    strcpy(envData.blynkServerHostname, !envData.blynkLocalServer ? "" : customBlynkServerHostname.getValue());
-    envData.blynkServerPort = !envData.blynkLocalServer ? 0 : String(custom_BlynkServerPort.getValue()).toInt();
+    Environment::getData()->blynkLocalServer = strlen(customBlynkServerHostname.getValue()) > 0;
+    strcpy(Environment::getData()->blynkServerHostname, !Environment::getData()->blynkLocalServer ? "" : customBlynkServerHostname.getValue());
+    Environment::getData()->blynkServerPort = !Environment::getData()->blynkLocalServer ? 0 : String(custom_BlynkServerPort.getValue()).toInt();
 #endif
-    strcpy(envData.blynkAuth, custom_BlynkAuth.getValue());
+    strcpy(Environment::getData()->blynkAuth, custom_BlynkAuth.getValue());
 #endif
 
 #ifdef USE_OTA_UPDATE
-    strcpy(envData.otaHostname, customOtaHostname.getValue());
-    strcpy(envData.otaPassword, customOtaPassword.getValue());
+    strcpy(Environment::getData()->otaHostname, customOtaHostname.getValue());
+    strcpy(Environment::getData()->otaPassword, customOtaPassword.getValue());
 #endif
 
 #ifdef USE_NTP_SERVER
-    strcpy(envData.ntpServer, customNtpServer.getValue());
-    strcpy(envData.ntpTimezone, customNtpTimezone.getValue());
+    strcpy(Environment::getData()->ntpServer, customNtpServer.getValue());
+    strcpy(Environment::getData()->ntpTimezone, customNtpTimezone.getValue());
 #endif
 
     // if LittleFS is not usable
@@ -148,25 +156,25 @@ void startWifiConfigurationAP(bool tryConnection)
     doc[CONFIG_PERSISTENCE_WIFI_SSID] = WiFi.SSID();
     doc[CONFIG_PERSISTENCE_WIFI_PASSWORD] = WiFi.psk();
 
-    doc[CONFIG_PERSISTENCE_WM_AP_SSID] = envData.wmApSSID;
-    doc[CONFIG_PERSISTENCE_WM_AP_PASSWORD] = envData.wmApPassword;
+    doc[CONFIG_PERSISTENCE_WM_AP_SSID] = Environment::getData()->wmApSSID;
+    doc[CONFIG_PERSISTENCE_WM_AP_PASSWORD] = Environment::getData()->wmApPassword;
 #ifdef USE_BLYNK
-    doc[CONFIG_PERSISTENCE_BLYNK_AUTH] = envData.blynkAuth;
+    doc[CONFIG_PERSISTENCE_BLYNK_AUTH] = Environment::getData()->blynkAuth;
 #ifndef USE_BLYNK_2
-    doc[CONFIG_PERSISTENCE_BLYNK_IS_LOCAL] = envData.blynkLocalServer;
-    doc[CONFIG_PERSISTENCE_BLYNK_HOSTNAME] = envData.blynkServerHostname;
-    doc[CONFIG_PERSISTENCE_BLYNK_PORT] = envData.blynkServerPort;
+    doc[CONFIG_PERSISTENCE_BLYNK_IS_LOCAL] = Environment::getData()->blynkLocalServer;
+    doc[CONFIG_PERSISTENCE_BLYNK_HOSTNAME] = Environment::getData()->blynkServerHostname;
+    doc[CONFIG_PERSISTENCE_BLYNK_PORT] = Environment::getData()->blynkServerPort;
 #endif
 #endif
 
 #ifdef USE_OTA_UPDATE
-    doc[CONFIG_PERSISTENCE_OTA_HOSTNAME] = envData.otaHostname;
-    doc[CONFIG_PERSISTENCE_OTA_PASSWORD] = envData.otaPassword;
+    doc[CONFIG_PERSISTENCE_OTA_HOSTNAME] = Environment::getData()->otaHostname;
+    doc[CONFIG_PERSISTENCE_OTA_PASSWORD] = Environment::getData()->otaPassword;
 #endif
 
 #ifdef USE_NTP_SERVER
-    doc[CONFIG_PERSISTENCE_NTP_SERVER] = envData.ntpServer;
-    doc[CONFIG_PERSISTENCE_NTP_TIMEZONE] = envData.ntpTimezone;
+    doc[CONFIG_PERSISTENCE_NTP_SERVER] = Environment::getData()->ntpServer;
+    doc[CONFIG_PERSISTENCE_NTP_TIMEZONE] = Environment::getData()->ntpTimezone;
 #endif
 
     File configFile = LittleFS.open(CONFIG_PERSISTENCE, "w");
@@ -185,4 +193,5 @@ void startWifiConfigurationAP(bool tryConnection)
   }
 }
 
+#endif
 #endif

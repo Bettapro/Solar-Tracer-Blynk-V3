@@ -1,6 +1,6 @@
 /**
  * Solar Tracer Blynk V3 [https://github.com/Bettapro/Solar-Tracer-Blynk-V3]
- * Copyright (c) 2021 Alberto Bettin 
+ * Copyright (c) 2021 Alberto Bettin
  *
  * Based on the work of @jaminNZx and @tekk.
  *
@@ -31,39 +31,120 @@ PubSubClient mqttClient(espClient);
 #define RETAIN_ALL_MSG false
 #define MQTT_CONNECT_ATTEMPT 3
 
-void mqttSetup();
-void mqttConnect();
-void mqttLoop();
+void mqttCallback(char *topic, uint8_t *bytes, unsigned int length);
 
-
-char mqttPublishBuffer[20];
-
-void uploadRealtimeToMqtt();
-void uploadStatsToMqtt();
-
-void executeFromMqttFloatWrite(SolarTracerVariables variable, float *value)
+class MqttSync : public BaseSync
 {
-  if (!thisController->writeValue(variable, value))
+public:
+  static MqttSync &getInstance()
   {
-    debugPrintf(" - FAILED! [err=%i]", thisController->getLastControllerCommunicationStatus());
+    static MqttSync instance;
+    return instance;
   }
-  thisController->fetchValue(variable);
-  uploadRealtimeToMqtt();
-}
 
-void executeFromMqttBoolWrite(SolarTracerVariables variable, bool *value)
-{
-  if (!thisController->writeValue(variable, value))
+  void setup()
   {
-    debugPrintf(" - FAILED! [err=%i]", thisController->getLastControllerCommunicationStatus());
-  }
-  thisController->fetchValue(variable);
-  uploadRealtimeToMqtt();
-}
+    mqttClient.setServer(MQTT_SERVER, MQTT_PORT);
+    mqttClient.setCallback(mqttCallback);
 
-#if defined(USE_MQTT_RPC_SUBSCRIBE) || defined(USE_MQTT_JSON_PUBLISH)
-DynamicJsonDocument json(1024);
+    mqttConnect();
+
+#ifdef USE_MQTT_RPC_SUBSCRIBE
+    mqttClient.subscribe(MQTT_RPC_SUBSCRIBE_TOPIC);
 #endif
+#ifdef MQTT_TOPIC_LOAD_ENABLED
+    mqttClient.subscribe(MQTT_TOPIC_LOAD_ENABLED);
+#endif
+#ifdef MQTT_TOPIC_UPDATE_ALL_CONTROLLER_DATA
+    mqttClient.subscribe(MQTT_TOPIC_UPDATE_ALL_CONTROLLER_DATA);
+#endif
+#ifdef MQTT_TOPIC_CHARGE_DEVICE_ENABLED
+    mqttClient.subscribe(MQTT_TOPIC_CHARGE_DEVICE_ENABLED);
+#endif
+  }
+
+  void connect()
+  {
+    debugPrintln(" ++ Setting up MQTT:");
+    debugPrint("Connecting...");
+
+    uint8_t counter = 0;
+
+    while (counter < MQTT_CONNECT_ATTEMPT && !mqttAttemptConnection())
+    {
+      debugPrint(".");
+      delay(500);
+      counter++;
+    }
+  }
+  void loop()
+  {
+    // must call mqttClient.connected() in order to get subscription updates
+    Controller::getInstance().setStatusFlag(STATUS_ERR_NO_MQTT_CONNECTION, !mqttClient.connected());
+    mqttClient.loop();
+  }
+
+  bool isVariableAllowed(const VariableDefinition *def)
+  {
+    return def->mqttTopic != nullptr;
+  }
+
+  bool sendUpdateToVariable(Variable variable, const void *value)
+  {
+
+    const VariableDefinition *def = VariableDefiner::getInstance().getDefinition(variable);
+
+    if (def->blynkVPin != nullptr)
+    {
+
+      switch (def->datatype)
+      {
+      case VariableDatatype::DT_FLOAT:
+      {
+        float currentValue = *(float *)value;
+        if (*cachedUntil <= 0 || (*(float *)cachedValue) != currentValue)
+        {
+          Blynk.virtualWrite(*def->blynkVPin, currentValue);
+          (*(float *)cachedValue) = currentValue;
+          (*cachedUntil) = BLYNK_VALUE_CACHES_UNTIL_COUNT;
+        }
+        (*cachedUntil)--;
+        return true;
+      }
+      break;
+      case VariableDatatype::DT_STRING:
+      {
+        const char *currentValue = (const char *)value;
+        if (*cachedUntil <= 0 || strcmp(currentValue, (const char *)cachedValue) != 0)
+        {
+          Blynk.virtualWrite(*def->blynkVPin, currentValue);
+          strcpy((char *)cachedValue, currentValue);
+          (*cachedUntil) = BLYNK_VALUE_CACHES_UNTIL_COUNT;
+        }
+        (*cachedUntil)--;
+        return true;
+      }
+      }
+      return false;
+    }
+  }
+
+private:
+  boolean mqttAttemptConnection()
+  {
+#ifdef MQTT_PASSWORD
+    return mqttClient.connect(MQTT_CLIENT_ID, MQTT_USERNAME, MQTT_PASSWORD);
+#elif defined MQTT_USERNAME
+    return mqttClient.connect(MQTT_CLIENT_ID, MQTT_USERNAME);
+#else
+    return mqttClient.connect(MQTT_CLIENT_ID);
+#endif
+  }
+
+  MqttSync()
+  {
+  }
+};
 
 void mqttCallback(char *topic, uint8_t *bytes, unsigned int length)
 {
@@ -84,10 +165,8 @@ void mqttCallback(char *topic, uint8_t *bytes, unsigned int length)
 #ifdef MQTT_TOPIC_LOAD_ENABLED
   if (strcmp(MQTT_TOPIC_LOAD_ENABLED, constTopic) == 0)
   {
-    debugPrint("SET NEW VALUE FOR MQTT_TOPIC_LOAD_ENABLED");
     bool newState = payload.toInt() > 0;
-    executeFromMqttBoolWrite(SolarTracerVariables::LOAD_MANUAL_ONOFF, &newState);
-    debugPrintln();
+    MqttSync::getInstance().applyUpdateToVariable(Variable::LOAD_MANUAL_ONOFF, &newState);
     return;
   }
 #endif
@@ -99,7 +178,7 @@ void mqttCallback(char *topic, uint8_t *bytes, unsigned int length)
 
     if (newState > 0)
     {
-      thisController->fetchAllValues();
+      Controller::getInstance().getSolarController()->fetchAllValues();
       uploadRealtimeToMqtt();
       uploadStatsToMqtt();
 
@@ -111,87 +190,42 @@ void mqttCallback(char *topic, uint8_t *bytes, unsigned int length)
 #ifdef MQTT_TOPIC_CHARGE_DEVICE_ENABLED
   if (strcmp(MQTT_TOPIC_CHARGE_DEVICE_ENABLED, constTopic) == 0)
   {
-    debugPrint("SET NEW VALUE FOR MQTT_TOPIC_CHARGE_DEVICE_ENABLED");
     bool newState = payload.toInt() > 0;
-    executeFromMqttBoolWrite(SolarTracerVariables::CHARGING_DEVICE_ONOFF, &newState);
-    debugPrintln();
+    MqttSync::getInstance().applyUpdateToVariable(Variable::CHARGING_DEVICE_ONOFF, &newState);
     return;
   }
 #endif
 
   /*
-  * TODO implementation for:
-  * MQTT_TOPIC_BATTERY_BOOST_VOLTAGE                
-  * MQTT_TOPIC_BATTERY_EQUALIZATION_VOLTAGE             
-  * MQTT_TOPIC_BATTERY_FLOAT_VOLTAGE                   
-  * MQTT_TOPIC_BATTERY_FLOAT_MIN_VOLTAGE                 
-  * MQTT_TOPIC_BATTERY_CHARGING_LIMIT_VOLTAGE            
-  * MQTT_TOPIC_BATTERY_DISCHARGING_LIMIT_VOLTAGE         
-  * MQTT_TOPIC_BATTERY_LOW_VOLTAGE_DISCONNECT           
-  * MQTT_TOPIC_BATTERY_LOW_VOLTAGE_RECONNECT           
-  * MQTT_TOPIC_BATTERY_OVER_VOLTAGE_DISCONNECT          
-  * MQTT_TOPIC_BATTERY_OVER_VOLTAGE_RECONNECT         
-  * MQTT_TOPIC_BATTERY_UNDER_VOLTAGE_RESET              
-  * MQTT_TOPIC_BATTERY_UNDER_VOLTAGE_SET                                     
- */
+   * TODO implementation for:
+   * MQTT_TOPIC_BATTERY_BOOST_VOLTAGE
+   * MQTT_TOPIC_BATTERY_EQUALIZATION_VOLTAGE
+   * MQTT_TOPIC_BATTERY_FLOAT_VOLTAGE
+   * MQTT_TOPIC_BATTERY_FLOAT_MIN_VOLTAGE
+   * MQTT_TOPIC_BATTERY_CHARGING_LIMIT_VOLTAGE
+   * MQTT_TOPIC_BATTERY_DISCHARGING_LIMIT_VOLTAGE
+   * MQTT_TOPIC_BATTERY_LOW_VOLTAGE_DISCONNECT
+   * MQTT_TOPIC_BATTERY_LOW_VOLTAGE_RECONNECT
+   * MQTT_TOPIC_BATTERY_OVER_VOLTAGE_DISCONNECT
+   * MQTT_TOPIC_BATTERY_OVER_VOLTAGE_RECONNECT
+   * MQTT_TOPIC_BATTERY_UNDER_VOLTAGE_RESET
+   * MQTT_TOPIC_BATTERY_UNDER_VOLTAGE_SET
+   */
 }
 
-boolean mqttAttemptConnection()
-{
-#ifdef MQTT_PASSWORD
-  return mqttClient.connect(MQTT_CLIENT_ID, MQTT_USERNAME, MQTT_PASSWORD);
-#elif defined MQTT_USERNAME
-  return mqttClient.connect(MQTT_CLIENT_ID, MQTT_USERNAME);
-#else
-  return mqttClient.connect(MQTT_CLIENT_ID);
+void mqttSetup();
+void mqttConnect();
+void mqttLoop();
+
+char mqttPublishBuffer[20];
+
+void uploadRealtimeToMqtt();
+void uploadStatsToMqtt();
+
+#if defined(USE_MQTT_RPC_SUBSCRIBE) || defined(USE_MQTT_JSON_PUBLISH)
+DynamicJsonDocument json(1024);
 #endif
-}
 
-void mqttSetup()
-{
-  mqttClient.setServer(MQTT_SERVER, MQTT_PORT);
-  mqttClient.setCallback(mqttCallback);
-
-  mqttConnect();
-
-#ifdef USE_MQTT_RPC_SUBSCRIBE
-  mqttClient.subscribe(MQTT_RPC_SUBSCRIBE_TOPIC);
-#endif
-#ifdef MQTT_TOPIC_LOAD_ENABLED
-  mqttClient.subscribe(MQTT_TOPIC_LOAD_ENABLED);
-#endif
-#ifdef MQTT_TOPIC_UPDATE_ALL_CONTROLLER_DATA
-  mqttClient.subscribe(MQTT_TOPIC_UPDATE_ALL_CONTROLLER_DATA);
-#endif
-#ifdef MQTT_TOPIC_CHARGE_DEVICE_ENABLED
-  mqttClient.subscribe(MQTT_TOPIC_CHARGE_DEVICE_ENABLED);
-#endif
-}
-
-void mqttConnect()
-{
-  debugPrintln(" ++ Setting up MQTT:");
-  debugPrint("Connecting...");
-
-  uint8_t counter = 0;
-
-  while (counter < MQTT_CONNECT_ATTEMPT && !mqttAttemptConnection())
-  {
-    debugPrint(".");
-    delay(500);
-    counter++;
-  }
-}
-
-void mqttLoop()
-{
-  // must call mqttClient.connected() in order to get subscription updates
-  if (!mqttClient.connected())
-  {
-    // mqttAttemptConnection();
-  }
-  mqttClient.loop();
-}
 
 bool uploadVariableToMqtt(const mqttSolarVariableMap *varDef)
 {
@@ -306,6 +340,5 @@ void uploadRealtimeToMqtt()
   }
 #endif
 }
-
 
 #endif

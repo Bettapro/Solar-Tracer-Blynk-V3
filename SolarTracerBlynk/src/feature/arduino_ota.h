@@ -21,16 +21,22 @@
 
 #pragma once
 
-#include "../incl/project_config.h"
-
-#if !defined(ARDUINO_OTA_H) && defined(USE_OTA_UPDATE)
+#ifndef ARDUINO_OTA_H
 #define ARDUINO_OTA_H
+
+#include "../incl/project_core_config.h"
+
+#ifdef USE_OTA_UPDATE
+
+#include "../incl/project_include.h"
+#include "../core/debug.h"
+#include "../core/Environment.h"
 
 
 void arduinoOtaSetup()
 {
-    ArduinoOTA.setHostname(envData.otaHostname);
-    ArduinoOTA.setPassword(envData.otaPassword);
+    ArduinoOTA.setHostname(Environment::getData()->otaHostname);
+    ArduinoOTA.setPassword(Environment::getData()->otaPassword);
 
     ArduinoOTA.onStart([]()
                        {
@@ -82,4 +88,5 @@ void arduinoOtaSetup()
     ArduinoOTA.begin();
 }
 
+#endif
 #endif
