@@ -3,6 +3,8 @@
 #include "../incl/include_all_core.h"
 #include "../incl/include_all_lib.h"
 #include "../core/Environment.h"
+#include "../core/datetime.h"
+
 
 // reducing Blynk footprint
 #define BLYNK_NO_BUILTIN // Disable built-in analog & digital pin operations
@@ -161,7 +163,7 @@ BLYNK_WRITE_DEFAULT()
         if (param.asInt() > 0)
         {
           debugPrintln("UPDATE CONTROLLER DATETIME");
-          Controller::getInstance().getSolarController()->syncRealtimeClock(getMyNowTm());
+          Controller::getInstance().getSolarController()->syncRealtimeClock(Datetime::getMyNowTm());
           Blynk.virtualWrite(*def->blynkVPin, 0);
         }
       }

@@ -21,6 +21,7 @@
 //
 #include "src/incl/include_all_core.h"
 #include "src/incl/include_all_lib.h"
+#include "src/core/datetime.h"
 #include "src/core/Controller.h"
 #include "src/incl/include_all_feature.h"
 
@@ -214,9 +215,9 @@ void setup()
 
 #ifdef USE_NTP_SERVER
   debugPrintln(" ++ Setting up Local Time:");
-  setupDatetimeFromNTP();
+  Datetime::setupDatetimeFromNTP();
 
-  struct tm *ti = getMyNowTm();
+  struct tm *ti =  Datetime::getMyNowTm();
   debugPrintf(true, "My NOW is: %i-%02i-%02i %02i:%02i:%02i", ti->tm_year + 1900, ti->tm_mon + 1, ti->tm_mday, ti->tm_hour, ti->tm_min, ti->tm_sec);
 #endif
 #if defined USE_BLYNK
@@ -231,7 +232,7 @@ void setup()
   debugPrintln(" ++ Setting up solar tracer:");
 #ifdef SYNC_ST_TIME
   debugPrintln("Synchronize NTP time with controller");
-  Controller::getInstance().getSolarController()->syncRealtimeClock(getMyNowTm());
+  Controller::getInstance().getSolarController()->syncRealtimeClock(Datetime::getMyNowTm());
   delay(500);
 #endif
   debugPrintln("Get all values");

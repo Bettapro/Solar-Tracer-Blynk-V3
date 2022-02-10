@@ -71,7 +71,6 @@
  * Include only not-external-dependant headers
  */
 #include "../core/debug.h"
-#include "../core/datetime.h" // debug.h
 #include "../core/Text.h"
 #include "../core/VariableDefiner.h"
 

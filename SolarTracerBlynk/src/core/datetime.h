@@ -1,6 +1,6 @@
 /**
  * Solar Tracer Blynk V3 [https://github.com/Bettapro/Solar-Tracer-Blynk-V3]
- * Copyright (c) 2021 Alberto Bettin 
+ * Copyright (c) 2021 Alberto Bettin
  *
  * Based on the work of @jaminNZx and @tekk.
  *
@@ -25,11 +25,31 @@
 #define DATETIME_H
 
 #include "../incl/include_all_core.h"
+#include "../core/Environment.h"
 
+class Datetime
+{
+    public:
 #ifdef USE_NTP_SERVER
-void setupDatetimeFromNTP();
+    static void setupDatetimeFromNTP()
+    {
+        debugPrint("Waiting for NTP time");
+        configTzTime(Environment::getData()->ntpTimezone, Environment::getData()->ntpServer);
+
+        while (time(nullptr) < 100000ul)
+        {
+            debugPrint(Text::dot);
+            delay(500);
+        }
+        debugPrintln(Text::ko);
+    }
 #endif
 
-struct tm *getMyNowTm();
+    static struct tm *getMyNowTm()
+    {
+        time_t tnow = time(nullptr) + 1;
+        return localtime(&tnow);
+    }
+};
 
 #endif
