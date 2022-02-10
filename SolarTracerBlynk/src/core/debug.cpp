@@ -94,13 +94,13 @@ void debugPrint(unsigned char num)
     debugPrint(String(num));
 }
 
-void debugPrintf(const char *format, ...)
+void debugPrintf(bool newLine, const char *format, ...)
 {
     char buffer[256];
 
     va_list args;
     va_start(args, format);
     vsnprintf(buffer, 256, format, args);
-    debugPrint(String(buffer));
+    newLine ? debugPrintln(String(buffer)) : debugPrint(String(buffer));
     va_end(args);
 }

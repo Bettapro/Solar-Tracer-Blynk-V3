@@ -30,6 +30,8 @@ public:
     static constexpr const char* ok = "OK";
     static constexpr const char* ko = "KO";
     static constexpr const char* dot = ".";
+    static constexpr const char* password = "Password";
+    static constexpr const char* errorWithCode = "Error[%i]";
 };
 
 #endif

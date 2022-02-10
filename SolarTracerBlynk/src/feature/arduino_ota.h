@@ -57,11 +57,11 @@ inline void arduinoOtaSetup()
                      { debugPrintln("\nEnd of update"); });
 
     ArduinoOTA.onProgress([](unsigned int progress, unsigned int total)
-                          { debugPrintf("Progress: %u%%\r", (progress / (total / 100))); });
+                          { debugPrintf(false, "Progress: %u%%\r", (progress / (total / 100))); });
 
     ArduinoOTA.onError([](ota_error_t error)
                        {
-                           debugPrintf("Error[%u]: ", error);
+                           debugPrintf(false, "Error[%u]: ", error);
                            if (error == OTA_AUTH_ERROR)
                            {
                                debugPrintln("Auth Failed");

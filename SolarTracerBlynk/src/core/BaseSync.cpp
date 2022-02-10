@@ -38,27 +38,26 @@ void BaseSync::applyUpdateToVariable(Variable variable, const void *value, bool 
             switch (def->datatype)
             {
             case VariableDatatype::DT_FLOAT:
-                debugPrintf("\"%s\" to %.4f", def->text, *(const float *)value);
+                debugPrintf(false, "\"%s\" to %.4f", def->text, *(const float *)value);
                 break;
             case VariableDatatype::DT_BOOL:
-                debugPrintf("\"%s\" to %i", def->text, *(const bool *)value);
+                debugPrintf(false, "\"%s\" to %i", def->text, *(const bool *)value);
                 break;
             case VariableDatatype::DT_STRING:
-                debugPrintf("\"%s\" to \"%s\"", def->text, (const char *)value);
+                debugPrintf(false, "\"%s\" to \"%s\"", def->text, (const char *)value);
                 break;
             }
         }
         if (!solarT->writeValue(variable, value) && !silent)
         {
-            debugPrintf(" - FAILED! [err=%i]", solarT->getLastControllerCommunicationStatus());
-            debugPrintln();
+            debugPrintf(true, Text::errorWithCode, solarT->getLastControllerCommunicationStatus());
         }
     }
 }
 
 static void printDebugWarning(const char *varType, uint8_t count)
 {
-    debugPrintf("WARNING %i %s var. are not ready & synced!\r\n", count, varType);
+    debugPrintf(true, "WARNING %i %s var. are not ready & synced!\r\n", count, varType);
 }
 
 uint8_t BaseSync::sendUpdateAllBySource(VariableSource allowedSource, bool silent)

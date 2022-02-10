@@ -203,23 +203,21 @@ void setup()
   switch (attemptControllerConnectionCount)
   {
   case 1:
-    debugPrint(Text::ok);
+    debugPrintln(Text::ok);
     break;
   case 4:
-    debugPrintf("KO [err=%i]", Controller::getInstance().getSolarController()->getLastControllerCommunicationStatus());
+    debugPrintf(true, Text::errorWithCode, Controller::getInstance().getSolarController()->getLastControllerCommunicationStatus());
     break;
   default:
-    debugPrintf("OK [attempt=%i]", attemptControllerConnectionCount);
+    debugPrintf(true,"OK [attempt=%i]", attemptControllerConnectionCount);
   }
-  debugPrintln();
 
 #ifdef USE_NTP_SERVER
   debugPrintln(" ++ Setting up Local Time:");
   setupDatetimeFromNTP();
 
   struct tm *ti = getMyNowTm();
-  debugPrintf("My NOW is: %i-%02i-%02i %02i:%02i:%02i", ti->tm_year + 1900, ti->tm_mon + 1, ti->tm_mday, ti->tm_hour, ti->tm_min, ti->tm_sec);
-  debugPrintln();
+  debugPrintf(true, "My NOW is: %i-%02i-%02i %02i:%02i:%02i", ti->tm_year + 1900, ti->tm_mon + 1, ti->tm_mday, ti->tm_hour, ti->tm_min, ti->tm_sec);
 #endif
 #if defined USE_BLYNK
   BlynkSync::getInstance().setup();
@@ -249,15 +247,15 @@ void setup()
   // periodically refresh tracer values
   Controller::getInstance().getMainTimer()->setInterval(CONTROLLER_UPDATE_MS_PERIOD, []()
                          {
+                           debugPrint("Update Solar-Tracer ");
                            if (Controller::getInstance().getSolarController()->updateRun())
                            {
-                             debugPrintln("Update Solar-Tracer SUCCESS!");
+                             debugPrintln(Text::ok);
                              Controller::getInstance().setErrorFlag(STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION, false);
                            }
                            else
                            {
-                             debugPrintf("Update Solar-Tracer FAILED! [err=%i]", Controller::getInstance().getSolarController()->getLastControllerCommunicationStatus());
-                             debugPrintln();
+                             debugPrintf(true, Text::errorWithCode, Controller::getInstance().getSolarController()->getLastControllerCommunicationStatus());
                              Controller::getInstance().setErrorFlag(STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION, true);
                            }
                          });

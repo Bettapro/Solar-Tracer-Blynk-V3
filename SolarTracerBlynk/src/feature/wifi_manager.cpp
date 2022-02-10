@@ -35,31 +35,28 @@ void startWifiConfigurationAP(bool tryConnection)
     wifiManager.setConfigPortalBlocking(true);
     wifiManager.setDebugOutput(false);
 
-    WiFiManagerParameter custom_wmSSID("wmApSSID", "Access Point SSID", Environment::getData()->wmApSSID, CONFIG_PERSISTENCE_WM_AP_SSID_LEN);
-    WiFiManagerParameter custom_wmPassword("wmApPassword", "Access Point Password", Environment::getData()->wmApPassword, CONFIG_PERSISTENCE_WM_AP_PASSWORD_LEN);
-
 #ifdef USE_BLYNK
-    WiFiManagerParameter custom_BlynkAuth("blynkAuth", "Blynk API key", Environment::getData()->blynkAuth, CONFIG_PERSISTENCE_BLYNK_AUTH_LEN);
+    WiFiManagerParameter custom_blynkLocalServerText("<p><b>BLYNK:</b></p>");
+    wifiManager.addParameter(&custom_blynkLocalServerText);
 
+    WiFiManagerParameter custom_BlynkAuth(CONFIG_PERSISTENCE_BLYNK_AUTH, "API key", Environment::getData()->blynkAuth, CONFIG_PERSISTENCE_BLYNK_AUTH_LEN);
     wifiManager.addParameter(&custom_BlynkAuth);
 
 #ifndef USE_BLYNK_2
-    WiFiManagerParameter custom_blynkLocalServerText("<p><b>BLYNK LOCAL SERVER ONLY:</b></p>");
 
-    WiFiManagerParameter customBlynkServerHostname("blynkServerHostname", "Blynk Server Hostname", Environment::getData()->blynkServerHostname, CONFIG_PERSISTENCE_BLYNK_HOSTNAME_LEN);
-    WiFiManagerParameter custom_BlynkServerPort("blynkServerPort", "Blynk Server Port", String(Environment::getData()->blynkServerPort).c_str(), 5, "type=\"number\" min=\"0\"");
+    WiFiManagerParameter customBlynkServerHostname(CONFIG_PERSISTENCE_BLYNK_HOSTNAME, "Hostname", Environment::getData()->blynkServerHostname, CONFIG_PERSISTENCE_BLYNK_HOSTNAME_LEN);
+    WiFiManagerParameter custom_BlynkServerPort(CONFIG_PERSISTENCE_BLYNK_PORT, "Port", String(Environment::getData()->blynkServerPort).c_str(), 5, "type=\"number\" min=\"0\"");
 
-    wifiManager.addParameter(&custom_blynkLocalServerText);
     wifiManager.addParameter(&customBlynkServerHostname);
     wifiManager.addParameter(&custom_BlynkServerPort);
 #endif
 #endif
 
 #ifdef USE_OTA_UPDATE
-    WiFiManagerParameter customOtaUpdateText("<p><b>OTA UPDATE:</b></p>");
+    WiFiManagerParameter customOtaUpdateText("<p><b>OTA:</b></p>");
 
-    WiFiManagerParameter customOtaHostname("otaHostname", "OTA Hostname", Environment::getData()->otaHostname, CONFIG_PERSISTENCE_OTA_HOSTNAME_LEN);
-    WiFiManagerParameter customOtaPassword("otaPassword", "OTA Password", Environment::getData()->otaPassword, CONFIG_PERSISTENCE_OTA_PASSWORD_LEN);
+    WiFiManagerParameter customOtaHostname(CONFIG_PERSISTENCE_OTA_HOSTNAME, "Hostname", Environment::getData()->otaHostname, CONFIG_PERSISTENCE_OTA_HOSTNAME_LEN);
+    WiFiManagerParameter customOtaPassword(CONFIG_PERSISTENCE_OTA_PASSWORD, Text::password, Environment::getData()->otaPassword, CONFIG_PERSISTENCE_OTA_PASSWORD_LEN);
 
     wifiManager.addParameter(&customOtaUpdateText);
     wifiManager.addParameter(&customOtaHostname);
@@ -67,17 +64,19 @@ void startWifiConfigurationAP(bool tryConnection)
 #endif
 
 #ifdef USE_NTP_SERVER
-    WiFiManagerParameter customNtpText("<p><b>NTP settings:</b></p>");
+    WiFiManagerParameter customNtpText("<p><b>NTP:</b></p>");
 
-    WiFiManagerParameter customNtpServer("ntpServer", "NTP Server", Environment::getData()->ntpServer, CONFIG_PERSISTENCE_NTP_SERVER_LEN);
-    WiFiManagerParameter customNtpTimezone("ntpTimezone", "Timezone", Environment::getData()->ntpTimezone, CONFIG_PERSISTENCE_NTP_TIMEZONE_LEN);
+    WiFiManagerParameter customNtpServer(CONFIG_PERSISTENCE_NTP_SERVER, "Server", Environment::getData()->ntpServer, CONFIG_PERSISTENCE_NTP_SERVER_LEN);
+    WiFiManagerParameter customNtpTimezone(CONFIG_PERSISTENCE_NTP_TIMEZONE, "Timezone", Environment::getData()->ntpTimezone, CONFIG_PERSISTENCE_NTP_TIMEZONE_LEN);
 
     wifiManager.addParameter(&customNtpText);
     wifiManager.addParameter(&customNtpServer);
     wifiManager.addParameter(&customNtpTimezone);
 #endif
 
-    WiFiManagerParameter custom_wmText("<p><b>CONFIGURATION OVER WIFI:</b></p>");
+    WiFiManagerParameter custom_wmText("<p><b>ACCES POINT:</b></p>");
+    WiFiManagerParameter custom_wmSSID(CONFIG_PERSISTENCE_WM_AP_SSID, "SSID", Environment::getData()->wmApSSID, CONFIG_PERSISTENCE_WM_AP_SSID_LEN);
+    WiFiManagerParameter custom_wmPassword(CONFIG_PERSISTENCE_WM_AP_PASSWORD, Text::password, Environment::getData()->wmApPassword, CONFIG_PERSISTENCE_WM_AP_PASSWORD_LEN);
 
     wifiManager.addParameter(&custom_wmText);
     wifiManager.addParameter(&custom_wmSSID);
@@ -87,7 +86,7 @@ void startWifiConfigurationAP(bool tryConnection)
 
     if (shouldSaveConfig)
     {
-        debugPrintln("Saving wifimanager parameters...");
+        debugPrintln("Saving wifimanager parameters... ");
 
         strcpy(Environment::getData()->wmApSSID, custom_wmSSID.getValue());
         strcpy(Environment::getData()->wmApPassword, custom_wmPassword.getValue());
@@ -114,11 +113,12 @@ void startWifiConfigurationAP(bool tryConnection)
         // if LittleFS is not usable
         if (!LittleFS.begin())
         {
-            debugPrintln("--> Failed to mount file system");
+            debugPrintf(true, Text::errorWithCode, 1);
             if (!formatLittleFS())
             {
-                debugPrintln("--> Failed to format file system - hardware issues!");
+                debugPrintf(true, Text::errorWithCode, 2);
             }
+            return;
         }
 
         DynamicJsonDocument doc(2048);
@@ -158,7 +158,7 @@ void startWifiConfigurationAP(bool tryConnection)
             configFile.flush();
             configFile.close();
             LittleFS.end();
-            debugPrintln("-> SAVED");
+            debugPrintln(Text::ok);
         }
     }
 }

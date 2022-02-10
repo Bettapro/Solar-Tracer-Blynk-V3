@@ -37,6 +37,6 @@ void debugPrintln(int num);
 void debugPrint(int num);
 void debugPrintln(unsigned char num);
 void debugPrint(unsigned char num);
-void debugPrintf(const char *format, ...);
+void debugPrintf(bool newLine, const char *format, ...);
 
 #endif
