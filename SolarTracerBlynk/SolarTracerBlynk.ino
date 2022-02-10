@@ -134,7 +134,7 @@ void setup()
     if (readCount == 0)
     {
       debugPrintln(" ++ Start AP configuration");
-      startWifiConfigurationAP(true);
+      WifiManagerSTB::startWifiConfigurationAP(true);
     }
   }
 #endif
@@ -151,7 +151,7 @@ void setup()
     if (readCount == 0)
     {
       debugPrintln(" ++ Start AP configuration");
-      startWifiConfigurationAP(true);
+      WifiManagerSTB::startWifiConfigurationAP(true);
     }
   }
 #endif
@@ -159,7 +159,7 @@ void setup()
   if (WiFi.waitForConnectResult() != WL_CONNECTED)
   {
 #if defined USE_WIFI_AP_CONFIGURATION
-    startWifiConfigurationAP(false);
+    WifiManagerSTB::startWifiConfigurationAP(false);
     if (!WiFi.isConnected())
     {
       ESP.restart();
