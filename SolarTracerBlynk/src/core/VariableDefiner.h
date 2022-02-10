@@ -24,7 +24,7 @@
 #ifndef VariableDefiner_h
 #define VariableDefiner_h
 
-#include "../incl/project_core_config.h"
+#include "../incl/include_all_core.h"
 
 #ifndef vPIN_PV_POWER
 #define vPIN_PV_POWER_DF nullptr
@@ -349,8 +349,5 @@ private:
 
         VariableDefinition *variables = new VariableDefinition[Variable::VARIABLES_COUNT + 1]();
 };
-
-
-
 
 #endif

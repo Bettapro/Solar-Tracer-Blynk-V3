@@ -24,7 +24,7 @@
 #ifndef DATETIME_H
 #define DATETIME_H
 
-#include "../incl/project_core_config.h"
+#include "../incl/include_all_core.h"
 
 #ifdef USE_NTP_SERVER
 void setupDatetimeFromNTP();

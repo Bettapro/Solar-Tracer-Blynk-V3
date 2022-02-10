@@ -24,18 +24,16 @@
 #ifndef BLYNK_SYNC_H
 #define BLYNK_SYNC_H
 
-#include "../incl/project_core_config.h"
+#include "../incl/include_all_core.h"
 
 #ifdef USE_BLYNK
 
 
 
-#include "../incl/project_include.h"
-#include "BaseSync.h"
-#include "../core/datetime.h"
+#include "../incl/include_all_lib.h"
+#include "../core/BaseSync.h"
 #include "../core/VariableDefiner.h"
 #include "../core/Controller.h"
-#include "../core/debug.h"
 
 #define BLYNK_CONNECT_ATTEMPT 3
 #define BLYNK_VALUE_CACHES_UNTIL_COUNT 5

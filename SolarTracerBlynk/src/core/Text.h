@@ -21,36 +21,15 @@
 
 #pragma once
 
-#ifndef project_config_h
-#define project_config_h
+#ifndef TEXT_H
+#define TEXT_H
 
 
-#if (SOLAR_TRACER_MODEL == EPEVER_SOLAR_TRACER_A | SOLAR_TRACER_MODEL == EPEVER_SOLAR_TRACER_B | SOLAR_TRACER_MODEL == EPEVER_SOLAR_TRACER_TRITON | SOLAR_TRACER_MODEL == EPEVER_SOLAR_TRACER_XTRA)
-#include "../solartracer/epever/epever_config.h"
-#else
-#error This Solar Tracer is not supported.
-#endif
-
-#ifdef USE_STATUS_LED
-#include "../feature/status_led.h"
-#endif
-
-#ifdef USE_OTA_UPDATE
-#include "../feature/arduino_ota.h"
-#endif
-
-#if defined USE_WIFI_AP_CONFIGURATION
-#include "../feature/wifi_manager.h"
-#endif
-
-#if defined USE_BLYNK
-#include "../feature/BlynkSync.h"
-#endif
-#if defined(USE_MQTT) && !defined(USE_MQTT_HOME_ASSISTANT)
-#include "../feature/mqtt_sync.h"
-#endif
-#if defined(USE_MQTT) && defined(USE_MQTT_HOME_ASSISTANT)
-#include "../feature/mqtt_homeassistant_sync.h"
-#endif
+class Text{
+public:
+    static constexpr const char* ok = "OK";
+    static constexpr const char* ko = "KO";
+    static constexpr const char* dot = ".";
+};
 
 #endif

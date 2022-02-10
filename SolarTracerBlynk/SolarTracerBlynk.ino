@@ -19,11 +19,10 @@
  *
  */
 //
-#include "src/incl/project_core_config.h"
-#include "src/incl/project_include.h"
-
+#include "src/incl/include_all_core.h"
+#include "src/incl/include_all_lib.h"
 #include "src/core/Controller.h"
-#include "src/incl/project_config.h"
+#include "src/incl/include_all_feature.h"
 
 // -------------------------------------------------------------------------------
 // MISC
@@ -59,7 +58,7 @@ void loop()
     // cannot trust return value of reconnect()
     if (!WiFi.isConnected())
     {
-      Controller::getInstance().setStatusFlag(STATUS_ERR_NO_WIFI_CONNECTION, true);
+      Controller::getInstance().setErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION, true);
     }
     else
     {
@@ -73,7 +72,7 @@ void loop()
   }
   else
   {
-    Controller::getInstance().setStatusFlag(STATUS_ERR_NO_WIFI_CONNECTION, false);
+    Controller::getInstance().setErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION, false);
   }
 #if defined USE_BLYNK
   BlynkSync::getInstance().loop();
@@ -113,7 +112,7 @@ void setup()
   }
 #endif
 
-  Controller::getInstance().setStatusFlag(STATUS_RUN_BOOTING, true);
+  Controller::getInstance().setErrorFlag(STATUS_RUN_BOOTING, true);
 #ifdef USE_STATUS_LED
   ledSetupStart();
 #endif
@@ -197,14 +196,14 @@ void setup()
     {
       break;
     }
-    debugPrint(".");
+    debugPrint(Text::dot);
     delay(1000);
   }
 
   switch (attemptControllerConnectionCount)
   {
   case 1:
-    debugPrint("OK");
+    debugPrint(Text::ok);
     break;
   case 4:
     debugPrintf("KO [err=%i]", Controller::getInstance().getSolarController()->getLastControllerCommunicationStatus());
@@ -253,13 +252,13 @@ void setup()
                            if (Controller::getInstance().getSolarController()->updateRun())
                            {
                              debugPrintln("Update Solar-Tracer SUCCESS!");
-                             Controller::getInstance().setStatusFlag(STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION, false);
+                             Controller::getInstance().setErrorFlag(STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION, false);
                            }
                            else
                            {
                              debugPrintf("Update Solar-Tracer FAILED! [err=%i]", Controller::getInstance().getSolarController()->getLastControllerCommunicationStatus());
                              debugPrintln();
-                             Controller::getInstance().setStatusFlag(STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION, true);
+                             Controller::getInstance().setErrorFlag(STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION, true);
                            }
                          });
   // periodically send STATS all value to blynk
@@ -271,7 +270,7 @@ void setup()
   debugPrintln("----------------------------");
   debugPrintln();
 
-  Controller::getInstance().setStatusFlag(STATUS_RUN_BOOTING, false);
+  Controller::getInstance().setErrorFlag(STATUS_RUN_BOOTING, false);
 #ifdef USE_STATUS_LED
   ledSetupStop();
 #endif

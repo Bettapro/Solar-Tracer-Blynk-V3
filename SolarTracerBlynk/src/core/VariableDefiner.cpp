@@ -21,12 +21,12 @@
 
 
 #include "VariableDefiner.h"
-#include "../incl/project_core_config.h"
+#include "../incl/include_all_core.h"
 
 
 VariableDefiner::VariableDefiner()
 {
-    this->variables = new VariableDefinition[Variable::VARIABLES_COUNT + 1]();
+    this->variables = new VariableDefinition[Variable::VARIABLES_COUNT]();
 
     this->initializeVariable(Variable::PV_VOLTAGE, "PV voltage", VariableDatatype::DT_FLOAT, VariableUOM::UOM_VOLT, VariableSource::SR_REALTIME, vPIN_PV_VOLTAGE_DF);
     this->initializeVariable(Variable::PV_POWER, "PV power", VariableDatatype::DT_FLOAT, VariableUOM::UOM_WATT, VariableSource::SR_REALTIME, vPIN_PV_POWER_DF);
@@ -203,7 +203,7 @@ const VariableDefinition *VariableDefiner::getDefinitionByBlynkVPin(uint8_t pin)
 {
     for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++)
     {
-        if (*(variables[index].blynkVPin) == pin)
+        if (variables[index].blynkVPin != nullptr && *(variables[index].blynkVPin) == pin)
         {
             return &(variables[index]);
         }

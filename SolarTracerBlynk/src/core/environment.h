@@ -24,8 +24,8 @@
 #ifndef ENVIRONMENT_H
 #define ENVIRONMENT_H
 
-#include "../incl/project_core_config.h"
-#include "../incl/project_include.h"
+#include "../incl/include_all_core.h"
+#include "../incl/include_all_lib.h"
 #include "../core/debug.h"
 
 struct environrmentData
@@ -76,7 +76,7 @@ public:
 private:
     static struct environrmentData envData;
 #ifdef USE_WIFI_AP_CONFIGURATION
-    inline static void loadStringToEnvIfExist(DynamicJsonDocument doc, const char *envKey, char *envValue);
+    static void loadStringToEnvIfExist(DynamicJsonDocument doc, const char *envKey, char *envValue);
 #endif
 };
 

@@ -25,31 +25,26 @@
 #include "../core/VariableDefiner.h"
 #include "../core/Controller.h"
 
-
 void BaseSync::applyUpdateToVariable(Variable variable, const void *value, bool silent)
 {
+    SolarTracer *solarT = Controller::getInstance().getSolarController();
     const VariableDefinition *def = VariableDefiner::getInstance().getDefinition(variable);
     if (def != nullptr)
     {
-        SolarTracer *solarT = Controller::getInstance().getSolarController();
+
         if (!silent)
         {
+            debugPrint("WRITE REQUEST ");
             switch (def->datatype)
             {
             case VariableDatatype::DT_FLOAT:
-            {
-                debugPrintf("WRITE REQUEST : \"%s\" to %.4f", def->text, *(const float *)value);
-            }
+                debugPrintf("\"%s\" to %.4f", def->text, *(const float *)value);
+                break;
             case VariableDatatype::DT_BOOL:
-            {
-                debugPrintf("WRITE REQUEST : \"%s\" to %i", def->text, *(const bool *)value);
-            }
+                debugPrintf("\"%s\" to %i", def->text, *(const bool *)value);
+                break;
             case VariableDatatype::DT_STRING:
-            {
-                debugPrintf("WRITE REQUEST : \"%s\" to \"%s\"", def->text, (const char *)value);
-            }
-            default:
-                debugPrintf("WRITE REQUEST : \"%s\"", def->text);
+                debugPrintf("\"%s\" to \"%s\"", def->text, (const char *)value);
                 break;
             }
         }
@@ -61,13 +56,19 @@ void BaseSync::applyUpdateToVariable(Variable variable, const void *value, bool 
     }
 }
 
+static void printDebugWarning(const char *varType, uint8_t count)
+{
+    debugPrintf("WARNING %i %s var. are not ready & synced!\r\n", count, varType);
+}
+
 uint8_t BaseSync::sendUpdateAllBySource(VariableSource allowedSource, bool silent)
 {
-
+    SolarTracer *solarT = Controller::getInstance().getSolarController();
     uint8_t varNotReady = 0;
     const VariableDefinition *def;
-    int pin;
-    SolarTracer *solarT = Controller::getInstance().getSolarController();
+    const char *sourceText = allowedSource == VariableSource::SR_STATS ? "ST" : "RT";
+    uint8_t sourceFlag = allowedSource == VariableSource::SR_STATS ? STATUS_ERR_SOLAR_TRACER_NO_SYNC_ST : STATUS_ERR_SOLAR_TRACER_NO_SYNC_RT;
+
     for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++)
     {
         def = VariableDefiner::getInstance().getDefinition((Variable)index);
@@ -80,23 +81,11 @@ uint8_t BaseSync::sendUpdateAllBySource(VariableSource allowedSource, bool silen
         }
     }
 
-    switch (allowedSource)
+    if (!silent && varNotReady > 0)
     {
-    case VariableSource::SR_STATS:
-        if (!silent && varNotReady > 0)
-        {
-            debugPrintf("WARNING %i ST var. are not ready & synced!\r\n", varNotReady);
-        }
-        Controller::getInstance().setStatusFlag(STATUS_ERR_SOLAR_TRACER_NO_SYNC_ST, varNotReady > 0);
-        break;
-    case VariableSource::SR_REALTIME:
-        if (!silent && varNotReady > 0)
-        {
-            debugPrintf("WARNING %i RT var. are not ready & synced!\r\n", varNotReady);
-        }
-        Controller::getInstance().setStatusFlag(STATUS_ERR_SOLAR_TRACER_NO_SYNC_RT, varNotReady > 0);
-        break;
+        printDebugWarning(sourceText, varNotReady);
     }
+    Controller::getInstance().setErrorFlag(sourceFlag, varNotReady > 0);
 
     return varNotReady;
 }

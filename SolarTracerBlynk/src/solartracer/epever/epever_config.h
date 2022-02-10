@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "../../incl/project_core_config.h"
+#include "../../incl/include_all_core.h"
 
 #if !defined(USE_SERIAL_STREAM)
 #error You must enable USE_SERIAL_STREAM !

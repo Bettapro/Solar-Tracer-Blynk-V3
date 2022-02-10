@@ -1,22 +1,21 @@
 
 #include "datetime.h"
 
-#include "../incl/project_core_config.h"
-#include "../core/debug.h"
+#include "../incl/include_all_core.h"
 #include "../core/Environment.h" 
 
 #ifdef USE_NTP_SERVER
 void setupDatetimeFromNTP()
 {
-    debugPrint("Waiting for NTP time...");
+    debugPrint("Waiting for NTP time");
     configTzTime(Environment::getData()->ntpTimezone, Environment::getData()->ntpServer);
 
     while (time(nullptr) < 100000ul)
     {
-        debugPrint(".");
+        debugPrint(Text::dot);
         delay(500);
     }
-    debugPrintln("OK");
+    debugPrintln(Text::ko);
 }
 #endif
 

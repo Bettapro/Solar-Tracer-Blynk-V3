@@ -26,13 +26,12 @@
 
 struct SolarTracerVariableDefinition
 {
-  float floatValue;
-  char *textValue;
   /**
    *  byte 0 - enabled
    *  byte 1 - ready
    */
   uint8_t status;
+  void *value;
 };
 
 class SolarTracer

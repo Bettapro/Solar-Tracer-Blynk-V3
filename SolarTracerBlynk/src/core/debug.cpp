@@ -22,10 +22,12 @@
 #include "debug.h"
 #include <stdio.h> // vsnprintf
 
-#include "../incl/project_core_config.h"
+#include "../incl/include_all_core.h"
 
 
 #define DEBUG_REGISTER_CALLBACKS_MAX 2
+
+
 
 uint8_t regCallbacksIndex = 0;
 void (*regCallbacks[DEBUG_REGISTER_CALLBACKS_MAX])(String);
@@ -57,14 +59,14 @@ void debugPrintln()
     debugPrint("\r\n");
 }
 
-void debugPrintln(const String msgString)
+void debugPrintln(String msgString)
 {
     debugPrint(msgString +"\r\n");
 }
 
 void debugPrintln(const char *msgChar)
 {
-    debugPrint(String(msgChar) +"\r\n");
+    debugPrintln(String(msgChar));
 }
 
 void debugPrint(const char *msgChar)
@@ -72,9 +74,9 @@ void debugPrint(const char *msgChar)
     debugPrint(String(msgChar));
 }
 
-void debugPrintln(const int num)
+void debugPrintln(int num)
 {
-    debugPrint(String(num) + "\r\n");
+    debugPrintln(String(num));
 }
 
 void debugPrint(const int num)
@@ -82,12 +84,12 @@ void debugPrint(const int num)
     debugPrint(String(num));
 }
 
-void debugPrintln(const unsigned char num)
+void debugPrintln(unsigned char num)
 {
-    debugPrint(String(num) + "\r\n");
+    debugPrintln(String(num));
 }
 
-void debugPrint(const unsigned char num)
+void debugPrint(unsigned char num)
 {
     debugPrint(String(num));
 }

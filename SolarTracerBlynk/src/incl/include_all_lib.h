@@ -1,10 +1,10 @@
 
 #pragma once 
 
-#ifndef PROJECT_INCLUDE
-#define PROJECT_INCLUDE
+#ifndef INCLUDE_ALL_LIB_H
+#define INCLUDE_ALL_LIB_H
 
-#include "project_core_config.h"
+#include "include_all_core.h"
 
 #if defined ESP32
 #define USE_WIFI_NINA false
@@ -20,10 +20,9 @@
 #error This board is not supported.
 #endif
 
+
 #include <SimpleTimer.h>
-//#define BlynkDebug_h
-//#include <Blynk/BlynkTimer.h>
-//#undef BlynkDebug_h
+
 
 // BLYNK ?!
 

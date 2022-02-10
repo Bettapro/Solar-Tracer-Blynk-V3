@@ -24,7 +24,7 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
-#include "../incl/project_core_config.h"
+#include "../incl/include_all_core.h"
 
 void debugAddRegisterCallback(void (*regCallback)(String));
 void debugDispactMessageRegisterCallback(String msg);
@@ -33,10 +33,10 @@ void debugPrintln();
 void debugPrintln(const String msgString);
 void debugPrintln(const char *msgChar);
 void debugPrint(const char *msgChar);
-void debugPrintln(const int num);
-void debugPrint(const int num);
-void debugPrintln(const unsigned char num);
-void debugPrint(const unsigned char num);
+void debugPrintln(int num);
+void debugPrint(int num);
+void debugPrintln(unsigned char num);
+void debugPrint(unsigned char num);
 void debugPrintf(const char *format, ...);
 
 #endif

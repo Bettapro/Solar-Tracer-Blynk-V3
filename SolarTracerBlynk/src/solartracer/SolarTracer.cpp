@@ -21,6 +21,8 @@
 
 #include "SolarTracer.h"
 
+#include "../core/debug.h"
+
 SolarTracer::SolarTracer()
 {
     this->variableDefine = new SolarTracerVariableDefinition[Variable::VARIABLES_COUNT]();
@@ -30,7 +32,20 @@ SolarTracer::SolarTracer()
         def = VariableDefiner::getInstance().getDefinition((Variable)varIndex);
         if (def->source == VariableSource::SR_STATS || def->source == VariableSource::SR_REALTIME)
         {
-            this->variableDefine[varIndex] = {0, def->datatype == VariableDatatype::DT_STRING ? new char[20] : nullptr, 0};
+            switch (def->datatype)
+            {
+            case VariableDatatype::DT_BOOL:
+                this->variableDefine[varIndex] = {0, malloc(sizeof(bool))};
+                break;
+            case VariableDatatype::DT_FLOAT:
+                this->variableDefine[varIndex] = {0, malloc(sizeof(float))};
+                break;
+            case VariableDatatype::DT_STRING:
+                this->variableDefine[varIndex] = {0, new char[20]};
+                break;
+            default:
+                this->variableDefine[varIndex] = {0, nullptr};
+            }
         }
     }
 }
@@ -39,7 +54,7 @@ void SolarTracer::setVariableEnable(Variable variable, bool enable)
 {
     if (variable < Variable::VARIABLES_COUNT && this->isVariableEnabled(variable) != enable)
     {
-        this->variableDefine[variable].status += (enable ? 1 : -1);
+        this->variableDefine[variable].status += enable ? 1 : -1;
     }
 }
 
@@ -47,7 +62,7 @@ bool SolarTracer::isVariableEnabled(Variable variable)
 {
     if (variable < Variable::VARIABLES_COUNT)
     {
-        return this->variableDefine[variable].status & 1 > 0;
+        return (this->variableDefine[variable].status & 1) > 0;
     }
     return false;
 }
@@ -56,7 +71,7 @@ void SolarTracer::setVariableReadReady(Variable variable, bool enable)
 {
     if (variable < Variable::VARIABLES_COUNT && this->isVariableReadReady(variable) != enable)
     {
-        this->variableDefine[variable].status += (enable ? 1 : -1) * 2;
+        this->variableDefine[variable].status += enable ? 2 : -2;
     }
 }
 
@@ -77,30 +92,14 @@ bool SolarTracer::isVariableReadReady(Variable variable)
 {
     if (variable < Variable::VARIABLES_COUNT)
     {
-        return this->variableDefine[variable].status & 2 > 0;
+        return (this->variableDefine[variable].status & 2) > 0;
     }
     return false;
 }
 
 const void *SolarTracer::getValue(Variable variable)
 {
-    if (!this->isVariableEnabled(variable))
-    {
-        return nullptr;
-    }
-
-    switch (VariableDefiner::getInstance().getDatatype(variable))
-    {
-    case VariableDatatype::DT_STRING:
-        return this->variableDefine[variable].textValue;
-        break;
-    case VariableDatatype::DT_FLOAT:
-        return &(this->variableDefine[variable].floatValue);
-        break;
-    }
-
-    // should raise an exception?
-    return nullptr;
+    return this->isVariableEnabled(variable) ? this->variableDefine[variable].value : nullptr;
 }
 
 bool SolarTracer::setVariableValue(Variable variable, const void *value)
@@ -110,14 +109,15 @@ bool SolarTracer::setVariableValue(Variable variable, const void *value)
     {
         switch (VariableDefiner::getInstance().getDatatype(variable))
         {
+        case VariableDatatype::DT_BOOL:
+            memcpy(this->variableDefine[variable].value, value, sizeof(bool));
+            break;
         case VariableDatatype::DT_FLOAT:
-        {
-            this->variableDefine[variable].floatValue = *(float *)value;
-        }
-        break;
+            memcpy(this->variableDefine[variable].value,  value, sizeof(float));
+            break;
         case VariableDatatype::DT_STRING:
             // should specialize depending on the text
-            strcpy(this->variableDefine[variable].textValue, (const char *)value);
+            strcpy((char*)this->variableDefine[variable].value, (const char *)value);
             break;
         }
     }

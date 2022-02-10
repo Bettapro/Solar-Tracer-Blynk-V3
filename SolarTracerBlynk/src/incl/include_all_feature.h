@@ -21,42 +21,33 @@
 
 #pragma once
 
-#ifndef project_core_config_h
-#define project_core_config_h
+#ifndef INCLUDE_ALL_FEATURE_H
+#define INCLUDE_ALL_FEATURE_H
 
-#define PROJECT_NAME "SolarTracer"
-#define PROJECT_VERSION "v3.0.4"
-#define PROJECT_SUBVERSION 1
-
-
-#include <Arduino.h>
-
-/**
- *  Main defs
- */
-#include "solartracer_all.h"
-#include "communication_protocol_all.h"
-#include "status_all.h"
-#include "config_persistence.h"
-
-
-/**
- * Include user + board + solar tracer configs
- */
-#include "../../config.h"
+#include "include_all_core.h"
 
 
 
-/**
- * Conditional includes depending on the BOARD
- */
-#if defined ESP32
-#include "../board/esp32_config.h"
-#elif defined ESP8266
-#include "../board/esp8266_config.h"
-#else
-#error This board is not supported.
+#ifdef USE_STATUS_LED
+#include "../feature/status_led.h"
 #endif
 
+#ifdef USE_OTA_UPDATE
+#include "../feature/arduino_ota.h"
+#endif
+
+#if defined USE_WIFI_AP_CONFIGURATION
+#include "../feature/wifi_manager.h"
+#endif
+
+#if defined USE_BLYNK
+#include "../feature/BlynkSync.h"
+#endif
+#if defined(USE_MQTT) && !defined(USE_MQTT_HOME_ASSISTANT)
+#include "../feature/mqtt_sync.h"
+#endif
+#if defined(USE_MQTT) && defined(USE_MQTT_HOME_ASSISTANT)
+#include "../feature/mqtt_homeassistant_sync.h"
+#endif
 
 #endif

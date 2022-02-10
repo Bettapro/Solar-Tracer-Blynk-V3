@@ -4,8 +4,6 @@
 
 struct environrmentData Environment::envData;
 
-
-
 void Environment::loadEnvData()
 {
     // default from config.h

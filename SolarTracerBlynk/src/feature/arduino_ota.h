@@ -24,16 +24,15 @@
 #ifndef ARDUINO_OTA_H
 #define ARDUINO_OTA_H
 
-#include "../incl/project_core_config.h"
+#include "../incl/include_all_core.h"
 
 #ifdef USE_OTA_UPDATE
 
-#include "../incl/project_include.h"
-#include "../core/debug.h"
+#include "../incl/include_all_lib.h"
 #include "../core/Environment.h"
 
 
-void arduinoOtaSetup()
+inline void arduinoOtaSetup()
 {
     ArduinoOTA.setHostname(Environment::getData()->otaHostname);
     ArduinoOTA.setPassword(Environment::getData()->otaPassword);

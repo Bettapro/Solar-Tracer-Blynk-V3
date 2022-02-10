@@ -24,7 +24,7 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
-#include "../incl/project_include.h"
+#include "../incl/include_all_feature.h"
 #include "../solartracer/incl/solar_config.h"
 
 class Controller
@@ -38,8 +38,8 @@ public:
 
     void setup()
     {
-        mainTimer = new SimpleTimer();
-        thisController = new SOLAR_TRACER_INSTANCE;
+        this->mainTimer = new SimpleTimer();
+        this->thisController = new SOLAR_TRACER_INSTANCE;
     }
 
     void loop()
@@ -47,9 +47,9 @@ public:
         this->mainTimer->run();
     }
 
-    void setStatusFlag(const uint8_t status, bool error);
+    void setErrorFlag(uint8_t status, bool error);
 
-    inline const uint8_t getStatus();
+    inline uint8_t getStatus();
 
     inline SolarTracer *getSolarController();
 
@@ -62,7 +62,7 @@ private:
 };
 
 
-const uint8_t Controller::getStatus()
+uint8_t Controller::getStatus()
 {
     return this->internalStatus;
 }
