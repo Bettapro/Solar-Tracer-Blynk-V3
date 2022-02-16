@@ -55,10 +55,6 @@ void BaseSync::applyUpdateToVariable(Variable variable, const void *value, bool 
     }
 }
 
-static void printDebugWarning(const char *varType, uint8_t count)
-{
-    debugPrintf(true, "WARNING %i %s var. are not ready & synced!\r\n", count, varType);
-}
 
 uint8_t BaseSync::sendUpdateAllBySource(VariableSource allowedSource, bool silent)
 {
@@ -75,6 +71,7 @@ uint8_t BaseSync::sendUpdateAllBySource(VariableSource allowedSource, bool silen
         {
             if (!solarT->isVariableReadReady(def->variable) || !this->sendUpdateToVariable(def->variable, solarT->getValue(def->variable)))
             {
+                debugPrintf(true, "%s not synced", def->text);
                 varNotReady++;
             }
         }
@@ -82,7 +79,7 @@ uint8_t BaseSync::sendUpdateAllBySource(VariableSource allowedSource, bool silen
 
     if (!silent && varNotReady > 0)
     {
-        printDebugWarning(sourceText, varNotReady);
+        debugPrintf(true, Text::syncErrorWithCountAndType, varNotReady, sourceText);
     }
     Controller::getInstance().setErrorFlag(sourceFlag, varNotReady > 0);
 

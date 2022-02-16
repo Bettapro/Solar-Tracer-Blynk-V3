@@ -47,7 +47,8 @@
 #include "../feature/mqtt_sync.h"
 #endif
 #if defined(USE_MQTT) && defined(USE_MQTT_HOME_ASSISTANT)
-#include "../feature/mqtt_homeassistant_sync.h"
+//#include "../feature/mqtt_homeassistant_sync.h"
+#include "../feature/MqttHASync.h"
 #endif
 
 #endif

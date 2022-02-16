@@ -35,7 +35,7 @@ void uploadRealtimeAll()
   BlynkSync::getInstance().uploadRealtimeToBlynk();
 #endif
 #if defined USE_MQTT
-  uploadRealtimeToMqtt();
+  MqttHASync::getInstance().uploadRealtimeToMqtt();
 #endif
 }
 void uploadStatsAll()
@@ -44,7 +44,7 @@ void uploadStatsAll()
   BlynkSync::getInstance().uploadStatsToBlynk();
 #endif
 #if defined USE_MQTT
-  uploadStatsToMqtt();
+  MqttHASync::getInstance().uploadStatsToMqtt();
 #endif
 }
 
@@ -67,7 +67,7 @@ void loop()
       BlynkSync::getInstance().connect();
 #endif
 #if defined USE_MQTT
-      mqttConnect();
+      MqttHASync::getInstance().connect();
 #endif
     }
   }
@@ -79,7 +79,7 @@ void loop()
   BlynkSync::getInstance().loop();
 #endif
 #if defined USE_MQTT
-  mqttLoop();
+  MqttHASync::getInstance().loop();
 #endif
 
 #ifdef USE_OTA_UPDATE
@@ -118,7 +118,7 @@ void setup()
   ledSetupStart();
 #endif
 
-  debugPrintln(" ++ Setting up WIFI:");
+  debugPrintf(true, Text::setupWithName, "WIFI");
 
   WiFi.mode(WIFI_STA);
   WiFi.begin(Environment::getData()->wifiSSID, Environment::getData()->wifiPassword);
@@ -176,8 +176,9 @@ void setup()
   debugPrintln(WiFi.localIP().toString());
 
 #ifdef USE_OTA_UPDATE
+  debugPrintf(true, Text::setupWithName, "ArduinoOTA");
   arduinoOtaSetup();
-  debugPrintln("ArduinoOTA is running. ");
+  debugPrintln(Text::ok);
 #endif
 
 #ifdef USE_SERIAL_STREAM
@@ -187,7 +188,7 @@ void setup()
   BOARD_ST_SERIAL_STREAM.begin(BOARD_ST_SERIAL_STREAM_BAUDRATE);
 #endif
 #endif
-  debugPrintln(" ++ Setting Solar Charge Controller:");
+  debugPrintf(true, Text::setupWithName, "Solar Charge Controller");
   Controller::getInstance().setup();
   debugPrint("Connection Test: ");
   uint8_t attemptControllerConnectionCount;
@@ -214,7 +215,7 @@ void setup()
   }
 
 #ifdef USE_NTP_SERVER
-  debugPrintln(" ++ Setting up Local Time:");
+  debugPrintf(true, Text::setupWithName, "Local Time");
   Datetime::setupDatetimeFromNTP();
 
   struct tm *ti =  Datetime::getMyNowTm();
@@ -222,14 +223,12 @@ void setup()
 #endif
 #if defined USE_BLYNK
   BlynkSync::getInstance().setup();
-  debugPrintln("Connected to Blynk.");
 #endif
 #if defined USE_MQTT
-  mqttSetup();
-  debugPrintln("Connected to MQTT.");
+  MqttHASync::getInstance().setup();
 #endif
 
-  debugPrintln(" ++ Setting up solar tracer:");
+  debugPrintf(true, Text::setupWithName, "Solar controller");
 #ifdef SYNC_ST_TIME
   debugPrintln("Synchronize NTP time with controller");
   Controller::getInstance().getSolarController()->syncRealtimeClock(Datetime::getMyNowTm());
@@ -238,12 +237,10 @@ void setup()
   debugPrintln("Get all values");
   Controller::getInstance().getSolarController()->fetchAllValues();
   delay(1000);
-  debugPrintln("Send updates to Blynk");
+  debugPrintln("Sync all values");
   uploadRealtimeAll();
   uploadStatsAll();
   delay(1000);
-
-  debugPrintln("Starting timed actions...");
 
   // periodically refresh tracer values
   Controller::getInstance().getMainTimer()->setInterval(CONTROLLER_UPDATE_MS_PERIOD, []()

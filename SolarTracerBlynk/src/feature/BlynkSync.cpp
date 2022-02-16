@@ -1,10 +1,12 @@
 #include "BlynkSync.h"
 
 #include "../incl/include_all_core.h"
+
+#ifdef USE_BLYNK
+
 #include "../incl/include_all_lib.h"
 #include "../core/Environment.h"
 #include "../core/datetime.h"
-
 
 // reducing Blynk footprint
 #define BLYNK_NO_BUILTIN // Disable built-in analog & digital pin operations
@@ -22,11 +24,13 @@ BlynkSync::BlynkSync()
   for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++)
   {
     this->blynkValuesCacheValid[index] = 0;
-
     switch (VariableDefiner::getInstance().getDatatype((Variable)index))
     {
     case VariableDatatype::DT_FLOAT:
       this->blynkValuesCache[index] = malloc(sizeof(float));
+      break;
+    case VariableDatatype::DT_BOOL:
+      this->blynkValuesCache[index] = malloc(sizeof(bool));
       break;
     case VariableDatatype::DT_STRING:
       this->blynkValuesCache[index] = new char[BLYNK_VALUE_CACHES_STRING_LEN];
@@ -41,13 +45,12 @@ void BlynkSync::setup()
 #ifdef vPIN_INTERNAL_DEBUG_TERMINAL
   debugAddRegisterCallback(blynkDebugCallback);
 #endif
-  debugPrintln("Solar Tracer START\r\n");
 }
 
 void BlynkSync::connect()
 {
-  debugPrintln(" ++ Setting up Blynk:");
-  debugPrint("Connecting...");
+  debugPrintf(true, Text::setupWithName, "BLYNK");
+  debugPrint(Text::connecting);
 
 #ifdef USE_BLYNK_2
   Blynk.config(Environment::getData()->blynkAuth);
@@ -66,8 +69,9 @@ void BlynkSync::connect()
 
   while (counter < BLYNK_CONNECT_ATTEMPT && !Blynk.connect())
   {
-    debugPrint(Text::dot);
     delay(500);
+    debugPrint(Text::dot);
+
 #ifndef BLYNK_CONNECTION_REQUIRED
     counter++;
 #endif
@@ -93,6 +97,19 @@ bool BlynkSync::sendUpdateToVariable(Variable variable, const void *value)
   {
     switch (def->datatype)
     {
+    case VariableDatatype::DT_BOOL:
+    {
+      bool currentValue = *(bool *)value;
+      if (*cachedUntil <= 0 || (*(bool *)cachedValue) != currentValue)
+      {
+        Blynk.virtualWrite(*def->blynkVPin, currentValue);
+        (*(bool *)cachedValue) = currentValue;
+        (*cachedUntil) = BLYNK_VALUE_CACHES_UNTIL_COUNT;
+      }
+      (*cachedUntil)--;
+      return true;
+    }
+    break;
     case VariableDatatype::DT_FLOAT:
     {
       float currentValue = *(float *)value;
@@ -202,3 +219,5 @@ BLYNK_WRITE_DEFAULT()
     }
   }
 }
+
+#endif

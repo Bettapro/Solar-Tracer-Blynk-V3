@@ -1,6 +1,6 @@
 /**
  * Solar Tracer Blynk V3 [https://github.com/Bettapro/Solar-Tracer-Blynk-V3]
- * Copyright (c) 2021 Alberto Bettin 
+ * Copyright (c) 2021 Alberto Bettin
  *
  * Based on the work of @jaminNZx and @tekk.
  *
@@ -20,10 +20,12 @@
  */
 
 #pragma once
-#include "../incl/project_config.h"
+#include "../incl/include_all_core.h"
 
-#if ! defined(MQTT_HOMEASSISTANT_SYNC_H) && defined(USE_MQTT_HOME_ASSISTANT)
+#if !defined(MQTT_HOMEASSISTANT_SYNC_H) && defined(USE_MQTT_HOME_ASSISTANT_OLD)
 #define MQTT_HOMEASSISTANT_SYNC_H
+
+#include "../incl/include_all_lib.h"
 
 WiFiClient wifiClient;
 
@@ -91,7 +93,7 @@ void mqttSetup()
     device->setName(MQTT_HOME_ASSISTANT_DEVICE_NAME);
     device->setSoftwareVersion(PROJECT_VERSION);
 
-    //mqttClient.setCallback(mqttCallback);
+    // mqttClient.setCallback(mqttCallback);
 
     for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++)
     {
@@ -134,17 +136,19 @@ void mqttSetup()
 
 void mqttConnect()
 {
-    debugPrintln(" ++ Setting up MQTT:");
-    debugPrint("Connecting...");
+    debugPrintf(true, Text::setupWithName, "MQTT-HA");
+    debugPrint(Text::connecting);
 
     uint8_t counter = 0;
 
     while (!mqttAttemptConnection())
     {
-        debugPrint(".");
+        debugPrint(Text::dot);
         delay(500);
         counter++;
     }
+
+    debugPrintln(mqtt->isConnected() ? Text::ok : Text::ko);
 }
 
 void mqttLoop()
@@ -215,13 +219,12 @@ void uploadRealtimeToMqtt()
     if (uploadFailedCount > 0)
     {
         debugPrintln("Some ST variables are not ready and not synced!");
-        setStatusError(STATUS_ERR_SOLAR_TRACER_NO_SYNC_ST);
+        Controller::getInstance().setErrorFlag(STATUS_ERR_SOLAR_TRACER_NO_SYNC_ST, );
     }
     else
     {
         clearStatusError(STATUS_ERR_SOLAR_TRACER_NO_SYNC_ST);
     }
 }
-
 
 #endif

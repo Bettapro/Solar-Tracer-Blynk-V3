@@ -51,7 +51,7 @@ public:
 
   bool isVariableReadReady(Variable variable);
 
-  const void *getValue(Variable variable);
+  virtual const void *getValue(Variable variable);
 
   /**
    * Return last status code, 0 means the controller is responding to requests correctly.
@@ -73,7 +73,7 @@ protected:
   uint16_t lastControllerCommunicationStatus;
 
 private:
-  SolarTracerVariableDefinition *variableDefine;
+  SolarTracerVariableDefinition **variableDefine;
 };
 
 inline const uint16_t SolarTracer::getLastControllerCommunicationStatus()

@@ -21,35 +21,44 @@
 
 #pragma once
 
-#ifndef DATETIME_H
-#define DATETIME_H
-
 #include "../incl/include_all_core.h"
-#include "../core/Environment.h"
 
-class Datetime
+#ifdef USE_MQTT_HOME_ASSISTANT
+
+#include "../incl/include_all_lib.h"
+#include "../core/BaseSync.h"
+#include "../core/VariableDefiner.h"
+#include "../core/Controller.h"
+
+class MqttHASync : public BaseSync
 {
-    public:
-#ifdef USE_NTP_SERVER
-    static void setupDatetimeFromNTP()
+public:
+    static MqttHASync &getInstance()
     {
-        debugPrint(Text::connecting);
-        configTzTime(Environment::getData()->ntpTimezone, Environment::getData()->ntpServer);
-
-        while (time(nullptr) < 100000ul)
-        {
-            debugPrint(Text::dot);
-            delay(500);
-        }
-        debugPrintln(Text::ok);
+        static MqttHASync instance;
+        return instance;
     }
-#endif
 
-    static struct tm *getMyNowTm()
-    {
-        time_t tnow = time(nullptr) + 1;
-        return localtime(&tnow);
-    }
+    void setup();
+    void connect();
+    void loop();
+    inline bool isVariableAllowed(const VariableDefinition *def);
+    bool sendUpdateToVariable(Variable variable, const void *value);
+    // upload values stats
+    void uploadStatsToMqtt();
+    // upload values realtime
+    void uploadRealtimeToMqtt();
+
+private:
+    MqttHASync();
+
+    bool attemptMqttHASyncConnect();
+
+    HADevice *device;
+    HAMqtt *mqtt;
+    HASensor *haSensors[Variable::VARIABLES_COUNT];
+
+    bool initialized;
 };
 
 #endif
