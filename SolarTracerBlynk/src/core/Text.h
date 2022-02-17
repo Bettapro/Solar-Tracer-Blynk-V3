@@ -34,7 +34,8 @@ public:
     static constexpr const char* connecting = "Connecting ";
     static constexpr const char* setupWithName = "++ SETTING UP %s";
     static constexpr const char* errorWithCode = "Error[%i]";
-    static constexpr const char* syncErrorWithCountAndType = "WARNING %i %s var. are not ready & synced";
+    static constexpr const char* syncErrorWithCountAndType = "WARNING %i %s var. are not synced";
+    static constexpr const char* syncErrorWithVariable = "WARNING \"%s\" is not synced";
 };
 
 #endif

@@ -37,6 +37,8 @@
 //#define BOARD_DEBUG_SERIAL_STREAM Serial
 // set accordingly: monitor_speed in platformio.ini
 //#define BOARD_DEBUG_SERIAL_STREAM_BAUDRATE 115200
+// debug will print a warning line for each un-synced variable
+//#define USE_DEBUG_SERIAL_VERBOSE_SYNC_ERROR_VARIABLE 
 
 /**
  * STATUS
@@ -254,7 +256,7 @@
   #define vPIN_MAX_PV_VOLTAGE_TODAY                       43
   // internal
   #define vPIN_INTERNAL_STATUS                            27
-  //#define vPIN_INTERNAL_DEBUG_TERMINAL                    44
+  #define vPIN_INTERNAL_DEBUG_TERMINAL                    44
   //action
   #define vPIN_UPDATE_ALL_CONTROLLER_DATA                 28
   #define vPIN_UPDATE_CONTROLLER_DATETIME                 45

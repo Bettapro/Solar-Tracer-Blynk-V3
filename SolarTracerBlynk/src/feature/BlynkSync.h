@@ -28,8 +28,6 @@
 
 #ifdef USE_BLYNK
 
-
-
 #include "../incl/include_all_lib.h"
 #include "../core/BaseSync.h"
 #include "../core/VariableDefiner.h"
@@ -69,17 +67,10 @@ private:
   uint8_t blynkValuesCacheValid[Variable::VARIABLES_COUNT];
 };
 
-#ifdef vPIN_INTERNAL_DEBUG_TERMINAL
-void blynkDebugCallback(String message)
+bool BlynkSync::isVariableAllowed(const VariableDefinition *def)
 {
-  BlynkSync::getInstance().sendUpdateToVariable(Variable::INTERNAL_DEBUG, message.c_str());
+  return def->blynkVPin != nullptr;
 }
-#endif
-
-  bool BlynkSync::isVariableAllowed(const VariableDefinition *def)
-  {
-    return def->blynkVPin != nullptr;
-  }
 
 #endif
 #endif

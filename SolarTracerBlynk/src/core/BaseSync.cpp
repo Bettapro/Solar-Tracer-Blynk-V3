@@ -55,7 +55,6 @@ void BaseSync::applyUpdateToVariable(Variable variable, const void *value, bool 
     }
 }
 
-
 uint8_t BaseSync::sendUpdateAllBySource(VariableSource allowedSource, bool silent)
 {
     SolarTracer *solarT = Controller::getInstance().getSolarController();
@@ -71,7 +70,9 @@ uint8_t BaseSync::sendUpdateAllBySource(VariableSource allowedSource, bool silen
         {
             if (!solarT->isVariableReadReady(def->variable) || !this->sendUpdateToVariable(def->variable, solarT->getValue(def->variable)))
             {
-                debugPrintf(true, "%s not synced", def->text);
+#ifdef USE_DEBUG_SERIAL_VERBOSE_SYNC_ERROR_VARIABLE
+                debugPrintf(true, Text::syncErrorWithVariable, def->text);
+#endif
                 varNotReady++;
             }
         }

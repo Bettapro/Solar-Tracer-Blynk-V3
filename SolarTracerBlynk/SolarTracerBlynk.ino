@@ -102,8 +102,7 @@ void loop()
 void setup()
 {
   BOARD_DEBUG_SERIAL_STREAM.begin(BOARD_DEBUG_SERIAL_STREAM_BAUDRATE);
-  debugPrintf(" ++ STARTING TRACER-RS485-MODBUS-BLYNK %s [%d]", PROJECT_VERSION, PROJECT_SUBVERSION);
-  debugPrintln();
+  debugPrintf(true, " ++ STARTING %s %s [%d]", PROJECT_NAME, PROJECT_VERSION, PROJECT_SUBVERSION);
   Environment::loadEnvData();
 
 #if defined(USE_PIN_RESET_CONFIGURATION_TRIGGER)
@@ -275,9 +274,7 @@ void setup()
   // periodically send REALTIME  value to blynk
   Controller::getInstance().getMainTimer()->setInterval(SYNC_REALTIME_MS_PERIOD, uploadRealtimeAll);
 
-  debugPrintln("SETUP OK!");
-  debugPrintln("----------------------------");
-  debugPrintln();
+  debugPrintln("\r\n\r\n");
 
   Controller::getInstance().setErrorFlag(STATUS_RUN_BOOTING, false);
 #ifdef USE_STATUS_LED

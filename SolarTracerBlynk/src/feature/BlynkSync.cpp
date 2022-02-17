@@ -19,6 +19,13 @@
 #endif
 #endif
 
+#ifdef vPIN_INTERNAL_DEBUG_TERMINAL
+void blynkDebugCallback(String message)
+{
+  Blynk.virtualWrite(vPIN_INTERNAL_DEBUG_TERMINAL, message);
+}
+#endif
+
 BlynkSync::BlynkSync()
 {
   for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++)
