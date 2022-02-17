@@ -26,7 +26,7 @@
 
 #define PROJECT_NAME "SolarTracer"
 #define PROJECT_VERSION "v3.0.4"
-#define PROJECT_SUBVERSION 1
+#define PROJECT_SUBVERSION 2
 
 
 #include <Arduino.h>
