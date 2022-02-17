@@ -38,19 +38,22 @@ void BaseSync::applyUpdateToVariable(Variable variable, const void *value, bool 
             switch (def->datatype)
             {
             case VariableDatatype::DT_FLOAT:
-                debugPrintf(false, "\"%s\" to %.4f", def->text, *(const float *)value);
+                debugPrintf(false, "\"%s\" to %.4f ", def->text, *(const float *)value);
                 break;
             case VariableDatatype::DT_BOOL:
-                debugPrintf(false, "\"%s\" to %i", def->text, *(const bool *)value);
+                debugPrintf(false, "\"%s\" to %i ", def->text, *(const bool *)value);
                 break;
             case VariableDatatype::DT_STRING:
-                debugPrintf(false, "\"%s\" to \"%s\"", def->text, (const char *)value);
+                debugPrintf(false, "\"%s\" to \"%s\" ", def->text, (const char *)value);
                 break;
             }
         }
         if (!solarT->writeValue(variable, value) && !silent)
         {
             debugPrintf(true, Text::errorWithCode, solarT->getLastControllerCommunicationStatus());
+        }
+        else{
+            debugPrintln(Text::ok);
         }
     }
 }
