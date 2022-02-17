@@ -44,10 +44,9 @@
 #include "../feature/BlynkSync.h"
 #endif
 #if defined(USE_MQTT) && !defined(USE_MQTT_HOME_ASSISTANT)
-#include "../feature/mqtt_sync.h"
+#include "../feature/MqttSync.h"
 #endif
 #if defined(USE_MQTT) && defined(USE_MQTT_HOME_ASSISTANT)
-//#include "../feature/mqtt_homeassistant_sync.h"
 #include "../feature/MqttHASync.h"
 #endif
 

@@ -39,6 +39,12 @@ typedef enum
 
 typedef enum
 {
+        MD_READ,
+        MD_READWRITE
+} VariableMode;
+
+typedef enum
+{
         DT_UNDEFINED,
         DT_STRING,
         DT_FLOAT,
@@ -116,6 +122,7 @@ struct VariableDefinition
         VariableDatatype datatype;
         VariableUOM uom;
         VariableSource source;
+        VariableMode mode;
         const uint8_t *blynkVPin;
         const char *mqttTopic;
 };
@@ -133,6 +140,9 @@ public:
 
         const VariableDefinition *getDefinitionByBlynkVPin(uint8_t pin);
 
+        const VariableDefinition *getDefinitionByMqttTopic(const char* mqttTopic);
+
+
         VariableDatatype getDatatype(Variable variable);
 
         bool isFromScc(const Variable variable)
@@ -143,7 +153,7 @@ public:
 private:
         VariableDefiner();
 
-        void initializeVariable(Variable variable, const char *text, VariableDatatype datatype, VariableUOM uom, VariableSource source, uint8_t *blynkPin, const char* mqttTopic);
+        void initializeVariable(Variable variable, const char *text, VariableDatatype datatype, VariableUOM uom, VariableSource source, VariableMode mode, uint8_t *blynkPin, const char* mqttTopic);
 
         VariableDefinition *variables = new VariableDefinition[Variable::VARIABLES_COUNT]();
 };

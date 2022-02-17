@@ -1,6 +1,6 @@
 /**
  * Solar Tracer Blynk V3 [https://github.com/Bettapro/Solar-Tracer-Blynk-V3]
- * Copyright (c) 2021 Alberto Bettin 
+ * Copyright (c) 2021 Alberto Bettin
  *
  * Based on the work of @jaminNZx and @tekk.
  *
@@ -28,13 +28,15 @@
 // -------------------------------------------------------------------------------
 // MISC
 
-
 void uploadRealtimeAll()
 {
 #if defined USE_BLYNK
   BlynkSync::getInstance().uploadRealtimeToBlynk();
 #endif
-#if defined USE_MQTT
+#if defined USE_MQTT && !defined USE_MQTT_HOME_ASSISTANT
+  MqttSync::getInstance().uploadRealtimeToMqtt();
+#endif
+#if defined USE_MQTT_HOME_ASSISTANT
   MqttHASync::getInstance().uploadRealtimeToMqtt();
 #endif
 }
@@ -43,7 +45,10 @@ void uploadStatsAll()
 #if defined USE_BLYNK
   BlynkSync::getInstance().uploadStatsToBlynk();
 #endif
-#if defined USE_MQTT
+#if defined USE_MQTT && !defined USE_MQTT_HOME_ASSISTANT
+  MqttSync::getInstance().uploadStatsToMqtt();
+#endif
+#if defined USE_MQTT_HOME_ASSISTANT
   MqttHASync::getInstance().uploadStatsToMqtt();
 #endif
 }
@@ -66,7 +71,10 @@ void loop()
 #if defined USE_BLYNK
       BlynkSync::getInstance().connect();
 #endif
-#if defined USE_MQTT
+#if defined USE_MQTT && !defined USE_MQTT_HOME_ASSISTANT
+      MqttSync::getInstance().connect();
+#endif
+#if defined USE_MQTT_HOME_ASSISTANT
       MqttHASync::getInstance().connect();
 #endif
     }
@@ -78,7 +86,10 @@ void loop()
 #if defined USE_BLYNK
   BlynkSync::getInstance().loop();
 #endif
-#if defined USE_MQTT
+#if defined USE_MQTT && !defined USE_MQTT_HOME_ASSISTANT
+  MqttSync::getInstance().loop();
+#endif
+#if defined USE_MQTT_HOME_ASSISTANT
   MqttHASync::getInstance().loop();
 #endif
 
@@ -211,20 +222,23 @@ void setup()
     debugPrintf(true, Text::errorWithCode, Controller::getInstance().getSolarController()->getLastControllerCommunicationStatus());
     break;
   default:
-    debugPrintf(true,"OK [attempt=%i]", attemptControllerConnectionCount);
+    debugPrintf(true, "OK [attempt=%i]", attemptControllerConnectionCount);
   }
 
 #ifdef USE_NTP_SERVER
   debugPrintf(true, Text::setupWithName, "Local Time");
   Datetime::setupDatetimeFromNTP();
 
-  struct tm *ti =  Datetime::getMyNowTm();
+  struct tm *ti = Datetime::getMyNowTm();
   debugPrintf(true, "My NOW is: %i-%02i-%02i %02i:%02i:%02i", ti->tm_year + 1900, ti->tm_mon + 1, ti->tm_mday, ti->tm_hour, ti->tm_min, ti->tm_sec);
 #endif
 #if defined USE_BLYNK
   BlynkSync::getInstance().setup();
 #endif
-#if defined USE_MQTT
+#if defined USE_MQTT && !defined USE_MQTT_HOME_ASSISTANT
+  MqttSync::getInstance().setup();
+#endif
+#if defined USE_MQTT_HOME_ASSISTANT
   MqttHASync::getInstance().setup();
 #endif
 
@@ -244,7 +258,7 @@ void setup()
 
   // periodically refresh tracer values
   Controller::getInstance().getMainTimer()->setInterval(CONTROLLER_UPDATE_MS_PERIOD, []()
-                         {
+                                                        {
                            debugPrint("Update Solar-Tracer ");
                            if (Controller::getInstance().getSolarController()->updateRun())
                            {
@@ -255,8 +269,7 @@ void setup()
                            {
                              debugPrintf(true, Text::errorWithCode, Controller::getInstance().getSolarController()->getLastControllerCommunicationStatus());
                              Controller::getInstance().setErrorFlag(STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION, true);
-                           }
-                         });
+                           } });
   // periodically send STATS all value to blynk
   Controller::getInstance().getMainTimer()->setInterval(SYNC_STATS_MS_PERIOD, uploadStatsAll);
   // periodically send REALTIME  value to blynk

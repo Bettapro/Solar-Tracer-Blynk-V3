@@ -163,7 +163,7 @@ void MqttHASync::uploadRealtimeToMqtt()
         return;
     }
 
-#ifdef vPIN_INTERNAL_STATUS
+#ifdef MQTT_TOPIC_INTERNAL_STATUS
     float status = Controller::getInstance().getStatus();
     MqttHASync::getInstance().sendUpdateToVariable(Variable::INTERNAL_STATUS, &(status));
 #endif
