@@ -104,7 +104,7 @@ public:
     wifiManager.addParameter(&customNtpTimezone);
 #endif
 
-    WiFiManagerParameter custom_wmText("<p><b>ACCES POINT:</b></p>");
+    WiFiManagerParameter custom_wmText("<p><b>ACCESS POINT:</b></p>");
     WiFiManagerParameter custom_wmSSID(CONFIG_PERSISTENCE_WM_AP_SSID, "SSID", Environment::getData()->wmApSSID, CONFIG_PERSISTENCE_WM_AP_SSID_LEN);
     WiFiManagerParameter custom_wmPassword(CONFIG_PERSISTENCE_WM_AP_PASSWORD, Text::password, Environment::getData()->wmApPassword, CONFIG_PERSISTENCE_WM_AP_PASSWORD_LEN);
 
