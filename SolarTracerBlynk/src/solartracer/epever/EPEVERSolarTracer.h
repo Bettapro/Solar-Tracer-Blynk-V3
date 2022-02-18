@@ -87,7 +87,7 @@ protected:
   bool writeControllerSingleCoil(uint16_t address, bool value);
   bool replaceControllerHoldingRegister(uint16_t address, uint16_t value, uint16_t fromAddress, uint8_t count);
 
-  static const uint8_t ONE_HUNDRED_FLOAT = 100.0;
+  static constexpr const float ONE_HUNDRED_FLOAT = 100.0;
   // MODBUS ADDRESS
   static const uint16_t MODBUS_ADDRESS_PV_VOLTAGE = 0x3100;
   static const uint16_t MODBUS_ADDRESS_PV_POWER = 0x3102;
