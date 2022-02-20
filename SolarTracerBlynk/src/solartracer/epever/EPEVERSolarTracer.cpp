@@ -172,7 +172,7 @@ bool EPEVERSolarTracer::updateRun()
 
 bool EPEVERSolarTracer::fetchValue(Variable variable)
 {
-  float value;
+  bool value;
   switch (variable)
   {
   case Variable::LOAD_FORCE_ONOFF:
