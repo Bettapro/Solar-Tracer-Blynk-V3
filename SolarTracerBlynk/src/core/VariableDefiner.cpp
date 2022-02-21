@@ -67,8 +67,8 @@ VariableDefiner::VariableDefiner()
     this->initializeVariable(Variable::DISCHARGING_EQUIPMENT_STATUS_TEXT, "Discharging status", VariableDatatype::DT_STRING, VariableUOM::UOM_UNDEFINED, VariableSource::SR_REALTIME, VariableMode::MD_READ,vPIN_DISCHARGING_EQUIPMENT_STATUS_TEXT_DF, MQTT_TOPIC_DISCHARGING_EQUIPMENT_STATUS_TEXT_DF);
     this->initializeVariable(Variable::CHARGING_DEVICE_ONOFF, "Charging switch", VariableDatatype::DT_BOOL, VariableUOM::UOM_UNDEFINED, VariableSource::SR_REALTIME, VariableMode::MD_READWRITE,vPIN_CHARGE_DEVICE_ENABLED_DF, MQTT_TOPIC_CHARGE_DEVICE_ENABLED_DF);
     this->initializeVariable(Variable::HEATSINK_TEMP, "Heatsink temperature", VariableDatatype::DT_FLOAT, VariableUOM::UOM_TEMPERATURE_C, VariableSource::SR_REALTIME, VariableMode::MD_READ, vPIN_CONTROLLER_HEATSINK_TEMP_DF, MQTT_TOPIC_CONTROLLER_HEATSINK_TEMP_DF);
-    this->initializeVariable(Variable::INTERNAL_STATUS, "Internal status", VariableDatatype::DT_FLOAT, VariableUOM::UOM_UNDEFINED, VariableSource::SR_INTERNAL, VariableMode::MD_READWRITE,vPIN_INTERNAL_STATUS_DF, MQTT_TOPIC_INTERNAL_STATUS_DF);
-    this->initializeVariable(Variable::INTERNAL_DEBUG, "Internal debug", VariableDatatype::DT_STRING, VariableUOM::UOM_UNDEFINED, VariableSource::SR_INTERNAL, VariableMode::MD_READWRITE,vPIN_INTERNAL_DEBUG_TERMINAL_DF, MQTT_TOPIC_INTERNAL_DEBUG_TERMINAL_DF);
+    this->initializeVariable(Variable::INTERNAL_STATUS, "Internal status", VariableDatatype::DT_FLOAT, VariableUOM::UOM_UNDEFINED, VariableSource::SR_INTERNAL, VariableMode::MD_READ,vPIN_INTERNAL_STATUS_DF, MQTT_TOPIC_INTERNAL_STATUS_DF);
+    this->initializeVariable(Variable::INTERNAL_DEBUG, "Internal debug", VariableDatatype::DT_STRING, VariableUOM::UOM_UNDEFINED, VariableSource::SR_INTERNAL, VariableMode::MD_READ,vPIN_INTERNAL_DEBUG_TERMINAL_DF, MQTT_TOPIC_INTERNAL_DEBUG_TERMINAL_DF);
     this->initializeVariable(Variable::UPDATE_ALL_CONTROLLER_DATA, "Full refresh from scc", VariableDatatype::DT_BOOL, VariableUOM::UOM_UNDEFINED, VariableSource::SR_INTERNAL, VariableMode::MD_READWRITE,vPIN_UPDATE_ALL_CONTROLLER_DATA_DF, MQTT_TOPIC_UPDATE_ALL_CONTROLLER_DATA_DF);
 }
 
