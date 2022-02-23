@@ -22,6 +22,7 @@
 #include "MqttHASync.h"
 
 #include "../incl/include_all_core.h"
+#include "../core/datetime.h"
 
 #ifdef USE_MQTT_HOME_ASSISTANT
 
@@ -29,6 +30,56 @@ char mqttPublishBuffer[20];
 
 #define RETAIN_ALL_MSG false
 #define MQTT_CONNECT_ATTEMPT 3
+
+// every setValue/setState will trigger mqttCallbacks,
+bool ignoreCallback = false;
+
+void onMqttNumberCallback(float value, HANumber *el)
+{
+    if (!ignoreCallback)
+    {
+        MqttHASync haSync = MqttHASync::getInstance();
+        Variable var = haSync.findVariableBySensor(el);
+        if (var < Variable::VARIABLES_COUNT)
+        {
+            haSync.applyUpdateToVariable(var, &value, false);
+        }
+    }
+}
+
+void onMqttBoolCallback(bool value, HASwitch *el)
+{
+    if (!ignoreCallback)
+    {
+        MqttHASync haSync = MqttHASync::getInstance();
+        Variable var = haSync.findVariableBySensor(el);
+        if (var < Variable::VARIABLES_COUNT)
+        {
+
+            switch (var)
+            {
+            case Variable::REALTIME_CLOCK:
+                if (value)
+                {
+                    debugPrintln("UPDATE CONTROLLER DATETIME");
+                    Controller::getInstance().getSolarController()->syncRealtimeClock(Datetime::getMyNowTm());
+                    el->setState(false);
+                }
+                break;
+            case Variable::UPDATE_ALL_CONTROLLER_DATA:
+                if (value)
+                {
+                    debugPrintln("REQUEST ALL VALUES TO CONTROLLER");
+                    Controller::getInstance().getSolarController()->fetchAllValues();
+                    el->setState(false);
+                }
+                break;
+            default:
+                haSync.applyUpdateToVariable(var, &value, false);
+            }
+        }
+    }
+}
 
 MqttHASync::MqttHASync()
 {
@@ -44,49 +95,115 @@ void MqttHASync::setup()
     this->initialized = false;
 
     // set device's details
+
     device->setName(MQTT_HOME_ASSISTANT_DEVICE_NAME);
+    device->setManufacturer(PROJECT_NAME);
     device->setSoftwareVersion(PROJECT_VERSION);
 
-    // mqttClient.setCallback(mqttCallback);
 
     for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++)
     {
 
         const VariableDefinition *def = VariableDefiner::getInstance().getDefinition((Variable)index);
+
         if (def->mqttTopic != nullptr)
         {
-            haSensors[index] = new HASensor(def->mqttTopic);
-            haSensors[index]->setName(def->text);
-
-            switch (def->uom)
+            haSensors[index] = nullptr;
+            switch (def->datatype)
             {
-            case UOM_TEMPERATURE_C:
-                haSensors[index]->setDeviceClass("temperature");
-                haSensors[index]->setUnitOfMeasurement("°C");
+            case DT_BOOL:
+                if (def->mode == MD_READWRITE)
+                {
+                    HASwitch *hASwitch = new HASwitch(def->mqttTopic, false);
+                    hASwitch->onStateChanged(onMqttBoolCallback);
+                    haSensors[index] = hASwitch;
+                }
+                else
+                {
+                    haSensors[index] = new HABinarySensor(def->mqttTopic, false);
+                }
                 break;
-            case UOM_WATT:
-                haSensors[index]->setDeviceClass("power");
-                haSensors[index]->setUnitOfMeasurement("W");
-                break;
-            case UOM_KILOWATTHOUR:
-                haSensors[index]->setDeviceClass("energy");
-                haSensors[index]->setUnitOfMeasurement("kWh");
-                break;
-            case UOM_PERCENT:
-                haSensors[index]->setUnitOfMeasurement("%");
-                break;
-            case UOM_AMPERE:
-                haSensors[index]->setDeviceClass("current");
-                haSensors[index]->setUnitOfMeasurement("A");
-                break;
-            case UOM_VOLT:
-                haSensors[index]->setDeviceClass("voltage");
-                haSensors[index]->setUnitOfMeasurement("V");
-                break;
+            default:
+                if (def->mode == MD_READWRITE && def->datatype == DT_FLOAT)
+                {
+                    HANumber *haNumber = new HANumber(def->mqttTopic);
+                    haNumber->onValueChanged(onMqttNumberCallback);
+                    haNumber->setStep(0.01);
+                    haNumber->setPrecision(2);
+                    switch (def->uom)
+                    {
+                    case UOM_TEMPERATURE_C:
+                        haNumber->setUnitOfMeasurement("°C");
+                        break;
+                    case UOM_WATT:
+                        haNumber->setUnitOfMeasurement("W");
+                        break;
+                    case UOM_KILOWATTHOUR:
+                        haNumber->setUnitOfMeasurement("kWh");
+                        break;
+                    case UOM_PERCENT:
+                        haNumber->setUnitOfMeasurement("%");
+                        break;
+                    case UOM_AMPERE:
+                        haNumber->setUnitOfMeasurement("A");
+                        break;
+                    case UOM_VOLT:
+                        haNumber->setUnitOfMeasurement("V");
+                        break;
+                    }
+
+                    haSensors[index] = haNumber;
+                }
+                else
+                {
+                    HASensor *hASensor = new HASensor(def->mqttTopic);
+                    switch (def->uom)
+                    {
+                    case UOM_TEMPERATURE_C:
+                        hASensor->setDeviceClass("temperature");
+                        hASensor->setUnitOfMeasurement("°C");
+                        break;
+                    case UOM_WATT:
+                        hASensor->setDeviceClass("power");
+                        hASensor->setUnitOfMeasurement("W");
+                        break;
+                    case UOM_KILOWATTHOUR:
+                        hASensor->setDeviceClass("energy");
+                        hASensor->setUnitOfMeasurement("kWh");
+                        break;
+                    case UOM_PERCENT:
+                        hASensor->setUnitOfMeasurement("%");
+                        break;
+                    case UOM_AMPERE:
+                        hASensor->setDeviceClass("current");
+                        hASensor->setUnitOfMeasurement("A");
+                        break;
+                    case UOM_VOLT:
+                        hASensor->setDeviceClass("voltage");
+                        hASensor->setUnitOfMeasurement("V");
+                        break;
+                    }
+
+                    haSensors[index] = hASensor;
+                }
             }
+
+            haSensors[index]->setName(def->text);
         }
     }
     this->connect();
+}
+
+Variable MqttHASync::findVariableBySensor(BaseDeviceType *haSensor)
+{
+    for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++)
+    {
+        if (haSensors[index] == haSensor)
+        {
+            return (Variable)index;
+        }
+    }
+    return Variable::VARIABLES_COUNT;
 }
 
 bool MqttHASync::attemptMqttHASyncConnect()
@@ -131,17 +248,24 @@ bool MqttHASync::isVariableAllowed(const VariableDefinition *def)
 bool MqttHASync::sendUpdateToVariable(Variable variable, const void *value)
 {
 
-    HASensor *sensor = haSensors[variable];
-    switch (VariableDefiner::getInstance().getDatatype(variable))
+    BaseDeviceType *sensor = haSensors[variable];
+    const VariableDefinition *def = VariableDefiner::getInstance().getDefinition(variable);
+    bool result = false;
+    ignoreCallback = true;
+    switch (def->datatype)
     {
     case VariableDatatype::DT_FLOAT:
-        return sensor->setValue(*(const float *)value);
+         result =def->mode == MD_READ ? ((HASensor *)sensor)->setValue(*(const float *)value) : ((HANumber *)sensor)->setValue(*(const float *)value);
+        break;
     case VariableDatatype::DT_BOOL:
-        return sensor->setValue(*(const bool *)value);
+         result =def->mode == MD_READ ? ((HABinarySensor *)sensor)->setState(*(const bool *)value) : ((HASwitch *)sensor)->setState(*(const bool *)value);
+        break;
     case VariableDatatype::DT_STRING:
-        return sensor->setValue((const char *)value);
+         result =((HASensor *)sensor)->setValue((const char *)value);
+         break;
     }
-    return false;
+    ignoreCallback = false;
+    return result;
 }
 
 // upload values stats

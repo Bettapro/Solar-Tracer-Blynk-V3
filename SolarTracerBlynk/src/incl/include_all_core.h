@@ -24,9 +24,9 @@
 #ifndef INCLUDE_ALL_CORE_H
 #define INCLUDE_ALL_CORE_H
 
-#define PROJECT_NAME "SolarTracer"
+#define PROJECT_NAME "Solar-Tracer-Blynk-V3"
 #define PROJECT_VERSION "v3.0.4"
-#define PROJECT_SUBVERSION 2
+#define PROJECT_SUBVERSION 3
 
 
 #include <Arduino.h>

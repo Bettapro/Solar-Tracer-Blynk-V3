@@ -48,12 +48,10 @@ void BaseSync::applyUpdateToVariable(Variable variable, const void *value, bool 
                 break;
             }
         }
-        if (!solarT->writeValue(variable, value) && !silent)
+        bool writeDone = solarT->writeValue(variable, value);
+        if (!silent)
         {
-            debugPrintf(true, Text::errorWithCode, solarT->getLastControllerCommunicationStatus());
-        }
-        else{
-            debugPrintln(Text::ok);
+           writeDone ? debugPrintln(Text::ok) : debugPrintf(true, Text::errorWithCode, solarT->getLastControllerCommunicationStatus());
         }
     }
 }
