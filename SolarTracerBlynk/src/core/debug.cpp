@@ -96,11 +96,9 @@ void debugPrint(unsigned char num)
 
 void debugPrintf(bool newLine, const char *format, ...)
 {
-    char buffer[256];
-
     va_list args;
     va_start(args, format);
-    vsnprintf(buffer, 256, format, args);
-    newLine ? debugPrintln(String(buffer)) : debugPrint(String(buffer));
+    vsnprintf(Util::sharedBuffer, 256, format, args);
+    newLine ? debugPrintln(String(Util::sharedBuffer)) : debugPrint(String(Util::sharedBuffer));
     va_end(args);
 }

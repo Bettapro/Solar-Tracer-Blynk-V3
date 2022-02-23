@@ -100,7 +100,6 @@ void MqttHASync::setup()
     device->setManufacturer(PROJECT_NAME);
     device->setSoftwareVersion(PROJECT_VERSION);
 
-
     for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++)
     {
 
@@ -210,13 +209,12 @@ bool MqttHASync::attemptMqttHASyncConnect()
 {
     if (!initialized)
     {
-#ifdef MQTT_PASSWORD
-        initialized = mqtt->begin(MQTT_SERVER, MQTT_PORT, MQTT_USERNAME, MQTT_PASSWORD);
-#elif defined MQTT_USERNAME
-        initialized = mqtt->begin(MQTT_SERVER, MQTT_PORT, MQTT_USERNAME);
-#else
-        initialized = mqtt->begin(MQTT_SERVER, MQTT_PORT);
-#endif
+        environrmentData * envData = Environment::getData();
+        initialized = mqtt->begin(
+            envData->mqttServerHostname,
+            envData->mqttServerPort,
+            strlen(envData->mqttUsername) > 0 ? envData->mqttUsername : nullptr,
+            strlen(envData->mqttPassword) > 0 ? envData->mqttPassword : nullptr);
     }
     mqtt->loop();
     return mqtt->isConnected();
@@ -255,14 +253,14 @@ bool MqttHASync::sendUpdateToVariable(Variable variable, const void *value)
     switch (def->datatype)
     {
     case VariableDatatype::DT_FLOAT:
-         result =def->mode == MD_READ ? ((HASensor *)sensor)->setValue(*(const float *)value) : ((HANumber *)sensor)->setValue(*(const float *)value);
+        result = def->mode == MD_READ ? ((HASensor *)sensor)->setValue(*(const float *)value) : ((HANumber *)sensor)->setValue(*(const float *)value);
         break;
     case VariableDatatype::DT_BOOL:
-         result =def->mode == MD_READ ? ((HABinarySensor *)sensor)->setState(*(const bool *)value) : ((HASwitch *)sensor)->setState(*(const bool *)value);
+        result = def->mode == MD_READ ? ((HABinarySensor *)sensor)->setState(*(const bool *)value) : ((HASwitch *)sensor)->setState(*(const bool *)value);
         break;
     case VariableDatatype::DT_STRING:
-         result =((HASensor *)sensor)->setValue((const char *)value);
-         break;
+        result = ((HASensor *)sensor)->setValue((const char *)value);
+        break;
     }
     ignoreCallback = false;
     return result;

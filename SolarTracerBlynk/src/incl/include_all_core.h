@@ -71,6 +71,7 @@
 /**
  * Include only not-external-dependant headers
  */
+#include "../core/Util.h"
 #include "../core/debug.h"
 #include "../core/Text.h"
 #include "../core/VariableDefiner.h"

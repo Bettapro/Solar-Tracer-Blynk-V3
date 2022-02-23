@@ -62,14 +62,12 @@ void BlynkSync::connect()
 #ifdef USE_BLYNK_2
   Blynk.config(Environment::getData()->blynkAuth);
 #else
-  if (Environment::getData()->blynkLocalServer)
-  {
-    Blynk.config(Environment::getData()->blynkAuth, Environment::getData()->blynkServerHostname, Environment::getData()->blynkServerPort);
-  }
-  else
-  {
-    Blynk.config(Environment::getData()->blynkAuth);
-  }
+
+  Blynk.config(
+    Environment::getData()->blynkAuth, 
+    strlen(Environment::getData()->blynkServerHostname) > 0 ? Environment::getData()->blynkServerHostname : BLYNK_DEFAULT_DOMAIN,
+    strlen(Environment::getData()->blynkServerHostname) > 0 ? Environment::getData()->blynkServerPort : BLYNK_DEFAULT_PORT);
+
 #endif
 
   uint8_t counter = 0;

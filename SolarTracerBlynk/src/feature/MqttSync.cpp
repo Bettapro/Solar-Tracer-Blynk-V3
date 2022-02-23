@@ -126,13 +126,12 @@ void MqttSync::setup()
 
 bool MqttSync::attemptMqttSyncConnect()
 {
-#ifdef MQTT_PASSWORD
-    return mqttClient->connect(MQTT_CLIENT_ID, MQTT_USERNAME, MQTT_PASSWORD);
-#elif defined MQTT_USERNAME
-    return mqttClient->connect(MQTT_CLIENT_ID, MQTT_USERNAME);
-#else
-    return mqttClient->connect(MQTT_CLIENT_ID);
-#endif
+    mqttClient->connect(
+        envData->mqttServerHostname,
+        envData->mqttServerPort,
+        strlen(envData->mqttUsername) > 0 ? envData->mqttUsername : nullptr,
+        strlen(envData->mqttPassword) > 0 ? envData->mqttPassword : nullptr);
+    );
     return mqttClient->connected();
 }
 

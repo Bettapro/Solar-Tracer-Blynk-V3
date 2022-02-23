@@ -1,7 +1,5 @@
 #include "Environment.h"
 
-
-
 struct environrmentData Environment::envData;
 
 void Environment::loadEnvData()
@@ -18,17 +16,26 @@ void Environment::loadEnvData()
 #ifdef USE_BLYNK
 #ifndef USE_BLYNK_2
 #ifdef USE_BLYNK_LOCAL_SERVER
-    envData.blynkLocalServer = true;
     strcpy(envData.blynkServerHostname, BLYNK_SERVER);
     envData.blynkServerPort = BLYNK_PORT;
 #else
-    envData.blynkLocalServer = false;
+    strcpy(envData.blynkServerHostname, "");
     envData.blynkServerPort = 0;
 #endif
 #endif
 #if defined USE_BLYNK
     strcpy(envData.blynkAuth, BLYNK_AUTH);
 #endif
+#endif
+#ifdef USE_MQTT
+    strcpy(envData.mqttServerHostname, MQTT_SERVER);
+    strcpy(envData.mqttUsername, MQTT_USERNAME);
+    strcpy(envData.mqttPassword, MQTT_PASSWORD);
+    envData.mqttServerPort = MQTT_PORT;
+#endif
+#ifdef USE_MQTT_HOME_ASSISTANT
+    strcpy(envData.mqttHADeviceId, MQTT_HOME_ASSISTANT_DEVICE_ID);
+    strcpy(envData.mqttHADeviceName, MQTT_HOME_ASSISTANT_DEVICE_NAME);
 #endif
 
 #ifdef USE_OTA_UPDATE
@@ -81,14 +88,23 @@ void Environment::loadEnvData()
 #if defined USE_BLYNK
                 loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_BLYNK_AUTH, envData.blynkAuth);
 #ifndef USE_BLYNK_2
-                if (doc.containsKey(CONFIG_PERSISTENCE_BLYNK_IS_LOCAL))
-                    envData.blynkLocalServer = doc[CONFIG_PERSISTENCE_BLYNK_IS_LOCAL];
-
                 loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_BLYNK_HOSTNAME, envData.blynkServerHostname);
 
                 if (doc.containsKey(CONFIG_PERSISTENCE_BLYNK_PORT))
                     envData.blynkServerPort = doc[CONFIG_PERSISTENCE_BLYNK_PORT];
 #endif
+#endif
+#ifdef USE_MQTT
+                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_MQTT_HOSTNAME, envData.otaHostname);
+                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_MQTT_PASSWORD, envData.mqttPassword);
+                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_MQTT_USERNAME, envData.mqttUsername);
+                if (doc.containsKey(CONFIG_PERSISTENCE_MQTT_PORT))
+                    envData.mqttServerPort = doc[CONFIG_PERSISTENCE_MQTT_PORT];
+
+#endif
+#ifdef USE_MQTT_HOME_ASSISTANT
+                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_MQTT_HA_DEVICE_ID, envData.mqttHADeviceName);
+                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_MQTT_HA_DEVICE_NAME, envData.mqttHADeviceId);
 #endif
 
 #ifdef USE_OTA_UPDATE
@@ -107,8 +123,7 @@ void Environment::loadEnvData()
 #endif
 }
 
-
- #ifdef USE_WIFI_AP_CONFIGURATION
+#ifdef USE_WIFI_AP_CONFIGURATION
 void Environment::loadStringToEnvIfExist(DynamicJsonDocument doc, const char *envKey, char *envValue)
 {
     if (doc.containsKey(envKey))
@@ -116,27 +131,17 @@ void Environment::loadStringToEnvIfExist(DynamicJsonDocument doc, const char *en
 }
 #endif
 
-environrmentData* Environment::getData()
+environrmentData *Environment::getData()
 {
     return &envData;
 }
-
-
 
 void Environment::resetEnvData()
 {
     LittleFS.begin();
     // load from file
-    if (!LittleFS.exists(CONFIG_PERSISTENCE))
-    {
-        // no file found
-        debugPrintln("No configuration file found");
-    }
-    else
-    {
+    if (LittleFS.exists(CONFIG_PERSISTENCE)) {
         LittleFS.remove(CONFIG_PERSISTENCE);
     }
     LittleFS.end();
 }
-
-

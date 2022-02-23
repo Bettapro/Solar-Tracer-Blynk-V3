@@ -54,6 +54,10 @@ struct environrmentData
     char mqttUsername[CONFIG_PERSISTENCE_MQTT_USERNAME_LEN + 1];
     char mqttPassword[CONFIG_PERSISTENCE_MQTT_PASSWORD_LEN + 1];
 #endif
+  #ifdef USE_MQTT_HOME_ASSISTANT
+    char mqttHADeviceName[CONFIG_PERSISTENCE_MQTT_HA_DEVICE_NAME_LEN + 1];
+    char mqttHADeviceId[CONFIG_PERSISTENCE_MQTT_HA_DEVICE_ID_LEN + 1];
+  #endif
 #ifdef USE_OTA_UPDATE
     char otaHostname[CONFIG_PERSISTENCE_OTA_HOSTNAME_LEN + 1];
     char otaPassword[CONFIG_PERSISTENCE_OTA_PASSWORD_LEN + 1];
