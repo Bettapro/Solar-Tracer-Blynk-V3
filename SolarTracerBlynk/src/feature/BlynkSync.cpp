@@ -28,22 +28,7 @@ void blynkDebugCallback(String message)
 
 BlynkSync::BlynkSync()
 {
-  for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++)
-  {
-    this->blynkValuesCacheValid[index] = 0;
-    switch (VariableDefiner::getInstance().getDatatype((Variable)index))
-    {
-    case VariableDatatype::DT_FLOAT:
-      this->blynkValuesCache[index] = malloc(sizeof(float));
-      break;
-    case VariableDatatype::DT_BOOL:
-      this->blynkValuesCache[index] = malloc(sizeof(bool));
-      break;
-    case VariableDatatype::DT_STRING:
-      this->blynkValuesCache[index] = new char[BLYNK_VALUE_CACHES_STRING_LEN];
-      break;
-    }
-  }
+  this->renewValueCount = BLYNK_VALUE_CACHES_UNTIL_COUNT;
 }
 
 void BlynkSync::setup()
@@ -64,9 +49,9 @@ void BlynkSync::connect()
 #else
 
   Blynk.config(
-    Environment::getData()->blynkAuth, 
-    strlen(Environment::getData()->blynkServerHostname) > 0 ? Environment::getData()->blynkServerHostname : BLYNK_DEFAULT_DOMAIN,
-    strlen(Environment::getData()->blynkServerHostname) > 0 ? Environment::getData()->blynkServerPort : BLYNK_DEFAULT_PORT);
+      Environment::getData()->blynkAuth,
+      strlen(Environment::getData()->blynkServerHostname) > 0 ? Environment::getData()->blynkServerHostname : BLYNK_DEFAULT_DOMAIN,
+      strlen(Environment::getData()->blynkServerHostname) > 0 ? Environment::getData()->blynkServerPort : BLYNK_DEFAULT_PORT);
 
 #endif
 
@@ -91,53 +76,27 @@ void BlynkSync::loop()
   Blynk.run();
 }
 
-bool BlynkSync::sendUpdateToVariable(Variable variable, const void *value)
+bool BlynkSync::sendUpdateToVariable(const VariableDefinition *def, const void *value)
 {
-  void *cachedValue = this->blynkValuesCache[variable];
-  uint8_t *cachedUntil = &(this->blynkValuesCacheValid[variable]);
-
-  const VariableDefinition *def = VariableDefiner::getInstance().getDefinition(variable);
-
   if (def->blynkVPin != nullptr)
   {
     switch (def->datatype)
     {
     case VariableDatatype::DT_BOOL:
     {
-      bool currentValue = *(bool *)value;
-      if (*cachedUntil <= 0 || (*(bool *)cachedValue) != currentValue)
-      {
-        Blynk.virtualWrite(*def->blynkVPin, currentValue);
-        (*(bool *)cachedValue) = currentValue;
-        (*cachedUntil) = BLYNK_VALUE_CACHES_UNTIL_COUNT;
-      }
-      (*cachedUntil)--;
+      Blynk.virtualWrite(*def->blynkVPin, *(bool *)value);
       return true;
     }
     break;
     case VariableDatatype::DT_FLOAT:
     {
-      float currentValue = *(float *)value;
-      if (*cachedUntil <= 0 || (*(float *)cachedValue) != currentValue)
-      {
-        Blynk.virtualWrite(*def->blynkVPin, currentValue);
-        (*(float *)cachedValue) = currentValue;
-        (*cachedUntil) = BLYNK_VALUE_CACHES_UNTIL_COUNT;
-      }
-      (*cachedUntil)--;
+      Blynk.virtualWrite(*def->blynkVPin, *(float *)value);
       return true;
     }
     break;
     case VariableDatatype::DT_STRING:
     {
-      const char *currentValue = (const char *)value;
-      if (*cachedUntil <= 0 || strcmp(currentValue, (const char *)cachedValue) != 0)
-      {
-        Blynk.virtualWrite(*def->blynkVPin, currentValue);
-        strcpy((char *)cachedValue, currentValue);
-        (*cachedUntil) = BLYNK_VALUE_CACHES_UNTIL_COUNT;
-      }
-      (*cachedUntil)--;
+      Blynk.virtualWrite(*def->blynkVPin, (const char *)value);
       return true;
     }
     }
@@ -166,9 +125,9 @@ void BlynkSync::uploadRealtimeToBlynk()
 
 #ifdef vPIN_INTERNAL_STATUS
   float status = Controller::getInstance().getStatus();
-  BlynkSync::getInstance().sendUpdateToVariable(Variable::INTERNAL_STATUS, &(status));
+  this->sendUpdateToVariable(VariableDefiner::getInstance().getDefinition(Variable::INTERNAL_STATUS), &(status));
 #endif
-  BlynkSync::getInstance().sendUpdateAllBySource(VariableSource::SR_REALTIME, false);
+  this->sendUpdateAllBySource(VariableSource::SR_REALTIME, false);
 }
 
 BLYNK_WRITE_DEFAULT()

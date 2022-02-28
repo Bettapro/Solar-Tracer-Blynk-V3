@@ -43,7 +43,7 @@ public:
     void connect();
     void loop();
     inline bool isVariableAllowed(const VariableDefinition *def);
-    bool sendUpdateToVariable(Variable variable, const void *value);
+    bool sendUpdateToVariable(const VariableDefinition * def, const void *value);
     // upload values stats
     void uploadStatsToMqtt();
     // upload values realtime

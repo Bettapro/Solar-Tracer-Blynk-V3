@@ -55,21 +55,21 @@ VariableDefiner::VariableDefiner()
     this->initializeVariable(Variable::BATTERY_FLOAT_VOLTAGE, "Float voltage", VariableDatatype::DT_FLOAT, VariableUOM::UOM_VOLT, VariableSource::SR_STATS, VariableMode::MD_READWRITE, vPIN_BATTERY_FLOAT_VOLTAGE_DF, MQTT_TOPIC_BATTERY_FLOAT_VOLTAGE_DF);
     this->initializeVariable(Variable::BATTERY_FLOAT_MIN_VOLTAGE, "Float min. voltage", VariableDatatype::DT_FLOAT, VariableUOM::UOM_VOLT, VariableSource::SR_STATS, VariableMode::MD_READWRITE, vPIN_BATTERY_FLOAT_MIN_VOLTAGE_DF, MQTT_TOPIC_BATTERY_FLOAT_MIN_VOLTAGE_DF);
     this->initializeVariable(Variable::BATTERY_CHARGING_LIMIT_VOLTAGE, "Charging voltage limit", VariableDatatype::DT_FLOAT, VariableUOM::UOM_VOLT, VariableSource::SR_STATS, VariableMode::MD_READWRITE, vPIN_BATTERY_CHARGING_LIMIT_VOLTAGE_DF, MQTT_TOPIC_BATTERY_CHARGING_LIMIT_VOLTAGE_DF);
-    this->initializeVariable(Variable::BATTERY_DISCHARGING_LIMIT_VOLTAGE, "Discharging voltage limit", VariableDatatype::DT_FLOAT, VariableUOM::UOM_VOLT, VariableSource::SR_STATS,VariableMode::MD_READWRITE, vPIN_BATTERY_DISCHARGING_LIMIT_VOLTAGE_DF, MQTT_TOPIC_BATTERY_DISCHARGING_LIMIT_VOLTAGE_DF);
-    this->initializeVariable(Variable::BATTERY_LOW_VOLTAGE_DISCONNECT, "Low voltage disconnect", VariableDatatype::DT_FLOAT, VariableUOM::UOM_VOLT, VariableSource::SR_STATS,VariableMode::MD_READWRITE, vPIN_BATTERY_LOW_VOLTAGE_DISCONNECT_DF, MQTT_TOPIC_BATTERY_LOW_VOLTAGE_DISCONNECT_DF);
-    this->initializeVariable(Variable::BATTERY_LOW_VOLTAGE_RECONNECT, "Low voltage reconnect", VariableDatatype::DT_FLOAT, VariableUOM::UOM_VOLT, VariableSource::SR_STATS, VariableMode::MD_READWRITE,vPIN_BATTERY_LOW_VOLTAGE_RECONNECT_DF, MQTT_TOPIC_BATTERY_LOW_VOLTAGE_RECONNECT_DF);
-    this->initializeVariable(Variable::BATTERY_OVER_VOLTAGE_DISCONNECT, "Over voltage disconnect", VariableDatatype::DT_FLOAT, VariableUOM::UOM_VOLT, VariableSource::SR_STATS, VariableMode::MD_READWRITE,vPIN_BATTERY_OVER_VOLTAGE_DISCONNECT_DF, MQTT_TOPIC_BATTERY_OVER_VOLTAGE_DISCONNECT_DF);
-    this->initializeVariable(Variable::BATTERY_OVER_VOLTAGE_RECONNECT, "Over voltage reconnect", VariableDatatype::DT_FLOAT, VariableUOM::UOM_VOLT, VariableSource::SR_STATS,VariableMode::MD_READWRITE, vPIN_BATTERY_OVER_VOLTAGE_RECONNECT_DF, MQTT_TOPIC_BATTERY_OVER_VOLTAGE_RECONNECT_DF);
-    this->initializeVariable(Variable::BATTERY_UNDER_VOLTAGE_SET, "Under voltage alarm set", VariableDatatype::DT_FLOAT, VariableUOM::UOM_VOLT, VariableSource::SR_STATS,VariableMode::MD_READWRITE, vPIN_BATTERY_UNDER_VOLTAGE_SET_DF, MQTT_TOPIC_BATTERY_UNDER_VOLTAGE_SET_DF);
-    this->initializeVariable(Variable::BATTERY_UNDER_VOLTAGE_RESET, "Under voltage alarm reset", VariableDatatype::DT_FLOAT, VariableUOM::UOM_VOLT, VariableSource::SR_STATS, VariableMode::MD_READWRITE,vPIN_BATTERY_UNDER_VOLTAGE_RESET_DF, MQTT_TOPIC_BATTERY_UNDER_VOLTAGE_RESET_DF);
-    this->initializeVariable(Variable::BATTERY_STATUS_TEXT, "Battery status", VariableDatatype::DT_STRING, VariableUOM::UOM_UNDEFINED, VariableSource::SR_REALTIME, VariableMode::MD_READWRITE,vPIN_BATTERY_STATUS_TEXT_DF, MQTT_TOPIC_BATTERY_STATUS_TEXT_DF);
-    this->initializeVariable(Variable::CHARGING_EQUIPMENT_STATUS_TEXT, "Charging status", VariableDatatype::DT_STRING, VariableUOM::UOM_UNDEFINED, VariableSource::SR_REALTIME, VariableMode::MD_READ,vPIN_CHARGING_EQUIPMENT_STATUS_TEXT_DF, MQTT_TOPIC_CHARGING_EQUIPMENT_STATUS_TEXT_DF);
-    this->initializeVariable(Variable::DISCHARGING_EQUIPMENT_STATUS_TEXT, "Discharging status", VariableDatatype::DT_STRING, VariableUOM::UOM_UNDEFINED, VariableSource::SR_REALTIME, VariableMode::MD_READ,vPIN_DISCHARGING_EQUIPMENT_STATUS_TEXT_DF, MQTT_TOPIC_DISCHARGING_EQUIPMENT_STATUS_TEXT_DF);
-    this->initializeVariable(Variable::CHARGING_DEVICE_ONOFF, "Charging switch", VariableDatatype::DT_BOOL, VariableUOM::UOM_UNDEFINED, VariableSource::SR_REALTIME, VariableMode::MD_READWRITE,vPIN_CHARGE_DEVICE_ENABLED_DF, MQTT_TOPIC_CHARGE_DEVICE_ENABLED_DF);
+    this->initializeVariable(Variable::BATTERY_DISCHARGING_LIMIT_VOLTAGE, "Discharging voltage limit", VariableDatatype::DT_FLOAT, VariableUOM::UOM_VOLT, VariableSource::SR_STATS, VariableMode::MD_READWRITE, vPIN_BATTERY_DISCHARGING_LIMIT_VOLTAGE_DF, MQTT_TOPIC_BATTERY_DISCHARGING_LIMIT_VOLTAGE_DF);
+    this->initializeVariable(Variable::BATTERY_LOW_VOLTAGE_DISCONNECT, "Low voltage disconnect", VariableDatatype::DT_FLOAT, VariableUOM::UOM_VOLT, VariableSource::SR_STATS, VariableMode::MD_READWRITE, vPIN_BATTERY_LOW_VOLTAGE_DISCONNECT_DF, MQTT_TOPIC_BATTERY_LOW_VOLTAGE_DISCONNECT_DF);
+    this->initializeVariable(Variable::BATTERY_LOW_VOLTAGE_RECONNECT, "Low voltage reconnect", VariableDatatype::DT_FLOAT, VariableUOM::UOM_VOLT, VariableSource::SR_STATS, VariableMode::MD_READWRITE, vPIN_BATTERY_LOW_VOLTAGE_RECONNECT_DF, MQTT_TOPIC_BATTERY_LOW_VOLTAGE_RECONNECT_DF);
+    this->initializeVariable(Variable::BATTERY_OVER_VOLTAGE_DISCONNECT, "Over voltage disconnect", VariableDatatype::DT_FLOAT, VariableUOM::UOM_VOLT, VariableSource::SR_STATS, VariableMode::MD_READWRITE, vPIN_BATTERY_OVER_VOLTAGE_DISCONNECT_DF, MQTT_TOPIC_BATTERY_OVER_VOLTAGE_DISCONNECT_DF);
+    this->initializeVariable(Variable::BATTERY_OVER_VOLTAGE_RECONNECT, "Over voltage reconnect", VariableDatatype::DT_FLOAT, VariableUOM::UOM_VOLT, VariableSource::SR_STATS, VariableMode::MD_READWRITE, vPIN_BATTERY_OVER_VOLTAGE_RECONNECT_DF, MQTT_TOPIC_BATTERY_OVER_VOLTAGE_RECONNECT_DF);
+    this->initializeVariable(Variable::BATTERY_UNDER_VOLTAGE_SET, "Under voltage alarm set", VariableDatatype::DT_FLOAT, VariableUOM::UOM_VOLT, VariableSource::SR_STATS, VariableMode::MD_READWRITE, vPIN_BATTERY_UNDER_VOLTAGE_SET_DF, MQTT_TOPIC_BATTERY_UNDER_VOLTAGE_SET_DF);
+    this->initializeVariable(Variable::BATTERY_UNDER_VOLTAGE_RESET, "Under voltage alarm reset", VariableDatatype::DT_FLOAT, VariableUOM::UOM_VOLT, VariableSource::SR_STATS, VariableMode::MD_READWRITE, vPIN_BATTERY_UNDER_VOLTAGE_RESET_DF, MQTT_TOPIC_BATTERY_UNDER_VOLTAGE_RESET_DF);
+    this->initializeVariable(Variable::BATTERY_STATUS_TEXT, "Battery status", VariableDatatype::DT_STRING, VariableUOM::UOM_UNDEFINED, VariableSource::SR_REALTIME, VariableMode::MD_READWRITE, vPIN_BATTERY_STATUS_TEXT_DF, MQTT_TOPIC_BATTERY_STATUS_TEXT_DF);
+    this->initializeVariable(Variable::CHARGING_EQUIPMENT_STATUS_TEXT, "Charging status", VariableDatatype::DT_STRING, VariableUOM::UOM_UNDEFINED, VariableSource::SR_REALTIME, VariableMode::MD_READ, vPIN_CHARGING_EQUIPMENT_STATUS_TEXT_DF, MQTT_TOPIC_CHARGING_EQUIPMENT_STATUS_TEXT_DF);
+    this->initializeVariable(Variable::DISCHARGING_EQUIPMENT_STATUS_TEXT, "Discharging status", VariableDatatype::DT_STRING, VariableUOM::UOM_UNDEFINED, VariableSource::SR_REALTIME, VariableMode::MD_READ, vPIN_DISCHARGING_EQUIPMENT_STATUS_TEXT_DF, MQTT_TOPIC_DISCHARGING_EQUIPMENT_STATUS_TEXT_DF);
+    this->initializeVariable(Variable::CHARGING_DEVICE_ONOFF, "Charging switch", VariableDatatype::DT_BOOL, VariableUOM::UOM_UNDEFINED, VariableSource::SR_REALTIME, VariableMode::MD_READWRITE, vPIN_CHARGE_DEVICE_ENABLED_DF, MQTT_TOPIC_CHARGE_DEVICE_ENABLED_DF);
     this->initializeVariable(Variable::HEATSINK_TEMP, "Heatsink temperature", VariableDatatype::DT_FLOAT, VariableUOM::UOM_TEMPERATURE_C, VariableSource::SR_REALTIME, VariableMode::MD_READ, vPIN_CONTROLLER_HEATSINK_TEMP_DF, MQTT_TOPIC_CONTROLLER_HEATSINK_TEMP_DF);
-    this->initializeVariable(Variable::INTERNAL_STATUS, "Internal status", VariableDatatype::DT_FLOAT, VariableUOM::UOM_UNDEFINED, VariableSource::SR_INTERNAL, VariableMode::MD_READ,vPIN_INTERNAL_STATUS_DF, MQTT_TOPIC_INTERNAL_STATUS_DF);
-    this->initializeVariable(Variable::INTERNAL_DEBUG, "Internal debug", VariableDatatype::DT_STRING, VariableUOM::UOM_UNDEFINED, VariableSource::SR_INTERNAL, VariableMode::MD_READ,vPIN_INTERNAL_DEBUG_TERMINAL_DF, MQTT_TOPIC_INTERNAL_DEBUG_TERMINAL_DF);
-    this->initializeVariable(Variable::UPDATE_ALL_CONTROLLER_DATA, "Full refresh from scc", VariableDatatype::DT_BOOL, VariableUOM::UOM_UNDEFINED, VariableSource::SR_INTERNAL, VariableMode::MD_READWRITE,vPIN_UPDATE_ALL_CONTROLLER_DATA_DF, MQTT_TOPIC_UPDATE_ALL_CONTROLLER_DATA_DF);
+    this->initializeVariable(Variable::INTERNAL_STATUS, "Internal status", VariableDatatype::DT_FLOAT, VariableUOM::UOM_UNDEFINED, VariableSource::SR_INTERNAL, VariableMode::MD_READ, vPIN_INTERNAL_STATUS_DF, MQTT_TOPIC_INTERNAL_STATUS_DF);
+    this->initializeVariable(Variable::INTERNAL_DEBUG, "Internal debug", VariableDatatype::DT_STRING, VariableUOM::UOM_UNDEFINED, VariableSource::SR_INTERNAL, VariableMode::MD_READ, vPIN_INTERNAL_DEBUG_TERMINAL_DF, MQTT_TOPIC_INTERNAL_DEBUG_TERMINAL_DF);
+    this->initializeVariable(Variable::UPDATE_ALL_CONTROLLER_DATA, "Full refresh from scc", VariableDatatype::DT_BOOL, VariableUOM::UOM_UNDEFINED, VariableSource::SR_INTERNAL, VariableMode::MD_READWRITE, vPIN_UPDATE_ALL_CONTROLLER_DATA_DF, MQTT_TOPIC_UPDATE_ALL_CONTROLLER_DATA_DF);
 }
 
 const VariableDefinition *VariableDefiner::getDefinitionByBlynkVPin(uint8_t pin)
@@ -84,7 +84,7 @@ const VariableDefinition *VariableDefiner::getDefinitionByBlynkVPin(uint8_t pin)
     return nullptr;
 }
 
-const VariableDefinition *VariableDefiner::getDefinitionByMqttTopic(const char* topic)
+const VariableDefinition *VariableDefiner::getDefinitionByMqttTopic(const char *topic)
 {
     for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++)
     {
@@ -95,7 +95,6 @@ const VariableDefinition *VariableDefiner::getDefinitionByMqttTopic(const char* 
     }
     return nullptr;
 }
-
 
 void VariableDefiner::initializeVariable(Variable variable, const char *text, VariableDatatype datatype, VariableUOM uom, VariableSource source, VariableMode mode, uint8_t *blynkPin, const char *mqttTopic)
 {
@@ -111,3 +110,18 @@ VariableDatatype VariableDefiner::getDatatype(Variable variable)
 {
     return variables[variable].datatype;
 }
+
+uint8_t VariableDefiner::getVariableSize(Variable variable)
+{
+    switch (this->getDatatype(variable))
+    {
+    case VariableDatatype::DT_BOOL:
+        return sizeof(bool);
+    case VariableDatatype::DT_FLOAT:
+        return sizeof(float);
+    case VariableDatatype::DT_STRING:
+        return 20;
+    }
+    return 0;
+}
+

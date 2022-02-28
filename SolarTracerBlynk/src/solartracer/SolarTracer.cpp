@@ -24,25 +24,18 @@
 SolarTracer::SolarTracer()
 {
     this->variableDefine = new SolarTracerVariableDefinition *[Variable::VARIABLES_COUNT]();
-    const VariableDefinition *def;
     SolarTracerVariableDefinition *value;
+    uint8_t varSize;
+
     for (uint8_t varIndex = 0; varIndex < Variable::VARIABLES_COUNT; varIndex++)
     {
-        def = VariableDefiner::getInstance().getDefinition((Variable)varIndex);
         value = nullptr;
         if (VariableDefiner::getInstance().isFromScc((Variable)varIndex))
         {
-            switch (def->datatype)
+            varSize = VariableDefiner::getInstance().getVariableSize((Variable)varIndex);
+            if (varSize > 0)
             {
-            case VariableDatatype::DT_BOOL:
-                value = new SolarTracerVariableDefinition{0, malloc(sizeof(bool))};
-                break;
-            case VariableDatatype::DT_FLOAT:
-                value = new SolarTracerVariableDefinition{0, malloc(sizeof(float))};
-                break;
-            case VariableDatatype::DT_STRING:
-                value = new SolarTracerVariableDefinition{0, new char[20]};
-                break;
+                value = new SolarTracerVariableDefinition{0, malloc(varSize)};
             }
         }
         this->variableDefine[varIndex] = value;
@@ -59,7 +52,7 @@ void SolarTracer::setVariableEnable(Variable variable, bool enable)
 
 bool SolarTracer::isVariableEnabled(Variable variable)
 {
-    return variable < Variable::VARIABLES_COUNT && this->variableDefine[variable] != nullptr &&  (this->variableDefine[variable]->status & 1) > 0;
+    return variable < Variable::VARIABLES_COUNT && this->variableDefine[variable] != nullptr && (this->variableDefine[variable]->status & 1) > 0;
 }
 
 void SolarTracer::setVariableReadReady(Variable variable, bool enable)
@@ -90,7 +83,7 @@ bool SolarTracer::isVariableReadReady(Variable variable)
 
 const void *SolarTracer::getValue(Variable variable)
 {
-    return this->isVariableEnabled(variable) ? this->variableDefine[variable]->value : nullptr;
+    return this->variableDefine[variable]->value;
 }
 
 bool SolarTracer::setVariableValue(Variable variable, const void *value)
@@ -98,18 +91,10 @@ bool SolarTracer::setVariableValue(Variable variable, const void *value)
     bool valueOk = value != nullptr;
     if (valueOk)
     {
-        switch (VariableDefiner::getInstance().getDatatype(variable))
+        uint8_t vSize = VariableDefiner::getInstance().getVariableSize(variable);
+        if (vSize > 0)
         {
-        case VariableDatatype::DT_BOOL:
-            memcpy(this->variableDefine[variable]->value, value, sizeof(bool));
-            break;
-        case VariableDatatype::DT_FLOAT:
-            memcpy(this->variableDefine[variable]->value, value, sizeof(float));
-            break;
-        case VariableDatatype::DT_STRING:
-            // should specialize depending on the text
-            strcpy((char *)this->variableDefine[variable]->value, (const char *)value);
-            break;
+            memcpy(this->variableDefine[variable]->value, value, vSize);
         }
     }
     this->setVariableReadReady(variable, valueOk);

@@ -29,7 +29,6 @@
 #include "../incl/include_all_blynk_vpin.h"
 #include "../incl/include_all_mqtt_topic.h"
 
-
 typedef enum
 {
         SR_REALTIME,
@@ -140,8 +139,7 @@ public:
 
         const VariableDefinition *getDefinitionByBlynkVPin(uint8_t pin);
 
-        const VariableDefinition *getDefinitionByMqttTopic(const char* mqttTopic);
-
+        const VariableDefinition *getDefinitionByMqttTopic(const char *mqttTopic);
 
         VariableDatatype getDatatype(Variable variable);
 
@@ -150,10 +148,22 @@ public:
                 return this->variables[variable].source != VariableSource::SR_INTERNAL;
         }
 
+        bool isValueEqual(Variable variable, const void *val1, const void *val2)
+        {
+                uint8_t valueSize = this->getVariableSize(variable);
+                if (valueSize > 0)
+                {
+                        return memcmp(val1, val2, valueSize) == 0;
+                }
+                return false;
+        }
+
+        uint8_t getVariableSize(Variable variable);
+
 private:
         VariableDefiner();
 
-        void initializeVariable(Variable variable, const char *text, VariableDatatype datatype, VariableUOM uom, VariableSource source, VariableMode mode, uint8_t *blynkPin, const char* mqttTopic);
+        void initializeVariable(Variable variable, const char *text, VariableDatatype datatype, VariableUOM uom, VariableSource source, VariableMode mode, uint8_t *blynkPin, const char *mqttTopic);
 
         VariableDefinition *variables = new VariableDefinition[Variable::VARIABLES_COUNT]();
 };

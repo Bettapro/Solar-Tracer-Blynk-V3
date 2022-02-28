@@ -26,17 +26,41 @@
 
 #include "../core/VariableDefiner.h"
 
+#define BASE_SYNC_RENEW_VALUE_COUNT 20;
+
 class BaseSync
 {
 public:
+    BaseSync();
     virtual void setup() = 0;
     virtual void connect() = 0;
     virtual void loop() = 0;
-    virtual bool sendUpdateToVariable(Variable variable, const void *value) = 0;
+    /**
+     * @brief Send the update to remote server
+     * 
+     * @param def variable definition
+     * @param value value
+     * @return true if the update has been sent with success, false otherwise
+     */
+    virtual bool sendUpdateToVariable(const VariableDefinition * def, const void *value) = 0;
     virtual bool isVariableAllowed(const VariableDefinition *def) = 0;
-
     void applyUpdateToVariable(Variable variable, const void *value, bool silent = true);
 
+     bool syncVariable(const VariableDefinition * def, const void *value);
+
     uint8_t sendUpdateAllBySource(VariableSource allowedSource, bool silent = true);
+
+protected:
+    /**
+     *  0   sync on change only
+     *  1   sync always
+     *  ..  use renew count
+     */
+    uint8_t renewValueCount = BASE_SYNC_RENEW_VALUE_COUNT;
+
+private:
+    void **lastValuesCache;
+
+    uint8_t* renewValuesCount;
 };
 #endif

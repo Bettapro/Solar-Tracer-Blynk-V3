@@ -74,6 +74,7 @@ EPEVERSolarTracer::EPEVERSolarTracer(Stream &serialCom, uint16_t serialTimeoutMs
   this->setVariableEnabled(Variable::BATTERY_STATUS_TEXT);
   this->setVariableEnabled(Variable::CHARGING_EQUIPMENT_STATUS_TEXT);
   this->setVariableEnabled(Variable::DISCHARGING_EQUIPMENT_STATUS_TEXT);
+  this->setVariableEnabled(Variable::REMOTE_BATTERY_TEMP);
   this->setVariableEnabled(Variable::GENERATED_ENERGY_TODAY);
   this->setVariableEnabled(Variable::GENERATED_ENERGY_MONTH);
   this->setVariableEnabled(Variable::GENERATED_ENERGY_YEAR);
@@ -208,42 +209,43 @@ bool EPEVERSolarTracer::writeValue(Variable variable, const void *value)
    * 
    **/
 
+  bool writeResult = false;
   switch (variable)
   {
   case Variable::LOAD_FORCE_ONOFF:
-    return this->writeControllerSingleCoil(MODBUS_ADDRESS_LOAD_FORCE_ONOFF, *(bool *)value);
+    writeResult =  this->writeControllerSingleCoil(MODBUS_ADDRESS_LOAD_FORCE_ONOFF, *(bool *)value);
   case Variable::LOAD_MANUAL_ONOFF:
-    return this->writeControllerSingleCoil(MODBUS_ADDRESS_LOAD_MANUAL_ONOFF, *(bool *)value);
+    writeResult =  this->writeControllerSingleCoil(MODBUS_ADDRESS_LOAD_MANUAL_ONOFF, *(bool *)value);
   case Variable::CHARGING_DEVICE_ONOFF:
-    return this->writeControllerSingleCoil(MODBUS_ADDRESS_BATTERY_CHARGE_ONOFF, *(bool *)value);
+    writeResult =  this->writeControllerSingleCoil(MODBUS_ADDRESS_BATTERY_CHARGE_ONOFF, *(bool *)value);
     //
   case Variable::BATTERY_OVER_VOLTAGE_DISCONNECT:
-    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_HIGH_VOLTAGE_DISCONNECT, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    writeResult =  this->replaceControllerHoldingRegister(MODBUS_ADDRESS_HIGH_VOLTAGE_DISCONNECT, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
   case Variable::BATTERY_CHARGING_LIMIT_VOLTAGE:
-    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_CHARGING_LIMIT_VOLTAGE, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    writeResult =  this->replaceControllerHoldingRegister(MODBUS_ADDRESS_CHARGING_LIMIT_VOLTAGE, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
   case Variable::BATTERY_OVER_VOLTAGE_RECONNECT:
-    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_OVER_VOLTAGE_RECONNECT, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    writeResult =  this->replaceControllerHoldingRegister(MODBUS_ADDRESS_OVER_VOLTAGE_RECONNECT, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
   case Variable::BATTERY_EQUALIZATION_VOLTAGE:
-    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_EQUALIZATION_VOLTAGE, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    writeResult =  this->replaceControllerHoldingRegister(MODBUS_ADDRESS_EQUALIZATION_VOLTAGE, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
   case Variable::BATTERY_BOOST_VOLTAGE:
-    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_BOOST_VOLTAGE, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    writeResult =  this->replaceControllerHoldingRegister(MODBUS_ADDRESS_BOOST_VOLTAGE, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
   case Variable::BATTERY_FLOAT_VOLTAGE:
-    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_FLOAT_VOLTAGE, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    writeResult =  this->replaceControllerHoldingRegister(MODBUS_ADDRESS_FLOAT_VOLTAGE, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
   case Variable::BATTERY_FLOAT_MIN_VOLTAGE:
-    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_BOOST_RECONNECT_VOLTAGE, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    writeResult =  this->replaceControllerHoldingRegister(MODBUS_ADDRESS_BOOST_RECONNECT_VOLTAGE, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
   case Variable::BATTERY_LOW_VOLTAGE_RECONNECT:
-    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_LOW_VOLTAGE_RECONNECT, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    writeResult =  this->replaceControllerHoldingRegister(MODBUS_ADDRESS_LOW_VOLTAGE_RECONNECT, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
   case Variable::BATTERY_UNDER_VOLTAGE_RESET:
-    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_UNDER_VOLTAGE_RECOVER, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    writeResult =  this->replaceControllerHoldingRegister(MODBUS_ADDRESS_UNDER_VOLTAGE_RECOVER, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
   case Variable::BATTERY_UNDER_VOLTAGE_SET:
-    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_UNDER_VOLTAGE_WARNING, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    writeResult =  this->replaceControllerHoldingRegister(MODBUS_ADDRESS_UNDER_VOLTAGE_WARNING, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
   case Variable::BATTERY_LOW_VOLTAGE_DISCONNECT:
-    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_LOW_VOLTAGE_DISCONNECT, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    writeResult =  this->replaceControllerHoldingRegister(MODBUS_ADDRESS_LOW_VOLTAGE_DISCONNECT, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
   case Variable::BATTERY_DISCHARGING_LIMIT_VOLTAGE:
-    return this->replaceControllerHoldingRegister(MODBUS_ADDRESS_DISCHARGING_LIMIT_VOLTAGE, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    writeResult =  this->replaceControllerHoldingRegister(MODBUS_ADDRESS_DISCHARGING_LIMIT_VOLTAGE, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
   }
-
-  return false;
+  
+  return writeResult ? this->setVariableValue(variable, value) : false;
 }
 
 bool EPEVERSolarTracer::readControllerSingleCoil(uint16_t address)

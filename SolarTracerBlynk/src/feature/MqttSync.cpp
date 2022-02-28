@@ -101,6 +101,7 @@ void mqttCallback(char *topic, uint8_t *bytes, unsigned int length)
 
 MqttSync::MqttSync()
 {
+
     WiFiClient *espClient = new WiFiClient();
     this->mqttClient = new PubSubClient(*espClient);
 }
@@ -158,10 +159,8 @@ bool MqttSync::isVariableAllowed(const VariableDefinition *def)
 {
     return def->mqttTopic != nullptr;
 }
-bool MqttSync::sendUpdateToVariable(Variable variable, const void *value)
+bool MqttSync::sendUpdateToVariable(const VariableDefinition * def, const void *value)
 {
-    const VariableDefinition *def = VariableDefiner::getInstance().getDefinition(variable);
-
     switch (def->datatype)
     {
     case VariableDatatype::DT_FLOAT:
@@ -219,9 +218,9 @@ void MqttSync::uploadRealtimeToMqtt()
 
 #ifdef MQTT_TOPIC_INTERNAL_STATUS
     float status = Controller::getInstance().getStatus();
-    MqttSync::getInstance().sendUpdateToVariable(Variable::INTERNAL_STATUS, &(status));
+    this->sendUpdateToVariable(VariableDefiner::getInstance().getDefinition(Variable::INTERNAL_STATUS), &(status));
 #endif
-    MqttSync::getInstance().sendUpdateAllBySource(VariableSource::SR_REALTIME, false);
+    this->sendUpdateAllBySource(VariableSource::SR_REALTIME, false);
 #ifdef USE_MQTT_JSON_PUBLISH
     String output;
     serializeJson(syncJson, output);

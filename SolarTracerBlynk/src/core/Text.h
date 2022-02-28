@@ -24,18 +24,20 @@
 #ifndef TEXT_H
 #define TEXT_H
 
-
-class Text{
+class Text
+{
 public:
-    static constexpr const char* ok = "OK";
-    static constexpr const char* ko = "KO";
-    static constexpr const char* dot = ".";
-    static constexpr const char* password = "Password";
-    static constexpr const char* connecting = "Connecting ";
-    static constexpr const char* setupWithName = "++ SETTING UP %s";
-    static constexpr const char* errorWithCode = "Error[%i]";
-    static constexpr const char* syncErrorWithCountAndType = "WARNING %i %s var. are not synced";
-    static constexpr const char* syncErrorWithVariable = "WARNING \"%s\" is not synced";
+    static constexpr const char *ok = "OK";
+    static constexpr const char *ko = "KO";
+    static constexpr const char *dot = ".";
+    static constexpr const char *password = "Password";
+    static constexpr const char *connecting = "Connecting ";
+    static constexpr const char *setupWithName = "++ SETTING UP %s";
+    static constexpr const char *errorWithCode = "Error[%i]";
+    static constexpr const char *port = "Port";
+    static constexpr const char *server = "Server";
+    static constexpr const char *syncErrorWithCountAndType = "WARNING %i %s var. are not synced";
+    static constexpr const char *syncErrorWithVariable = "WARNING \"%s\" is not synced";
 };
 
 #endif

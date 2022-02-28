@@ -74,8 +74,8 @@ public:
 
 #ifndef USE_BLYNK_2
 
-            WiFiManagerParameter customBlynkServerHostname(CONFIG_PERSISTENCE_BLYNK_HOSTNAME, "Hostname", Environment::getData()->blynkServerHostname, CONFIG_PERSISTENCE_BLYNK_HOSTNAME_LEN);
-            WiFiManagerParameter custom_BlynkServerPort(CONFIG_PERSISTENCE_BLYNK_PORT, "Port", String(Environment::getData()->blynkServerPort).c_str(), 5, "type=\"number\" min=\"0\"");
+            WiFiManagerParameter customBlynkServerHostname(CONFIG_PERSISTENCE_BLYNK_HOSTNAME, Text::server, Environment::getData()->blynkServerHostname, CONFIG_PERSISTENCE_BLYNK_HOSTNAME_LEN);
+            WiFiManagerParameter custom_BlynkServerPort(CONFIG_PERSISTENCE_BLYNK_PORT, Text::port, String(Environment::getData()->blynkServerPort).c_str(), 5, "type=\"number\" min=\"0\"");
 
             wifiManager.addParameter(&customBlynkServerHostname);
             wifiManager.addParameter(&custom_BlynkServerPort);
@@ -86,10 +86,10 @@ public:
             WiFiManagerParameter custom_mqttText("<p><b>MQTT:</b></p>");
             wifiManager.addParameter(&custom_mqttText);
 
-            WiFiManagerParameter custom_mqttServer(CONFIG_PERSISTENCE_MQTT_HOSTNAME, "Server", Environment::getData()->mqttServerHostname, CONFIG_PERSISTENCE_MQTT_HOSTNAME_LEN);
+            WiFiManagerParameter custom_mqttServer(CONFIG_PERSISTENCE_MQTT_HOSTNAME, Text::server, Environment::getData()->mqttServerHostname, CONFIG_PERSISTENCE_MQTT_HOSTNAME_LEN);
             wifiManager.addParameter(&custom_mqttServer);
             char portString[5];
-            WiFiManagerParameter custom_mqttServerPort(CONFIG_PERSISTENCE_MQTT_PORT, "Port", Util::intToChar(Environment::getData()->mqttServerPort, portString), 5, "type=\"number\" min=\"0\"");
+            WiFiManagerParameter custom_mqttServerPort(CONFIG_PERSISTENCE_MQTT_PORT, Text::port, Util::intToChar(Environment::getData()->mqttServerPort, portString), 5, "type=\"number\" min=\"0\"");
             wifiManager.addParameter(&custom_mqttServerPort);
             WiFiManagerParameter custom_mqttUsername(CONFIG_PERSISTENCE_MQTT_USERNAME, "Username", Environment::getData()->mqttUsername, CONFIG_PERSISTENCE_MQTT_USERNAME_LEN);
             wifiManager.addParameter(&custom_mqttUsername);
@@ -120,7 +120,7 @@ public:
 #ifdef USE_NTP_SERVER
             WiFiManagerParameter customNtpText("<p><b>NTP:</b></p>");
 
-            WiFiManagerParameter customNtpServer(CONFIG_PERSISTENCE_NTP_SERVER, "Server", Environment::getData()->ntpServer, CONFIG_PERSISTENCE_NTP_SERVER_LEN);
+            WiFiManagerParameter customNtpServer(CONFIG_PERSISTENCE_NTP_SERVER, Text::server, Environment::getData()->ntpServer, CONFIG_PERSISTENCE_NTP_SERVER_LEN);
             WiFiManagerParameter customNtpTimezone(CONFIG_PERSISTENCE_NTP_TIMEZONE, "Timezone", Environment::getData()->ntpTimezone, CONFIG_PERSISTENCE_NTP_TIMEZONE_LEN);
 
             wifiManager.addParameter(&customNtpText);

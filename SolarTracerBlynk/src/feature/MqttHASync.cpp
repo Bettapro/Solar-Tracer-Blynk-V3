@@ -71,6 +71,8 @@ void onMqttBoolCallback(bool value, HASwitch *el)
                 {
                     debugPrintln("REQUEST ALL VALUES TO CONTROLLER");
                     Controller::getInstance().getSolarController()->fetchAllValues();
+                    MqttHASync::getInstance().uploadRealtimeToMqtt();
+                    MqttHASync::getInstance().uploadStatsToMqtt();
                     el->setState(false);
                 }
                 break;
@@ -81,8 +83,10 @@ void onMqttBoolCallback(bool value, HASwitch *el)
     }
 }
 
-MqttHASync::MqttHASync()
+MqttHASync::MqttHASync() : BaseSync()
 {
+    this->renewValueCount = 0;
+
     WiFiClient *wifiClient = new WiFiClient;
 
     device = new HADevice(MQTT_HOME_ASSISTANT_DEVICE_ID);
@@ -209,7 +213,7 @@ bool MqttHASync::attemptMqttHASyncConnect()
 {
     if (!initialized)
     {
-        environrmentData * envData = Environment::getData();
+        environrmentData *envData = Environment::getData();
         initialized = mqtt->begin(
             envData->mqttServerHostname,
             envData->mqttServerPort,
@@ -243,11 +247,10 @@ bool MqttHASync::isVariableAllowed(const VariableDefinition *def)
 {
     return def->mqttTopic != nullptr;
 }
-bool MqttHASync::sendUpdateToVariable(Variable variable, const void *value)
+bool MqttHASync::sendUpdateToVariable(const VariableDefinition * def, const void *value)
 {
 
-    BaseDeviceType *sensor = haSensors[variable];
-    const VariableDefinition *def = VariableDefiner::getInstance().getDefinition(variable);
+    BaseDeviceType *sensor = haSensors[def->variable];
     bool result = false;
     ignoreCallback = true;
     switch (def->datatype)
@@ -266,6 +269,7 @@ bool MqttHASync::sendUpdateToVariable(Variable variable, const void *value)
     return result;
 }
 
+
 // upload values stats
 void MqttHASync::uploadStatsToMqtt()
 {
@@ -274,7 +278,7 @@ void MqttHASync::uploadStatsToMqtt()
         return;
     }
 
-    MqttHASync::getInstance().sendUpdateAllBySource(VariableSource::SR_STATS, false);
+    this->sendUpdateAllBySource(VariableSource::SR_STATS, false);
 }
 
 // upload values realtime
@@ -287,9 +291,9 @@ void MqttHASync::uploadRealtimeToMqtt()
 
 #ifdef MQTT_TOPIC_INTERNAL_STATUS
     float status = Controller::getInstance().getStatus();
-    MqttHASync::getInstance().sendUpdateToVariable(Variable::INTERNAL_STATUS, &(status));
+    this->syncVariable(VariableDefiner::getInstance().getDefinition(Variable::INTERNAL_STATUS), &(status));
 #endif
-    MqttHASync::getInstance().sendUpdateAllBySource(VariableSource::SR_REALTIME, false);
+    this->sendUpdateAllBySource(VariableSource::SR_REALTIME, false);
 }
 
 #endif

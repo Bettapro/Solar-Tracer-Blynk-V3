@@ -35,7 +35,6 @@
 
 #define BLYNK_CONNECT_ATTEMPT 3
 #define BLYNK_VALUE_CACHES_UNTIL_COUNT 15
-#define BLYNK_VALUE_CACHES_STRING_LEN 20
 
 #ifdef vPIN_INTERNAL_DEBUG_TERMINAL
 void blynkDebugCallback(String message);
@@ -54,7 +53,7 @@ public:
   void connect();
   void loop();
   inline bool isVariableAllowed(const VariableDefinition *def);
-  bool sendUpdateToVariable(Variable variable, const void *value);
+  bool sendUpdateToVariable(const VariableDefinition * def, const void *value);
   // upload values stats
   void uploadStatsToBlynk();
   // upload values realtime
@@ -62,9 +61,6 @@ public:
 
 private:
   BlynkSync();
-
-  void *blynkValuesCache[Variable::VARIABLES_COUNT];
-  uint8_t blynkValuesCacheValid[Variable::VARIABLES_COUNT];
 };
 
 bool BlynkSync::isVariableAllowed(const VariableDefinition *def)
