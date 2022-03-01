@@ -66,44 +66,44 @@ public:
             wifiManager.setDebugOutput(false);
 
 #ifdef USE_BLYNK
-            WiFiManagerParameter custom_blynkLocalServerText("<p><b>BLYNK:</b></p>");
-            wifiManager.addParameter(&custom_blynkLocalServerText);
+            WiFiManagerParameter customBlynkLocalServerText("<p><b>BLYNK:</b></p>");
+            wifiManager.addParameter(&customBlynkLocalServerText);
 
-            WiFiManagerParameter custom_BlynkAuth(CONFIG_PERSISTENCE_BLYNK_AUTH, "API key", Environment::getData()->blynkAuth, CONFIG_PERSISTENCE_BLYNK_AUTH_LEN);
-            wifiManager.addParameter(&custom_BlynkAuth);
+            WiFiManagerParameter customBlynkAuth(CONFIG_PERSISTENCE_BLYNK_AUTH, "API key", Environment::getData()->blynkAuth, CONFIG_PERSISTENCE_BLYNK_AUTH_LEN);
+            wifiManager.addParameter(&customBlynkAuth);
 
 #ifndef USE_BLYNK_2
 
             WiFiManagerParameter customBlynkServerHostname(CONFIG_PERSISTENCE_BLYNK_HOSTNAME, Text::server, Environment::getData()->blynkServerHostname, CONFIG_PERSISTENCE_BLYNK_HOSTNAME_LEN);
-            WiFiManagerParameter custom_BlynkServerPort(CONFIG_PERSISTENCE_BLYNK_PORT, Text::port, String(Environment::getData()->blynkServerPort).c_str(), 5, "type=\"number\" min=\"0\"");
+            WiFiManagerParameter customBlynkServerPort(CONFIG_PERSISTENCE_BLYNK_PORT, Text::port, String(Environment::getData()->blynkServerPort).c_str(), 5, "type=\"number\" min=\"0\"");
 
             wifiManager.addParameter(&customBlynkServerHostname);
-            wifiManager.addParameter(&custom_BlynkServerPort);
+            wifiManager.addParameter(&customBlynkServerPort);
 #endif
 #endif
 
 #ifdef USE_MQTT
-            WiFiManagerParameter custom_mqttText("<p><b>MQTT:</b></p>");
-            wifiManager.addParameter(&custom_mqttText);
+            WiFiManagerParameter customMqttText("<p><b>MQTT:</b></p>");
+            wifiManager.addParameter(&customMqttText);
 
-            WiFiManagerParameter custom_mqttServer(CONFIG_PERSISTENCE_MQTT_HOSTNAME, Text::server, Environment::getData()->mqttServerHostname, CONFIG_PERSISTENCE_MQTT_HOSTNAME_LEN);
-            wifiManager.addParameter(&custom_mqttServer);
+            WiFiManagerParameter customMqttServer(CONFIG_PERSISTENCE_MQTT_HOSTNAME, Text::server, Environment::getData()->mqttServerHostname, CONFIG_PERSISTENCE_MQTT_HOSTNAME_LEN);
+            wifiManager.addParameter(&customMqttServer);
             char portString[5];
-            WiFiManagerParameter custom_mqttServerPort(CONFIG_PERSISTENCE_MQTT_PORT, Text::port, Util::intToChar(Environment::getData()->mqttServerPort, portString), 5, "type=\"number\" min=\"0\"");
-            wifiManager.addParameter(&custom_mqttServerPort);
-            WiFiManagerParameter custom_mqttUsername(CONFIG_PERSISTENCE_MQTT_USERNAME, "Username", Environment::getData()->mqttUsername, CONFIG_PERSISTENCE_MQTT_USERNAME_LEN);
-            wifiManager.addParameter(&custom_mqttUsername);
-            WiFiManagerParameter custom_mqttPassword(CONFIG_PERSISTENCE_MQTT_PASSWORD, Text::password, Environment::getData()->mqttPassword, CONFIG_PERSISTENCE_MQTT_PASSWORD_LEN);
-            wifiManager.addParameter(&custom_mqttPassword);
+            WiFiManagerParameter customMqttServerPort(CONFIG_PERSISTENCE_MQTT_PORT, Text::port, Util::intToChar(Environment::getData()->mqttServerPort, portString), 5, "type=\"number\" min=\"0\"");
+            wifiManager.addParameter(&customMqttServerPort);
+            WiFiManagerParameter customMqttUsername(CONFIG_PERSISTENCE_MQTT_USERNAME, "Username", Environment::getData()->mqttUsername, CONFIG_PERSISTENCE_MQTT_USERNAME_LEN);
+            wifiManager.addParameter(&customMqttUsername);
+            WiFiManagerParameter customMqttPassword(CONFIG_PERSISTENCE_MQTT_PASSWORD, Text::password, Environment::getData()->mqttPassword, CONFIG_PERSISTENCE_MQTT_PASSWORD_LEN);
+            wifiManager.addParameter(&customMqttPassword);
 #endif
 #ifdef USE_MQTT_HOME_ASSISTANT
-            WiFiManagerParameter custom_mqttHAText("<p><b>MQTT-HA:</b></p>");
-            wifiManager.addParameter(&custom_mqttHAText);
+            WiFiManagerParameter customMqttHAText("<p><b>MQTT-HA:</b></p>");
+            wifiManager.addParameter(&customMqttHAText);
 
-            WiFiManagerParameter custom_mqttHADeviceName(CONFIG_PERSISTENCE_MQTT_HA_DEVICE_NAME, "Device Name", Environment::getData()->mqttHADeviceName, CONFIG_PERSISTENCE_MQTT_HA_DEVICE_NAME_LEN);
-            wifiManager.addParameter(&custom_mqttHADeviceName);
-            WiFiManagerParameter custom_mqttHADeviceId(CONFIG_PERSISTENCE_MQTT_HA_DEVICE_ID, "Id", Environment::getData()->mqttHADeviceId, CONFIG_PERSISTENCE_MQTT_HA_DEVICE_ID_LEN);
-            wifiManager.addParameter(&custom_mqttHADeviceId);
+            WiFiManagerParameter customMqttHADeviceName(CONFIG_PERSISTENCE_MQTT_HA_DEVICE_NAME, "Device Name", Environment::getData()->mqttHADeviceName, CONFIG_PERSISTENCE_MQTT_HA_DEVICE_NAME_LEN);
+            wifiManager.addParameter(&customMqttHADeviceName);
+            WiFiManagerParameter customMqttHADeviceId(CONFIG_PERSISTENCE_MQTT_HA_DEVICE_ID, "Id", Environment::getData()->mqttHADeviceId, CONFIG_PERSISTENCE_MQTT_HA_DEVICE_ID_LEN);
+            wifiManager.addParameter(&customMqttHADeviceId);
 #endif
 
 #ifdef USE_OTA_UPDATE
@@ -128,13 +128,13 @@ public:
             wifiManager.addParameter(&customNtpTimezone);
 #endif
 
-            WiFiManagerParameter custom_wmText("<p><b>ACCESS POINT:</b></p>");
-            WiFiManagerParameter custom_wmSSID(CONFIG_PERSISTENCE_WM_AP_SSID, "SSID", Environment::getData()->wmApSSID, CONFIG_PERSISTENCE_WM_AP_SSID_LEN);
-            WiFiManagerParameter custom_wmPassword(CONFIG_PERSISTENCE_WM_AP_PASSWORD, Text::password, Environment::getData()->wmApPassword, CONFIG_PERSISTENCE_WM_AP_PASSWORD_LEN);
+            WiFiManagerParameter customWmText("<p><b>ACCESS POINT:</b></p>");
+            WiFiManagerParameter customWmSSID(CONFIG_PERSISTENCE_WM_AP_SSID, "SSID", Environment::getData()->wmApSSID, CONFIG_PERSISTENCE_WM_AP_SSID_LEN);
+            WiFiManagerParameter customWmPassword(CONFIG_PERSISTENCE_WM_AP_PASSWORD, Text::password, Environment::getData()->wmApPassword, CONFIG_PERSISTENCE_WM_AP_PASSWORD_LEN);
 
-            wifiManager.addParameter(&custom_wmText);
-            wifiManager.addParameter(&custom_wmSSID);
-            wifiManager.addParameter(&custom_wmPassword);
+            wifiManager.addParameter(&customWmText);
+            wifiManager.addParameter(&customWmSSID);
+            wifiManager.addParameter(&customWmPassword);
 
             wifiManager.startConfigPortal(Environment::getData()->wmApSSID, Environment::getData()->wmApPassword);
 
@@ -158,24 +158,24 @@ public:
                   doc[CONFIG_PERSISTENCE_WIFI_SSID] = WiFi.SSID();
                   doc[CONFIG_PERSISTENCE_WIFI_PASSWORD] = WiFi.psk();
 
-                  doc[CONFIG_PERSISTENCE_WM_AP_SSID] = custom_wmSSID.getValue();
-                  doc[CONFIG_PERSISTENCE_WM_AP_PASSWORD] = custom_wmPassword.getValue();
+                  doc[CONFIG_PERSISTENCE_WM_AP_SSID] = customWmSSID.getValue();
+                  doc[CONFIG_PERSISTENCE_WM_AP_PASSWORD] = customWmPassword.getValue();
 #ifdef USE_BLYNK
-                  doc[CONFIG_PERSISTENCE_BLYNK_AUTH] = custom_BlynkAuth.getValue();
+                  doc[CONFIG_PERSISTENCE_BLYNK_AUTH] = customBlynkAuth.getValue();
 #ifndef USE_BLYNK_2
                   doc[CONFIG_PERSISTENCE_BLYNK_HOSTNAME] = customBlynkServerHostname.getValue();
-                  doc[CONFIG_PERSISTENCE_BLYNK_PORT] = strlen(blynkServerPort.getValue()) > 0 ? atoi(blynkServerPort.getValue()) : 0;
+                  doc[CONFIG_PERSISTENCE_BLYNK_PORT] = strlen(customBlynkServerPort.getValue()) > 0 ? atoi(customBlynkServerPort.getValue()) : 0;
 #endif
 #endif
 #ifdef USE_MQTT
-                  doc[CONFIG_PERSISTENCE_MQTT_HOSTNAME] =  custom_mqttServer.getValue();
-                  doc[CONFIG_PERSISTENCE_MQTT_PORT] = strlen(custom_mqttServerPort.getValue()) > 0 ? atoi(custom_mqttServerPort.getValue()) : 0;
-                  doc[CONFIG_PERSISTENCE_MQTT_USERNAME] = custom_mqttUsername.getValue();
-                  doc[CONFIG_PERSISTENCE_MQTT_PASSWORD] =  custom_mqttPassword.getValue();
+                  doc[CONFIG_PERSISTENCE_MQTT_HOSTNAME] =  customMqttServer.getValue();
+                  doc[CONFIG_PERSISTENCE_MQTT_PORT] = strlen(customMqttServerPort.getValue()) > 0 ? atoi(customMqttServerPort.getValue()) : 0;
+                  doc[CONFIG_PERSISTENCE_MQTT_USERNAME] = customMqttUsername.getValue();
+                  doc[CONFIG_PERSISTENCE_MQTT_PASSWORD] =  customMqttPassword.getValue();
 #endif
 #ifdef USE_MQTT_HOME_ASSISTANT
-                  doc[CONFIG_PERSISTENCE_MQTT_HA_DEVICE_NAME] = custom_mqttHADeviceName.getValue();
-                  doc[CONFIG_PERSISTENCE_MQTT_HA_DEVICE_ID] = custom_mqttHADeviceId.getValue();
+                  doc[CONFIG_PERSISTENCE_MQTT_HA_DEVICE_NAME] = customMqttHADeviceName.getValue();
+                  doc[CONFIG_PERSISTENCE_MQTT_HA_DEVICE_ID] = customMqttHADeviceId.getValue();
 #endif
 
 #ifdef USE_OTA_UPDATE
