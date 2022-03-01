@@ -351,5 +351,5 @@
   // internal
   #define MQTT_TOPIC_INTERNAL_STATUS                          MQTT_TOPIC_ROOT "internal_status"
   //action
-  #define MQTT_TOPIC_UPDATE_ALL_CONTROLLER_DATA               MQTT_TOPIC_ROOT "internal_updateAll"
+  #define MQTT_TOPIC_UPDATE_ALL_CONTROLLER_DATA               MQTT_TOPIC_ROOT "internal_update_all"
 #endif

@@ -95,7 +95,7 @@ void Environment::loadEnvData()
 #endif
 #endif
 #ifdef USE_MQTT
-                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_MQTT_HOSTNAME, envData.otaHostname);
+                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_MQTT_HOSTNAME, envData.mqttServerHostname);
                 loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_MQTT_PASSWORD, envData.mqttPassword);
                 loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_MQTT_USERNAME, envData.mqttUsername);
                 if (doc.containsKey(CONFIG_PERSISTENCE_MQTT_PORT))
@@ -103,8 +103,8 @@ void Environment::loadEnvData()
 
 #endif
 #ifdef USE_MQTT_HOME_ASSISTANT
-                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_MQTT_HA_DEVICE_ID, envData.mqttHADeviceName);
-                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_MQTT_HA_DEVICE_NAME, envData.mqttHADeviceId);
+                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_MQTT_HA_DEVICE_ID, envData.mqttHADeviceId);
+                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_MQTT_HA_DEVICE_NAME, envData.mqttHADeviceName);
 #endif
 
 #ifdef USE_OTA_UPDATE

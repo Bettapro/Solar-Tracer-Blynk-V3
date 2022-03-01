@@ -142,39 +142,6 @@ public:
             {
                   debugPrintln("Saving wifimanager parameters... ");
 
-                  strcpy(Environment::getData()->wmApSSID, custom_wmSSID.getValue());
-                  strcpy(Environment::getData()->wmApPassword, custom_wmPassword.getValue());
-
-#ifdef USE_BLYNK
-#ifndef USE_BLYNK_2
-                  Environment::getData()->blynkLocalServer = strlen(customBlynkServerHostname.getValue()) > 0;
-                  strcpy(Environment::getData()->blynkServerHostname, !Environment::getData()->blynkLocalServer ? "" : customBlynkServerHostname.getValue());
-                  Environment::getData()->blynkServerPort = !Environment::getData()->blynkLocalServer ? 0 : String(custom_BlynkServerPort.getValue()).toInt();
-#endif
-                  strcpy(Environment::getData()->blynkAuth, custom_BlynkAuth.getValue());
-#endif
-
-#ifdef USE_MQTT
-                  strcpy(Environment::getData()->mqttServerHostname, custom_mqttServer.getValue());
-                  Environment::getData()->mqttServerPort = atoi(custom_mqttServerPort.getValue());
-                  strcpy(Environment::getData()->mqttUsername, custom_mqttUsername.getValue());
-                  strcpy(Environment::getData()->mqttPassword, custom_mqttPassword.getValue());
-#endif
-#ifdef USE_MQTT_HOME_ASSISTANT
-                  strcpy(Environment::getData()->mqttHADeviceName, custom_mqttHADeviceId.getValue());
-                  strcpy(Environment::getData()->mqttHADeviceId, custom_mqttHADeviceName.getValue());
-#endif
-
-#ifdef USE_OTA_UPDATE
-                  strcpy(Environment::getData()->otaHostname, customOtaHostname.getValue());
-                  strcpy(Environment::getData()->otaPassword, customOtaPassword.getValue());
-#endif
-
-#ifdef USE_NTP_SERVER
-                  strcpy(Environment::getData()->ntpServer, customNtpServer.getValue());
-                  strcpy(Environment::getData()->ntpTimezone, customNtpTimezone.getValue());
-#endif
-
                   // if LittleFS is not usable
                   if (!LittleFS.begin())
                   {
@@ -191,26 +158,35 @@ public:
                   doc[CONFIG_PERSISTENCE_WIFI_SSID] = WiFi.SSID();
                   doc[CONFIG_PERSISTENCE_WIFI_PASSWORD] = WiFi.psk();
 
-                  doc[CONFIG_PERSISTENCE_WM_AP_SSID] = Environment::getData()->wmApSSID;
-                  doc[CONFIG_PERSISTENCE_WM_AP_PASSWORD] = Environment::getData()->wmApPassword;
+                  doc[CONFIG_PERSISTENCE_WM_AP_SSID] = custom_wmSSID.getValue();
+                  doc[CONFIG_PERSISTENCE_WM_AP_PASSWORD] = custom_wmPassword.getValue();
 #ifdef USE_BLYNK
-                  doc[CONFIG_PERSISTENCE_BLYNK_AUTH] = Environment::getData()->blynkAuth;
+                  doc[CONFIG_PERSISTENCE_BLYNK_AUTH] = custom_BlynkAuth.getValue();
 #ifndef USE_BLYNK_2
-                  doc[CONFIG_PERSISTENCE_BLYNK_HOSTNAME] = Environment::getData()->blynkServerHostname;
-                  doc[CONFIG_PERSISTENCE_BLYNK_PORT] = Environment::getData()->blynkServerPort;
+                  doc[CONFIG_PERSISTENCE_BLYNK_HOSTNAME] = customBlynkServerHostname.getValue();
+                  doc[CONFIG_PERSISTENCE_BLYNK_PORT] = strlen(blynkServerPort.getValue()) > 0 ? atoi(blynkServerPort.getValue()) : 0;
 #endif
+#endif
+#ifdef USE_MQTT
+                  doc[CONFIG_PERSISTENCE_MQTT_HOSTNAME] =  custom_mqttServer.getValue();
+                  doc[CONFIG_PERSISTENCE_MQTT_PORT] = strlen(custom_mqttServerPort.getValue()) > 0 ? atoi(custom_mqttServerPort.getValue()) : 0;
+                  doc[CONFIG_PERSISTENCE_MQTT_USERNAME] = custom_mqttUsername.getValue();
+                  doc[CONFIG_PERSISTENCE_MQTT_PASSWORD] =  custom_mqttPassword.getValue();
+#endif
+#ifdef USE_MQTT_HOME_ASSISTANT
+                  doc[CONFIG_PERSISTENCE_MQTT_HA_DEVICE_NAME] = custom_mqttHADeviceName.getValue();
+                  doc[CONFIG_PERSISTENCE_MQTT_HA_DEVICE_ID] = custom_mqttHADeviceId.getValue();
 #endif
 
 #ifdef USE_OTA_UPDATE
-                  doc[CONFIG_PERSISTENCE_OTA_HOSTNAME] = Environment::getData()->otaHostname;
-                  doc[CONFIG_PERSISTENCE_OTA_PASSWORD] = Environment::getData()->otaPassword;
+                  doc[CONFIG_PERSISTENCE_OTA_HOSTNAME] = customOtaHostname.getValue();
+                  doc[CONFIG_PERSISTENCE_OTA_PASSWORD] = customOtaPassword.getValue();
 #endif
 
 #ifdef USE_NTP_SERVER
-                  doc[CONFIG_PERSISTENCE_NTP_SERVER] = Environment::getData()->ntpServer;
-                  doc[CONFIG_PERSISTENCE_NTP_TIMEZONE] = Environment::getData()->ntpTimezone;
+                  doc[CONFIG_PERSISTENCE_NTP_SERVER] = customNtpServer.getValue();
+                  doc[CONFIG_PERSISTENCE_NTP_TIMEZONE] = customNtpTimezone.getValue();
 #endif
-
                   File configFile = LittleFS.open(CONFIG_PERSISTENCE, "w");
                   if (!configFile)
                   {

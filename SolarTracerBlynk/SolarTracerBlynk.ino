@@ -146,6 +146,7 @@ void setup()
     {
       debugPrintln(" ++ Start AP configuration");
       WifiManagerSTB::startWifiConfigurationAP(true);
+      ESP.restart();
     }
   }
 #endif
@@ -163,6 +164,7 @@ void setup()
     {
       debugPrintln(" ++ Start AP configuration");
       WifiManagerSTB::startWifiConfigurationAP(true);
+      ESP.restart();
     }
   }
 #endif
@@ -171,15 +173,11 @@ void setup()
   {
 #if defined USE_WIFI_AP_CONFIGURATION
     WifiManagerSTB::startWifiConfigurationAP(false);
-    if (!WiFi.isConnected())
-    {
-      ESP.restart();
-    }
 #else
     debugPrintln("Connection Failed! Rebooting...");
     delay(5000);
-    ESP.restart();
 #endif
+    ESP.restart();
   }
   debugPrintln("Connected.");
   debugPrint("IP address: ");

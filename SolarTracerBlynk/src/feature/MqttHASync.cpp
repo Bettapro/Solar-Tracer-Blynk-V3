@@ -89,7 +89,7 @@ MqttHASync::MqttHASync() : BaseSync()
 
     WiFiClient *wifiClient = new WiFiClient;
 
-    device = new HADevice(MQTT_HOME_ASSISTANT_DEVICE_ID);
+    device = new HADevice(Environment::getData()->mqttHADeviceId);
     mqtt = new HAMqtt(*wifiClient, *device);
 }
 
@@ -100,8 +100,9 @@ void MqttHASync::setup()
 
     // set device's details
 
-    device->setName(MQTT_HOME_ASSISTANT_DEVICE_NAME);
+    device->setName(Environment::getData()->mqttHADeviceName);
     device->setManufacturer(PROJECT_NAME);
+    device->setModel(PROJECT_NAME);
     device->setSoftwareVersion(PROJECT_VERSION);
 
     for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++)
@@ -214,6 +215,7 @@ bool MqttHASync::attemptMqttHASyncConnect()
     if (!initialized)
     {
         environrmentData *envData = Environment::getData();
+        debugPrintf(true, "%s %d %s %s", envData->mqttServerHostname, envData->mqttServerPort, envData->mqttUsername, envData->mqttPassword);
         initialized = mqtt->begin(
             envData->mqttServerHostname,
             envData->mqttServerPort,
@@ -247,7 +249,7 @@ bool MqttHASync::isVariableAllowed(const VariableDefinition *def)
 {
     return def->mqttTopic != nullptr;
 }
-bool MqttHASync::sendUpdateToVariable(const VariableDefinition * def, const void *value)
+bool MqttHASync::sendUpdateToVariable(const VariableDefinition *def, const void *value)
 {
 
     BaseDeviceType *sensor = haSensors[def->variable];
@@ -268,7 +270,6 @@ bool MqttHASync::sendUpdateToVariable(const VariableDefinition * def, const void
     ignoreCallback = false;
     return result;
 }
-
 
 // upload values stats
 void MqttHASync::uploadStatsToMqtt()
