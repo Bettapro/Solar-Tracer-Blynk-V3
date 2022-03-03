@@ -1,6 +1,6 @@
 /**
  * Solar Tracer Blynk V3 [https://github.com/Bettapro/Solar-Tracer-Blynk-V3]
- * Copyright (c) 2021 Alberto Bettin 
+ * Copyright (c) 2021 Alberto Bettin
  *
  * Based on the work of @jaminNZx and @tekk.
  *
@@ -21,8 +21,9 @@
 
 #include "EPEVERSolarTracer.h"
 
-#define _EST_RS_POINTER(s, v) (s ? &v : nullptr)
+const uint8_t EPEVERSolarTracer::voltageLevels[] = {12, 24, 36, 48, 60, 110, 120, 220, 240, 0};
 
+#define _EST_RS_POINTER(s, v) (s ? &v : nullptr)
 
 EPEVERSolarTracer::EPEVERSolarTracer(Stream &serialCom, uint16_t serialTimeoutMs, uint8_t slave, uint8_t max485_de, uint8_t max485_re_neg)
     : EPEVERSolarTracer(serialCom, serialTimeoutMs, slave)
@@ -96,6 +97,17 @@ EPEVERSolarTracer::EPEVERSolarTracer(Stream &serialCom, uint16_t serialTimeoutMs
   this->setVariableEnabled(Variable::BATTERY_OVER_VOLTAGE_RECONNECT);
   this->setVariableEnabled(Variable::BATTERY_UNDER_VOLTAGE_SET);
   this->setVariableEnabled(Variable::BATTERY_UNDER_VOLTAGE_RESET);
+  this->setVariableEnabled(Variable::BATTERY_OVER_VOLTAGE_RECONNECT);
+  this->setVariableEnabled(Variable::BATTERY_UNDER_VOLTAGE_SET);
+  this->setVariableEnabled(Variable::BATTERY_UNDER_VOLTAGE_RESET);
+  this->setVariableEnabled(Variable::BATTERY_TYPE);
+  this->setVariableEnabled(Variable::BATTERY_CAPACITY);
+  this->setVariableEnabled(Variable::BATTERY_TEMPERATURE_COMPENSATION_COEFFICIENT);
+
+   this->setVariableEnabled(Variable::BATTERY_MANAGEMENT_MODE);
+   this->setVariableEnabled(Variable::BATTERY_RATED_VOLTAGE);
+   this->setVariableEnabled(Variable::BATTERY_BOOST_DURATION);
+   this->setVariableEnabled(Variable::BATTERY_EQUALIZATION_DURATION);
 }
 
 bool EPEVERSolarTracer::testConnection()
@@ -124,7 +136,9 @@ void EPEVERSolarTracer::fetchAllValues()
   // STATS
   this->updateStats();
   this->AddressRegistry_9003();
-  //REALTIME
+  this->AddressRegistry_9067();
+  this->AddressRegistry_906B();
+  // REALTIME
   this->AddressRegistry_3100();
   this->AddressRegistry_3110();
   this->AddressRegistry_311A();
@@ -142,6 +156,8 @@ bool EPEVERSolarTracer::updateRun()
     // update statistics
     this->updateStats();
     this->AddressRegistry_9003();
+    this->AddressRegistry_9067();
+    this->AddressRegistry_906B();
     globalUpdateCounter = 0;
     break;
   default:
@@ -193,7 +209,6 @@ bool EPEVERSolarTracer::fetchValue(Variable variable)
   return false;
 }
 
-
 bool EPEVERSolarTracer::writeValue(Variable variable, const void *value)
 {
   if (!this->isVariableEnabled(variable))
@@ -202,49 +217,86 @@ bool EPEVERSolarTracer::writeValue(Variable variable, const void *value)
   }
   /**
    * 0x9000 - 0x900E
-   * 
+   *
    * https://diysolarforum.com/threads/setting-registers-in-epever-controller-with-python.25406/
    * Some holding registers cannot be set directly - error 04, it's mandatory to write a block of
    * xx registers at once - direct write not allowed on single holding register
-   * 
+   *
    **/
 
   bool writeResult = false;
   switch (variable)
   {
   case Variable::LOAD_FORCE_ONOFF:
-    writeResult =  this->writeControllerSingleCoil(MODBUS_ADDRESS_LOAD_FORCE_ONOFF, *(bool *)value);
+    writeResult = this->writeControllerSingleCoil(MODBUS_ADDRESS_LOAD_FORCE_ONOFF, *(bool *)value);
+    break;
   case Variable::LOAD_MANUAL_ONOFF:
-    writeResult =  this->writeControllerSingleCoil(MODBUS_ADDRESS_LOAD_MANUAL_ONOFF, *(bool *)value);
+    writeResult = this->writeControllerSingleCoil(MODBUS_ADDRESS_LOAD_MANUAL_ONOFF, *(bool *)value);
+    break;
   case Variable::CHARGING_DEVICE_ONOFF:
-    writeResult =  this->writeControllerSingleCoil(MODBUS_ADDRESS_BATTERY_CHARGE_ONOFF, *(bool *)value);
+    writeResult = this->writeControllerSingleCoil(MODBUS_ADDRESS_BATTERY_CHARGE_ONOFF, *(bool *)value);
+    break;
     //
+  case Variable::BATTERY_RATED_VOLTAGE:
+    writeResult = this->writeControllerHoldingRegister(MODBUS_ADDRESS_BATTERY_RATED_LEVEL, EPEVERSolarTracer::getBatteryVoltageLevelFromVoltage(*(uint16_t *)value));
+    break;
+  case Variable::BATTERY_MANAGEMENT_MODE:
+    writeResult = this->writeControllerHoldingRegister(MODBUS_ADDRESS_CHARGING_MODE, (*(uint16_t *)value));
+    break;
+  case Variable::BATTERY_EQUALIZATION_DURATION:
+    writeResult = this->writeControllerHoldingRegister(MODBUS_ADDRESS_EQUALIZE_DURATION, (*(uint16_t *)value));
+    break;
+  case Variable::BATTERY_BOOST_DURATION:
+    writeResult = this->writeControllerHoldingRegister(MODBUS_ADDRESS_BOOST_DURATION, (*(uint16_t *)value));
+    break;
+    //
+  case Variable::BATTERY_TYPE:
+    writeResult = this->replaceControllerHoldingRegister(MODBUS_ADDRESS_BATTERY_TYPE, (*(uint16_t *)value), MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    break;
+  case Variable::BATTERY_CAPACITY:
+    writeResult = this->replaceControllerHoldingRegister(MODBUS_ADDRESS_BATTERY_CAPACITY, (*(uint16_t *)value), MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    break;
+  case Variable::BATTERY_TEMPERATURE_COMPENSATION_COEFFICIENT:
+    writeResult = this->replaceControllerHoldingRegister(MODBUS_ADDRESS_BATTERY_TEMP_COEFF, (*(float *)value) * ONE_HUNDRED_FLOAT, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    break;
   case Variable::BATTERY_OVER_VOLTAGE_DISCONNECT:
-    writeResult =  this->replaceControllerHoldingRegister(MODBUS_ADDRESS_HIGH_VOLTAGE_DISCONNECT, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    writeResult = this->replaceControllerHoldingRegister(MODBUS_ADDRESS_HIGH_VOLTAGE_DISCONNECT, (*(float *)value) * ONE_HUNDRED_FLOAT, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    break;
   case Variable::BATTERY_CHARGING_LIMIT_VOLTAGE:
-    writeResult =  this->replaceControllerHoldingRegister(MODBUS_ADDRESS_CHARGING_LIMIT_VOLTAGE, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    writeResult = this->replaceControllerHoldingRegister(MODBUS_ADDRESS_CHARGING_LIMIT_VOLTAGE, (*(float *)value) * ONE_HUNDRED_FLOAT, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    break;
   case Variable::BATTERY_OVER_VOLTAGE_RECONNECT:
-    writeResult =  this->replaceControllerHoldingRegister(MODBUS_ADDRESS_OVER_VOLTAGE_RECONNECT, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    writeResult = this->replaceControllerHoldingRegister(MODBUS_ADDRESS_OVER_VOLTAGE_RECONNECT, (*(float *)value) * ONE_HUNDRED_FLOAT, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    break;
   case Variable::BATTERY_EQUALIZATION_VOLTAGE:
-    writeResult =  this->replaceControllerHoldingRegister(MODBUS_ADDRESS_EQUALIZATION_VOLTAGE, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    writeResult = this->replaceControllerHoldingRegister(MODBUS_ADDRESS_EQUALIZATION_VOLTAGE, (*(float *)value) * ONE_HUNDRED_FLOAT, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    break;
   case Variable::BATTERY_BOOST_VOLTAGE:
-    writeResult =  this->replaceControllerHoldingRegister(MODBUS_ADDRESS_BOOST_VOLTAGE, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    writeResult = this->replaceControllerHoldingRegister(MODBUS_ADDRESS_BOOST_VOLTAGE, (*(float *)value) * ONE_HUNDRED_FLOAT, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    break;
   case Variable::BATTERY_FLOAT_VOLTAGE:
-    writeResult =  this->replaceControllerHoldingRegister(MODBUS_ADDRESS_FLOAT_VOLTAGE, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    writeResult = this->replaceControllerHoldingRegister(MODBUS_ADDRESS_FLOAT_VOLTAGE, (*(float *)value) * ONE_HUNDRED_FLOAT, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    break;
   case Variable::BATTERY_FLOAT_MIN_VOLTAGE:
-    writeResult =  this->replaceControllerHoldingRegister(MODBUS_ADDRESS_BOOST_RECONNECT_VOLTAGE, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    writeResult = this->replaceControllerHoldingRegister(MODBUS_ADDRESS_BOOST_RECONNECT_VOLTAGE, (*(float *)value) * ONE_HUNDRED_FLOAT, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    break;
   case Variable::BATTERY_LOW_VOLTAGE_RECONNECT:
-    writeResult =  this->replaceControllerHoldingRegister(MODBUS_ADDRESS_LOW_VOLTAGE_RECONNECT, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    writeResult = this->replaceControllerHoldingRegister(MODBUS_ADDRESS_LOW_VOLTAGE_RECONNECT, (*(float *)value) * ONE_HUNDRED_FLOAT, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    break;
   case Variable::BATTERY_UNDER_VOLTAGE_RESET:
-    writeResult =  this->replaceControllerHoldingRegister(MODBUS_ADDRESS_UNDER_VOLTAGE_RECOVER, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    writeResult = this->replaceControllerHoldingRegister(MODBUS_ADDRESS_UNDER_VOLTAGE_RECOVER, (*(float *)value) * ONE_HUNDRED_FLOAT, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    break;
   case Variable::BATTERY_UNDER_VOLTAGE_SET:
-    writeResult =  this->replaceControllerHoldingRegister(MODBUS_ADDRESS_UNDER_VOLTAGE_WARNING, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    writeResult = this->replaceControllerHoldingRegister(MODBUS_ADDRESS_UNDER_VOLTAGE_WARNING, (*(float *)value) * ONE_HUNDRED_FLOAT, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    break;
   case Variable::BATTERY_LOW_VOLTAGE_DISCONNECT:
-    writeResult =  this->replaceControllerHoldingRegister(MODBUS_ADDRESS_LOW_VOLTAGE_DISCONNECT, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    writeResult = this->replaceControllerHoldingRegister(MODBUS_ADDRESS_LOW_VOLTAGE_DISCONNECT, (*(float *)value) * ONE_HUNDRED_FLOAT, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    break;
   case Variable::BATTERY_DISCHARGING_LIMIT_VOLTAGE:
-    writeResult =  this->replaceControllerHoldingRegister(MODBUS_ADDRESS_DISCHARGING_LIMIT_VOLTAGE, (*(float *)value) * 100, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    writeResult = this->replaceControllerHoldingRegister(MODBUS_ADDRESS_DISCHARGING_LIMIT_VOLTAGE, (*(float *)value) * ONE_HUNDRED_FLOAT, MODBUS_ADDRESS_BATTERY_TYPE, 15);
+    break;
   }
-  
+
   return writeResult ? this->setVariableValue(variable, value) : false;
 }
 
@@ -263,6 +315,18 @@ bool EPEVERSolarTracer::readControllerSingleCoil(uint16_t address)
 bool EPEVERSolarTracer::writeControllerSingleCoil(uint16_t address, bool value)
 {
   this->lastControllerCommunicationStatus = this->node.writeSingleCoil(address, value);
+
+  if (this->lastControllerCommunicationStatus == this->node.ku8MBSuccess)
+  {
+    this->node.getResponseBuffer(0x00);
+    return true;
+  }
+  return false;
+}
+
+bool EPEVERSolarTracer::writeControllerHoldingRegister(uint16_t address, uint16_t value)
+{
+  this->lastControllerCommunicationStatus = this->node.writeSingleRegister(address, value);
 
   if (this->lastControllerCommunicationStatus == this->node.ku8MBSuccess)
   {
@@ -306,7 +370,7 @@ void EPEVERSolarTracer::AddressRegistry_3100()
     this->setFloatVariable(Variable::BATTERY_CHARGE_CURRENT, this->node.getResponseBuffer(0x05) / ONE_HUNDRED_FLOAT);
     this->setFloatVariable(Variable::BATTERY_CHARGE_POWER, (this->node.getResponseBuffer(0x06) | this->node.getResponseBuffer(0x07) << 16) / ONE_HUNDRED_FLOAT);
     this->setFloatVariable(Variable::LOAD_CURRENT, this->node.getResponseBuffer(0x0D) / ONE_HUNDRED_FLOAT);
-    this->setFloatVariable(Variable::LOAD_POWER, (this->node.getResponseBuffer(0x0E) | this->node.getResponseBuffer(0x02) << 16) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::LOAD_POWER, (this->node.getResponseBuffer(0x0E) | this->node.getResponseBuffer(0x0F) << 16) / ONE_HUNDRED_FLOAT);
     return;
   }
 
@@ -375,26 +439,35 @@ void EPEVERSolarTracer::AddressRegistry_331B()
 
 void EPEVERSolarTracer::AddressRegistry_9003()
 {
-  this->lastControllerCommunicationStatus = this->node.readHoldingRegisters(MODBUS_ADDRESS_HIGH_VOLTAGE_DISCONNECT, 12);
+  this->lastControllerCommunicationStatus = this->node.readHoldingRegisters(MODBUS_ADDRESS_BATTERY_TYPE, 15);
 
   rs485readSuccess = this->lastControllerCommunicationStatus == this->node.ku8MBSuccess;
   if (rs485readSuccess)
   {
-    this->setFloatVariable(Variable::BATTERY_OVER_VOLTAGE_DISCONNECT, this->node.getResponseBuffer(0x00) / ONE_HUNDRED_FLOAT);
-    this->setFloatVariable(Variable::BATTERY_CHARGING_LIMIT_VOLTAGE, this->node.getResponseBuffer(0x01) / ONE_HUNDRED_FLOAT);
-    this->setFloatVariable(Variable::BATTERY_OVER_VOLTAGE_RECONNECT, this->node.getResponseBuffer(0x02) / ONE_HUNDRED_FLOAT);
-    this->setFloatVariable(Variable::BATTERY_EQUALIZATION_VOLTAGE, this->node.getResponseBuffer(0x03) / ONE_HUNDRED_FLOAT);
-    this->setFloatVariable(Variable::BATTERY_BOOST_VOLTAGE, this->node.getResponseBuffer(0x04) / ONE_HUNDRED_FLOAT);
-    this->setFloatVariable(Variable::BATTERY_FLOAT_VOLTAGE, this->node.getResponseBuffer(0x05) / ONE_HUNDRED_FLOAT);
-    this->setFloatVariable(Variable::BATTERY_FLOAT_MIN_VOLTAGE, this->node.getResponseBuffer(0x06) / ONE_HUNDRED_FLOAT);
-    this->setFloatVariable(Variable::BATTERY_LOW_VOLTAGE_RECONNECT, this->node.getResponseBuffer(0x07) / ONE_HUNDRED_FLOAT);
-    this->setFloatVariable(Variable::BATTERY_UNDER_VOLTAGE_RESET, this->node.getResponseBuffer(0x08) / ONE_HUNDRED_FLOAT);
-    this->setFloatVariable(Variable::BATTERY_UNDER_VOLTAGE_SET, this->node.getResponseBuffer(0x09) / ONE_HUNDRED_FLOAT);
-    this->setFloatVariable(Variable::BATTERY_LOW_VOLTAGE_DISCONNECT, this->node.getResponseBuffer(0x0A) / ONE_HUNDRED_FLOAT);
-    this->setFloatVariable(Variable::BATTERY_DISCHARGING_LIMIT_VOLTAGE, this->node.getResponseBuffer(0x0B) / ONE_HUNDRED_FLOAT);
+    uint16_t sharedUInt16 = this->node.getResponseBuffer(0x00);
+    this->setVariableValue(Variable::BATTERY_TYPE, &sharedUInt16);
+    sharedUInt16 = this->node.getResponseBuffer(0x01);
+    this->setVariableValue(Variable::BATTERY_CAPACITY, &sharedUInt16);
+    this->setFloatVariable(Variable::BATTERY_TEMPERATURE_COMPENSATION_COEFFICIENT, this->node.getResponseBuffer(0x02) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::BATTERY_OVER_VOLTAGE_DISCONNECT, this->node.getResponseBuffer(0x03) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::BATTERY_CHARGING_LIMIT_VOLTAGE, this->node.getResponseBuffer(0x04) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::BATTERY_OVER_VOLTAGE_RECONNECT, this->node.getResponseBuffer(0x05) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::BATTERY_EQUALIZATION_VOLTAGE, this->node.getResponseBuffer(0x06) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::BATTERY_BOOST_VOLTAGE, this->node.getResponseBuffer(0x07) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::BATTERY_FLOAT_VOLTAGE, this->node.getResponseBuffer(0x08) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::BATTERY_FLOAT_MIN_VOLTAGE, this->node.getResponseBuffer(0x09) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::BATTERY_LOW_VOLTAGE_RECONNECT, this->node.getResponseBuffer(0x0A) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::BATTERY_UNDER_VOLTAGE_RESET, this->node.getResponseBuffer(0x0B) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::BATTERY_UNDER_VOLTAGE_SET, this->node.getResponseBuffer(0x0C) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::BATTERY_LOW_VOLTAGE_DISCONNECT, this->node.getResponseBuffer(0x0D) / ONE_HUNDRED_FLOAT);
+    this->setFloatVariable(Variable::BATTERY_DISCHARGING_LIMIT_VOLTAGE, this->node.getResponseBuffer(0x0E) / ONE_HUNDRED_FLOAT);
+    return;
   }
 
-  this->setVariableReadReady(12, rs485readSuccess,
+  this->setVariableReadReady(15, rs485readSuccess,
+                             Variable::BATTERY_TYPE,
+                             Variable::BATTERY_CAPACITY,
+                             Variable::BATTERY_TEMPERATURE_COMPENSATION_COEFFICIENT,
                              Variable::BATTERY_OVER_VOLTAGE_DISCONNECT,
                              Variable::BATTERY_CHARGING_LIMIT_VOLTAGE,
                              Variable::BATTERY_OVER_VOLTAGE_RECONNECT,
@@ -407,6 +480,44 @@ void EPEVERSolarTracer::AddressRegistry_9003()
                              Variable::BATTERY_UNDER_VOLTAGE_SET,
                              Variable::BATTERY_LOW_VOLTAGE_DISCONNECT,
                              Variable::BATTERY_DISCHARGING_LIMIT_VOLTAGE);
+}
+
+void EPEVERSolarTracer::AddressRegistry_9067()
+{
+  // cannot read 9067-9070 -> error illegal data address, must read single 9067 
+  this->lastControllerCommunicationStatus = this->node.readHoldingRegisters(MODBUS_ADDRESS_BATTERY_RATED_LEVEL, 1);
+
+  rs485readSuccess = this->lastControllerCommunicationStatus == this->node.ku8MBSuccess;
+  if (rs485readSuccess)
+  {
+    uint16_t sharedUInt16 = EPEVERSolarTracer::getVoltageFromBatteryVoltageLevel(this->node.getResponseBuffer(0x00));
+    this->setVariableValue(Variable::BATTERY_RATED_VOLTAGE, &sharedUInt16);
+
+    return;
+  }
+
+  this->setVariableReadReady(Variable::BATTERY_RATED_VOLTAGE, rs485readSuccess);
+}
+
+void EPEVERSolarTracer::AddressRegistry_906B()
+{
+  this->lastControllerCommunicationStatus = this->node.readHoldingRegisters(MODBUS_ADDRESS_EQUALIZE_DURATION, 6);
+  rs485readSuccess = this->lastControllerCommunicationStatus == this->node.ku8MBSuccess;
+  if (rs485readSuccess)
+  {
+    uint16_t sharedUInt16 = this->node.getResponseBuffer(0x00);
+    this->setVariableValue(Variable::BATTERY_EQUALIZATION_DURATION, &sharedUInt16);
+    sharedUInt16 = this->node.getResponseBuffer(0x01);
+    this->setVariableValue(Variable::BATTERY_BOOST_DURATION, &sharedUInt16);
+    sharedUInt16 = this->node.getResponseBuffer(0x05);
+    this->setVariableValue(Variable::BATTERY_MANAGEMENT_MODE, &sharedUInt16);
+    return;
+  }
+
+  this->setVariableReadReady(3, rs485readSuccess,
+                             Variable::BATTERY_EQUALIZATION_DURATION,
+                             Variable::BATTERY_BOOST_DURATION,
+                             Variable::BATTERY_MANAGEMENT_MODE);
 }
 
 void EPEVERSolarTracer::fetchAddressStatusVariables()

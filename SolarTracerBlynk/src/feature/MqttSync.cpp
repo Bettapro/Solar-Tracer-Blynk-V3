@@ -83,6 +83,11 @@ void mqttCallback(char *topic, uint8_t *bytes, unsigned int length)
         {
             switch (def->datatype)
             {
+            case VariableDatatype::DT_UINT16:
+            {
+                uint16_t newState = payload.toInt();
+                MqttSync::getInstance().applyUpdateToVariable(def->variable, &newState, false);
+            }
             case VariableDatatype::DT_FLOAT:
             {
                 float newState = payload.toFloat();
@@ -109,9 +114,8 @@ MqttSync::MqttSync()
 void MqttSync::setup()
 {
 
-    this->mqttClient->setServer(MQTT_SERVER, MQTT_PORT);
+    this->mqttClient->setServer(Environment::getData()->mqttServerHostname, Environment::getData()->mqttServerPort);
 
-    // TODO - SUBSCRIPTION
     mqttClient->setCallback(mqttCallback);
     for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++)
     {
@@ -128,11 +132,9 @@ void MqttSync::setup()
 bool MqttSync::attemptMqttSyncConnect()
 {
     mqttClient->connect(
-        envData->mqttServerHostname,
-        envData->mqttServerPort,
-        strlen(envData->mqttUsername) > 0 ? envData->mqttUsername : nullptr,
-        strlen(envData->mqttPassword) > 0 ? envData->mqttPassword : nullptr);
-    );
+        strlen(Environment::getData()->mqttClientId) > 0 ? Environment::getData()->mqttClientId : nullptr,
+        strlen(Environment::getData()->mqttUsername) > 0 ? Environment::getData()->mqttUsername : nullptr,
+        strlen(Environment::getData()->mqttPassword) > 0 ? Environment::getData()->mqttPassword : nullptr);
     return mqttClient->connected();
 }
 
@@ -159,10 +161,17 @@ bool MqttSync::isVariableAllowed(const VariableDefinition *def)
 {
     return def->mqttTopic != nullptr;
 }
-bool MqttSync::sendUpdateToVariable(const VariableDefinition * def, const void *value)
+bool MqttSync::sendUpdateToVariable(const VariableDefinition *def, const void *value)
 {
     switch (def->datatype)
     {
+    case VariableDatatype::DT_UINT16:
+#ifdef USE_MQTT_JSON_PUBLISH
+        syncJson[def->mqttTopic] = *(uint16_t *)value;
+        return true;
+#else
+        dtostrf(*(uint16_t *)value, 0, 0, mqttPublishBuffer);
+#endif
     case VariableDatatype::DT_FLOAT:
 #ifdef USE_MQTT_JSON_PUBLISH
         syncJson[def->mqttTopic] = *(float *)value;

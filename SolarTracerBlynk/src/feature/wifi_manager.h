@@ -91,6 +91,8 @@ public:
             char portString[5];
             WiFiManagerParameter customMqttServerPort(CONFIG_PERSISTENCE_MQTT_PORT, Text::port, Util::intToChar(Environment::getData()->mqttServerPort, portString), 5, "type=\"number\" min=\"0\"");
             wifiManager.addParameter(&customMqttServerPort);
+            WiFiManagerParameter customMqttClientId(CONFIG_PERSISTENCE_MQTT_CLIENT_ID, "Client ID", Environment::getData()->mqttClientId, CONFIG_PERSISTENCE_MQTT_CLIENT_ID_LEN);
+            wifiManager.addParameter(&customMqttClientId);
             WiFiManagerParameter customMqttUsername(CONFIG_PERSISTENCE_MQTT_USERNAME, "Username", Environment::getData()->mqttUsername, CONFIG_PERSISTENCE_MQTT_USERNAME_LEN);
             wifiManager.addParameter(&customMqttUsername);
             WiFiManagerParameter customMqttPassword(CONFIG_PERSISTENCE_MQTT_PASSWORD, Text::password, Environment::getData()->mqttPassword, CONFIG_PERSISTENCE_MQTT_PASSWORD_LEN);
@@ -102,8 +104,6 @@ public:
 
             WiFiManagerParameter customMqttHADeviceName(CONFIG_PERSISTENCE_MQTT_HA_DEVICE_NAME, "Device Name", Environment::getData()->mqttHADeviceName, CONFIG_PERSISTENCE_MQTT_HA_DEVICE_NAME_LEN);
             wifiManager.addParameter(&customMqttHADeviceName);
-            WiFiManagerParameter customMqttHADeviceId(CONFIG_PERSISTENCE_MQTT_HA_DEVICE_ID, "Id", Environment::getData()->mqttHADeviceId, CONFIG_PERSISTENCE_MQTT_HA_DEVICE_ID_LEN);
-            wifiManager.addParameter(&customMqttHADeviceId);
 #endif
 
 #ifdef USE_OTA_UPDATE
@@ -172,10 +172,10 @@ public:
                   doc[CONFIG_PERSISTENCE_MQTT_PORT] = strlen(customMqttServerPort.getValue()) > 0 ? atoi(customMqttServerPort.getValue()) : 0;
                   doc[CONFIG_PERSISTENCE_MQTT_USERNAME] = customMqttUsername.getValue();
                   doc[CONFIG_PERSISTENCE_MQTT_PASSWORD] =  customMqttPassword.getValue();
+                  doc[CONFIG_PERSISTENCE_MQTT_CLIENT_ID] = customMqttClientId.getValue();
 #endif
 #ifdef USE_MQTT_HOME_ASSISTANT
                   doc[CONFIG_PERSISTENCE_MQTT_HA_DEVICE_NAME] = customMqttHADeviceName.getValue();
-                  doc[CONFIG_PERSISTENCE_MQTT_HA_DEVICE_ID] = customMqttHADeviceId.getValue();
 #endif
 
 #ifdef USE_OTA_UPDATE

@@ -254,6 +254,13 @@
   #define vPIN_BATTERY_UNDER_VOLTAGE_SET                  41
   #define vPIN_MIN_PV_VOLTAGE_TODAY                       42
   #define vPIN_MAX_PV_VOLTAGE_TODAY                       43
+  #define vPIN_BATTERY_RATED_VOLTAGE                      46
+  #define vPIN_BATTERY_TYPE                               47
+  #define vPIN_BATTERY_CAPACITY                           48
+  #define vPIN_BATTERY_EQUALIZATION_DURATION              49
+  #define vPIN_BATTERY_BOOST_DURATION                     50
+  #define vPIN_BATTERY_TEMPERATURE_COMPENSATION_COEFF     51
+  #define vPIN_BATTERY_MANAGEMENT_MODE                    52
   // internal
   #define vPIN_INTERNAL_STATUS                            27
   #define vPIN_INTERNAL_DEBUG_TERMINAL                    44
@@ -286,8 +293,6 @@
   //#define USE_MQTT_HOME_ASSISTANT
   #ifdef USE_MQTT_HOME_ASSISTANT
     #define MQTT_HOME_ASSISTANT_DEVICE_NAME "SolarTracer1"
-
-    #define MQTT_HOME_ASSISTANT_DEVICE_ID "123456"
   #endif
 
   // all the "variable topics" will be published in JSON on a single topic defined in MQTT_JSON_PUBLISH_TOPIC
@@ -348,6 +353,13 @@
   #define MQTT_TOPIC_BATTERY_UNDER_VOLTAGE_SET                MQTT_TOPIC_ROOT "battery_settings_under_voltage_set"
   #define MQTT_TOPIC_MIN_PV_VOLTAGE_TODAY                     MQTT_TOPIC_ROOT "stats_pv_max_voltage"
   #define MQTT_TOPIC_MAX_PV_VOLTAGE_TODAY                     MQTT_TOPIC_ROOT "stats_pv_min_voltage"
+  #define MQTT_TOPIC_BATTERY_RATED_VOLTAGE                    MQTT_TOPIC_ROOT "battery_settings_rated_voltage"
+  #define MQTT_TOPIC_BATTERY_TYPE                             MQTT_TOPIC_ROOT "battery_settings_type"
+  #define MQTT_TOPIC_BATTERY_CAPACITY                         MQTT_TOPIC_ROOT "battery_settings_capacity"
+  #define MQTT_TOPIC_BATTERY_EQUALIZATION_DURATION            MQTT_TOPIC_ROOT "battery_settings_equalization_duration"
+  #define MQTT_TOPIC_BATTERY_BOOST_DURATION                   MQTT_TOPIC_ROOT "battery_settings_boost_duration"
+  #define MQTT_TOPIC_BATTERY_TEMPERATURE_COMPENSATION_COEFF   MQTT_TOPIC_ROOT "battery_settings_temperature_compensation_coeff"
+  #define MQTT_TOPIC_BATTERY_MANAGEMENT_MODE                  MQTT_TOPIC_ROOT "battery_settings_management_mode"
   // internal
   #define MQTT_TOPIC_INTERNAL_STATUS                          MQTT_TOPIC_ROOT "internal_status"
   //action

@@ -47,7 +47,8 @@ typedef enum
         DT_UNDEFINED,
         DT_STRING,
         DT_FLOAT,
-        DT_BOOL
+        DT_BOOL,
+        DT_UINT16
 } VariableDatatype;
 
 typedef enum
@@ -59,7 +60,9 @@ typedef enum
         UOM_WATT,
         UOM_KILOWATTHOUR,
         UOM_AMPERE,
-        UOM_TEMPERATURE_C
+        UOM_AMPEREHOUR,
+        UOM_TEMPERATURE_C,
+        UOM_MINUTE
 } VariableUOM;
 
 typedef enum
@@ -105,6 +108,13 @@ typedef enum
         DISCHARGING_EQUIPMENT_STATUS_TEXT,
         CHARGING_DEVICE_ONOFF,
         HEATSINK_TEMP,
+        BATTERY_RATED_VOLTAGE, // 0 - auto detect, otherwise specify the voltage of the battery
+        BATTERY_TYPE, // 0 - custom, 1 - Sealed / AGM, 2 - GEL, 3 - Flooded / Wet Cell
+        BATTERY_CAPACITY,
+        BATTERY_EQUALIZATION_DURATION,
+        BATTERY_BOOST_DURATION,
+        BATTERY_TEMPERATURE_COMPENSATION_COEFFICIENT,
+        BATTERY_MANAGEMENT_MODE, // 0 - voltage compensation, 1 - SOC
         //----------------
         INTERNAL_STATUS,
         INTERNAL_DEBUG,

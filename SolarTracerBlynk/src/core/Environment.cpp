@@ -31,10 +31,10 @@ void Environment::loadEnvData()
     strcpy(envData.mqttServerHostname, MQTT_SERVER);
     strcpy(envData.mqttUsername, MQTT_USERNAME);
     strcpy(envData.mqttPassword, MQTT_PASSWORD);
+    strcpy(envData.mqttClientId, MQTT_CLIENT_ID);
     envData.mqttServerPort = MQTT_PORT;
 #endif
 #ifdef USE_MQTT_HOME_ASSISTANT
-    strcpy(envData.mqttHADeviceId, MQTT_HOME_ASSISTANT_DEVICE_ID);
     strcpy(envData.mqttHADeviceName, MQTT_HOME_ASSISTANT_DEVICE_NAME);
 #endif
 
@@ -98,12 +98,12 @@ void Environment::loadEnvData()
                 loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_MQTT_HOSTNAME, envData.mqttServerHostname);
                 loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_MQTT_PASSWORD, envData.mqttPassword);
                 loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_MQTT_USERNAME, envData.mqttUsername);
+                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_MQTT_CLIENT_ID, envData.mqttClientId);
                 if (doc.containsKey(CONFIG_PERSISTENCE_MQTT_PORT))
                     envData.mqttServerPort = doc[CONFIG_PERSISTENCE_MQTT_PORT];
 
 #endif
 #ifdef USE_MQTT_HOME_ASSISTANT
-                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_MQTT_HA_DEVICE_ID, envData.mqttHADeviceId);
                 loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_MQTT_HA_DEVICE_NAME, envData.mqttHADeviceName);
 #endif
 

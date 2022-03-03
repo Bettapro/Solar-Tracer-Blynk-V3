@@ -94,6 +94,12 @@ bool BlynkSync::sendUpdateToVariable(const VariableDefinition *def, const void *
       return true;
     }
     break;
+    case VariableDatatype::DT_UINT16:
+    {
+      Blynk.virtualWrite(*def->blynkVPin, *(uint16_t *)value);
+      return true;
+    }
+    break;
     case VariableDatatype::DT_STRING:
     {
       Blynk.virtualWrite(*def->blynkVPin, (const char *)value);
@@ -124,7 +130,7 @@ void BlynkSync::uploadRealtimeToBlynk()
   }
 
 #ifdef vPIN_INTERNAL_STATUS
-  float status = Controller::getInstance().getStatus();
+  uint16_t status = Controller::getInstance().getStatus();
   this->sendUpdateToVariable(VariableDefiner::getInstance().getDefinition(Variable::INTERNAL_STATUS), &(status));
 #endif
   this->sendUpdateAllBySource(VariableSource::SR_REALTIME, false);
@@ -168,11 +174,18 @@ BLYNK_WRITE_DEFAULT()
     {
       switch (def->datatype)
       {
+      case VariableDatatype::DT_UINT16:
+      {
+        uint16_t newState = param.asInt();
+        BlynkSync::getInstance().applyUpdateToVariable(def->variable, &newState, false);
+      }
+      break;
       case VariableDatatype::DT_FLOAT:
       {
         float newState = param.asFloat();
         BlynkSync::getInstance().applyUpdateToVariable(def->variable, &newState, false);
       }
+      break;
       case VariableDatatype::DT_BOOL:
       {
         bool newState = param.asInt() > 0;

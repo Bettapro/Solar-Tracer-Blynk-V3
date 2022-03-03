@@ -1,6 +1,6 @@
 /**
  * Solar Tracer Blynk V3 [https://github.com/Bettapro/Solar-Tracer-Blynk-V3]
- * Copyright (c) 2021 Alberto Bettin 
+ * Copyright (c) 2021 Alberto Bettin
  *
  * Based on the work of @jaminNZx and @tekk.
  *
@@ -18,8 +18,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
-
 
 #ifndef EPEVERSolarTracer_h
 #define EPEVERSolarTracer_h
@@ -57,6 +55,10 @@ public:
 
   void AddressRegistry_9003();
 
+  void AddressRegistry_9067();
+
+  void AddressRegistry_906B();
+
   void fetchAddressStatusVariables();
 
   void updateStats();
@@ -73,7 +75,7 @@ public:
   virtual bool testConnection();
 
 protected:
-  uint8_t max485_re_neg, max485_de;
+    uint8_t max485_re_neg, max485_de;
 
   bool rs485readSuccess;
 
@@ -82,9 +84,11 @@ protected:
 
   ModbusMaster node;
 
+
   // MODBUS FUNCTION
 
   bool writeControllerSingleCoil(uint16_t address, bool value);
+  bool writeControllerHoldingRegister(uint16_t address, uint16_t value);
   bool replaceControllerHoldingRegister(uint16_t address, uint16_t value, uint16_t fromAddress, uint8_t count);
 
   static constexpr const float ONE_HUNDRED_FLOAT = 100.0;
@@ -110,11 +114,12 @@ protected:
   static const uint16_t MODBUS_ADDRESS_STAT_GENERATED_ENERGY_TODAY = 0x330C;
   static const uint16_t MODBUS_ADDRESS_STAT_GENERATED_ENERGY_MONTH = 0x330E;
   static const uint16_t MODBUS_ADDRESS_STAT_GENERATED_ENERGY_YEAR = 0x3310;
-  static const uint16_t MODBUS_ADDRESS_CHARGING_MODE = 0x3008;
   static const uint16_t MODBUS_ADDRESS_CONTROLLER_TEMP = 0x3111;
   static const uint16_t MODBUS_ADDRESS_REMOTE_BATTERY_TEMP = 0x311B;
   static const uint16_t MODBUS_ADDRESS_REALTIME_CLOCK = 0x9013;
   static const uint16_t MODBUS_ADDRESS_BATTERY_TYPE = 0x9000;
+  static const uint16_t MODBUS_ADDRESS_BATTERY_CAPACITY = 0x9001;
+  static const uint16_t MODBUS_ADDRESS_BATTERY_TEMP_COEFF = 0x9002;
   static const uint16_t MODBUS_ADDRESS_HIGH_VOLTAGE_DISCONNECT = 0x9003;
   static const uint16_t MODBUS_ADDRESS_CHARGING_LIMIT_VOLTAGE = 0x9004;
   static const uint16_t MODBUS_ADDRESS_OVER_VOLTAGE_RECONNECT = 0x9005;
@@ -127,8 +132,30 @@ protected:
   static const uint16_t MODBUS_ADDRESS_UNDER_VOLTAGE_WARNING = 0x900C;
   static const uint16_t MODBUS_ADDRESS_LOW_VOLTAGE_DISCONNECT = 0x900D;
   static const uint16_t MODBUS_ADDRESS_DISCHARGING_LIMIT_VOLTAGE = 0x900E;
+  static const uint16_t MODBUS_ADDRESS_BATTERY_RATED_LEVEL = 0x9067;
+  static const uint16_t MODBUS_ADDRESS_EQUALIZE_DURATION = 0x906B;
+  static const uint16_t MODBUS_ADDRESS_BOOST_DURATION = 0x906C;
+  static const uint16_t MODBUS_ADDRESS_CHARGING_MODE = 0x9070;
+
+private:
+  static const uint8_t voltageLevels[];
+
+  static uint16_t getBatteryVoltageLevelFromVoltage(uint16_t voltage){
+    uint8_t index = 0;
+    while(true){
+      if(voltageLevels[index] == 0){
+        return 0;
+      }
+      if(voltageLevels[index] == voltage){
+        return index + 1;
+      }
+      index ++;
+    }
+  }
+
+  static uint16_t getVoltageFromBatteryVoltageLevel(uint16_t index){
+    return voltageLevels[index];
+  }
 };
-
-
 
 #endif
