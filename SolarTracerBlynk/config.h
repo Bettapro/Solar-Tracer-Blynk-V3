@@ -117,6 +117,16 @@
 #define WIFI_SSID             "-your-wifi-"
 // your wifi PASSWORD
 #define WIFI_PASS             "-your-password-"
+// your wifi IP ADDRESS
+#define WIFI_IP_ADDRESS       ""
+// your wifi GATEWAY
+#define WIFI_GATEWAY          ""
+// your wifi SUBNET
+#define WIFI_SUBNET           ""
+// your wifi DNS1
+#define WIFI_DNS1             ""
+// your wifi DNS2
+#define WIFI_DNS2             ""
 
 
 /*

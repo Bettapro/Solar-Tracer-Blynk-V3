@@ -30,9 +30,15 @@
 
 struct environrmentData
 {
+    
     // wifi
     char wifiSSID[CONFIG_PERSISTENCE_WIFI_SSID_LEN + 1];
     char wifiPassword[CONFIG_PERSISTENCE_WIFI_PASSWORD_LEN + 1];
+    char wifiIp[CONFIG_PERSISTENCE_WIFI_IP_ADDRESS_LEN + 1];
+    char wifiGateway[CONFIG_PERSISTENCE_WIFI_GATEWAY_LEN + 1];
+    char wifiSubnet[CONFIG_PERSISTENCE_WIFI_SUBNET_LEN + 1];
+    char wifiDns1[CONFIG_PERSISTENCE_WIFI_DNS1_LEN + 1];
+    char wifiDns2[CONFIG_PERSISTENCE_WIFI_DNS2_LEN + 1];
     // wifi manager
 #ifdef USE_WIFI_AP_CONFIGURATION
     char wmApSSID[CONFIG_PERSISTENCE_WM_AP_SSID_LEN + 1];

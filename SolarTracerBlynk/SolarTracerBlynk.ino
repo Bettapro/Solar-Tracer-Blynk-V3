@@ -131,6 +131,34 @@ void setup()
   debugPrintf(true, Text::setupWithName, "WIFI");
 
   WiFi.mode(WIFI_STA);
+
+  const environrmentData* envData = Environment::getData();
+
+  IPAddress ip;
+  IPAddress gateway;
+  IPAddress subnet;
+  IPAddress dns1;
+  IPAddress dns2;
+
+  if(strlen(envData->wifiIp)){
+    ip.fromString(envData->wifiIp);
+  }
+
+  if(strlen(envData->wifiGateway)){
+    gateway.fromString(envData->wifiGateway);
+  }
+  if(strlen(envData->wifiSubnet)){
+    subnet.fromString(envData->wifiSubnet);
+  }
+  if(strlen(envData->wifiDns1)){
+    dns1.fromString(envData->wifiDns1);
+  }
+  if(strlen(envData->wifiDns2)){
+    dns1.fromString(envData->wifiDns2);
+  }
+
+
+  WiFi.config(ip, gateway, subnet, dns1, dns2);
   WiFi.begin(Environment::getData()->wifiSSID, Environment::getData()->wifiPassword);
 
 #if defined(USE_HALL_AP_CONFIGURATION_TRIGGER)

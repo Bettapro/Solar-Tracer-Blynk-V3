@@ -65,6 +65,21 @@ public:
             wifiManager.setConfigPortalBlocking(true);
             wifiManager.setDebugOutput(false);
 
+
+            WiFiManagerParameter customWIFIText("<p><b>WIFI:</b></p>");
+            wifiManager.addParameter(&customWIFIText);
+
+            WiFiManagerParameter customWIFIIpAddress(CONFIG_PERSISTENCE_WIFI_IP_ADDRESS, "IP", Environment::getData()->wifiIp, CONFIG_PERSISTENCE_WIFI_IP_ADDRESS_LEN);
+            wifiManager.addParameter(&customWIFIIpAddress);
+            WiFiManagerParameter customWIFIGateway(CONFIG_PERSISTENCE_WIFI_GATEWAY, "Gateway", Environment::getData()->wifiGateway, CONFIG_PERSISTENCE_WIFI_GATEWAY_LEN);
+            wifiManager.addParameter(&customWIFIGateway);
+            WiFiManagerParameter customWIFISubnet(CONFIG_PERSISTENCE_WIFI_SUBNET, "Subnet", Environment::getData()->wifiSubnet, CONFIG_PERSISTENCE_WIFI_SUBNET_LEN);
+            wifiManager.addParameter(&customWIFISubnet);
+            WiFiManagerParameter customWIFIDns1(CONFIG_PERSISTENCE_WIFI_DNS1, "Dns1", Environment::getData()->wifiDns1, CONFIG_PERSISTENCE_WIFI_DNS1_LEN);
+            wifiManager.addParameter(&customWIFIDns1);
+            WiFiManagerParameter customWIFIDns2(CONFIG_PERSISTENCE_WIFI_DNS2, "Dns2", Environment::getData()->wifiDns2, CONFIG_PERSISTENCE_WIFI_DNS2_LEN);
+            wifiManager.addParameter(&customWIFIDns2);
+
 #ifdef USE_BLYNK
             WiFiManagerParameter customBlynkLocalServerText("<p><b>BLYNK:</b></p>");
             wifiManager.addParameter(&customBlynkLocalServerText);
@@ -81,6 +96,8 @@ public:
             wifiManager.addParameter(&customBlynkServerPort);
 #endif
 #endif
+
+
 
 #ifdef USE_MQTT
             WiFiManagerParameter customMqttText("<p><b>MQTT:</b></p>");
@@ -157,6 +174,12 @@ public:
 
                   doc[CONFIG_PERSISTENCE_WIFI_SSID] = WiFi.SSID();
                   doc[CONFIG_PERSISTENCE_WIFI_PASSWORD] = WiFi.psk();
+
+                  doc[CONFIG_PERSISTENCE_WIFI_IP_ADDRESS] = customWIFIIpAddress.getValue();
+                  doc[CONFIG_PERSISTENCE_WIFI_GATEWAY] = customWIFIGateway.getValue();
+                  doc[CONFIG_PERSISTENCE_WIFI_SUBNET] = customWIFISubnet.getValue();
+                  doc[CONFIG_PERSISTENCE_WIFI_DNS1] = customWIFIDns1.getValue();
+                  doc[CONFIG_PERSISTENCE_WIFI_DNS2] = customWIFIDns2.getValue();
 
                   doc[CONFIG_PERSISTENCE_WM_AP_SSID] = customWmSSID.getValue();
                   doc[CONFIG_PERSISTENCE_WM_AP_PASSWORD] = customWmPassword.getValue();

@@ -8,6 +8,12 @@ void Environment::loadEnvData()
     strcpy(envData.wifiSSID, WIFI_SSID);
     strcpy(envData.wifiPassword, WIFI_PASS);
 
+    strcpy(envData.wifiIp, WIFI_IP_ADDRESS);
+    strcpy(envData.wifiGateway, WIFI_GATEWAY);
+    strcpy(envData.wifiSubnet, WIFI_SUBNET);
+    strcpy(envData.wifiDns1, WIFI_DNS1);
+    strcpy(envData.wifiDns2, WIFI_DNS2);
+
 #ifdef USE_WIFI_AP_CONFIGURATION
     strcpy(envData.wmApSSID, WIFI_AP_CONFIGURATION_HOSTNAME);
     strcpy(envData.wmApPassword, WIFI_AP_CONFIGURATION_PASSWORD);
@@ -81,6 +87,12 @@ void Environment::loadEnvData()
             {
                 loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_WIFI_SSID, envData.wifiSSID);
                 loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_WIFI_PASSWORD, envData.wifiPassword);
+
+                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_WIFI_IP_ADDRESS, envData.wifiIp);
+                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_WIFI_GATEWAY, envData.wifiGateway);
+                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_WIFI_SUBNET, envData.wifiSubnet);
+                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_WIFI_DNS1, envData.wifiDns1);
+                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_WIFI_DNS2, envData.wifiDns2);
 
                 loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_WM_AP_SSID, envData.wmApSSID);
                 loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_WM_AP_PASSWORD, envData.wmApPassword);
