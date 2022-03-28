@@ -196,8 +196,10 @@
  * BLYNK
  * Specify how to connect to blynk server and when to sync the data from the tracer
  */
-
 #define USE_BLYNK
+#ifdef USE_NOT_BLYNK
+  #undef USE_BLYNK
+#endif
 #if defined (USE_BLYNK)
 
   // uncomment to use blynk 2.0
@@ -288,6 +290,9 @@
  *        to blynk. Developed and tested using a thingspeak server and mosquitto broker
  */
 //#define USE_MQTT
+#ifdef USE_NOT_MQTT
+  #undef USE_MQTT
+#endif
 #if defined (USE_MQTT)
   //address of mqtt server (specify the hostname or the ip address eg: IPAddress(192, 168, 1, 78) )
   #define MQTT_SERVER "127.0.0.1"

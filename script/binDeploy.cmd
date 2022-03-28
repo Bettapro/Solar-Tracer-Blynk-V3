@@ -1,20 +1,49 @@
 @echo off
+SETLOCAL EnableDelayedExpansion
 
-RMDIR "binFiles" /S /Q
+rmdir "binFiles" /S /Q
 
 set VERSION_number="3.0.4"
 
-set CURRENT_ENV=esp32dev
-%userprofile%\.platformio\penv\Scripts\pio.exe run -e %CURRENT_ENV%
-echo F| xcopy ".pio\build\%CURRENT_ENV%\firmware.bin" "binFiles\%CURRENT_ENV%\firmware.bin" /v /f /y
-echo F| xcopy ".pio\build\%CURRENT_ENV%\partitions.bin" "binFiles\%CURRENT_ENV%\partitions.bin" /v /f /y
-echo F| xcopy "%userprofile%\.platformio\packages\framework-arduinoespressif32\tools\sdk\esp32\bin\bootloader_dio_40m.bin" "binFiles\%CURRENT_ENV%\bootloader.bin" /v /f /y
-echo F| xcopy "%userprofile%\.platformio\packages\framework-arduinoespressif32\tools\partitions\boot_app0.bin" "binFiles\%CURRENT_ENV%\boot_app0.bin" /v /f /y
-python script\esp32_binary_merger\merge_bin_esp.py --output_folder binFiles\ --output_name "SolarTracerBlynk_%VERSION_NUMBER%_%CURRENT_ENV%_FULL.bin" --bin_path "binFiles\%CURRENT_ENV%\bootloader.bin" "binFiles\%CURRENT_ENV%\partitions.bin" "binFiles\%CURRENT_ENV%\boot_app0.bin" "binFiles\%CURRENT_ENV%\firmware.bin" --bin_address 0x1000 0x8000 0xe000 0x10000
-echo F| xcopy "binFiles\%CURRENT_ENV%\firmware.bin" "binFiles\SolarTracerBlynk_%VERSION_NUMBER%_%CURRENT_ENV%.bin" /v /f /y
+set buildRun[0].env=esp32dev
+set buildRun[0].fileSuffix=blynk
+set buildRun[0].buildFlags=
 
-set CURRENT_ENV=esp8266
-%userprofile%\.platformio\penv\Scripts\pio.exe run -e %CURRENT_ENV%
-rem 0x0 .pio\build\esp8266\firmware.bin
-echo F| xcopy ".pio\build\%CURRENT_ENV%\firmware.bin" "binFiles\SolarTracerBlynk_%VERSION_NUMBER%_%CURRENT_ENV%.bin" /v /f /y
-                                                                                            
+set buildRun[1].env=esp32dev
+set buildRun[1].fileSuffix=mqtt
+set buildRun[1].buildFlags=-DUSE_NOT_BLYNK -DUSE_MQTT
+
+set buildRun[2].env=esp32dev
+set buildRun[2].fileSuffix=mqttHA
+set buildRun[2].buildFlags=-DUSE_NOT_BLYNK -DUSE_MQTT -DUSE_MQTT_HOME_ASSISTANT
+
+set buildRun[3].env=esp8266
+set buildRun[3].fileSuffix=blynk
+set buildRun[3].buildFlags=
+
+set buildRun[4].env=esp8266
+set buildRun[4].fileSuffix=mqtt
+set buildRun[4].buildFlags=-DUSE_NOT_BLYNK -DUSE_MQTT
+
+set buildRun[5].env=esp8266
+set buildRun[5].fileSuffix=mqttHA
+set buildRun[5].buildFlags=-DUSE_NOT_BLYNK -DUSE_MQTT -DUSE_MQTT_HOME_ASSISTANT
+
+
+set "x=0"
+
+:SymLoop
+if defined buildRun[%x%].env (
+    set currEnv=%%buildRun[%x%].env%%
+    set currFileSuffix=%%buildRun[%x%].fileSuffix%%
+    set currBuildFlags=%%buildRun[%x%].buildFlags%%
+    call echo "ENV !currEnv! - file !currFileSuffix! - flag !currBuildFlags!"
+    
+    call set PLATFORMIO_BUILD_FLAGS=!currBuildFlags!
+    rem call set PLATFORMIO_DEFAULT_ENVS=!currEnv!
+    call %userprofile%\.platformio\penv\Scripts\pio.exe run -e !currEnv!
+    call echo F| call xcopy ".pio\build\!currEnv!\firmware.bin" "binFiles\SolarTracerBlynk_%VERSION_NUMBER%_!currEnv!_!currFileSuffix!.bin" /v /f /y
+
+    set /a "x+=1"
+    GOTO :SymLoop
+)
