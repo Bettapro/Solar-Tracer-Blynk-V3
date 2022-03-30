@@ -12,7 +12,7 @@ Here few tips if you decide to compile the code on your own:
 - Parameters like mqtt server ip, mqtt server port, device name could be specified in config.h or via the wifi configuration page
 
 Boot the ESP in Configuration mode and double check all the settings.
-If everything is working your mqtt integration will discover and cofigure the solar tracer.
+If everything is working your mqtt integration will discover and configure the solar tracer.
 
 ![image](https://user-images.githubusercontent.com/3984840/160839821-8fd79592-4d98-4107-8b78-3d2c2c555c7f.png)
 
