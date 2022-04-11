@@ -106,7 +106,7 @@
 
   // number of samples to get each run
   #define EXTERNAL_HEAVY_LOAD_CURRENT_METER_SAMPLES_NUMBER 4
-  // milliseconds beteween 2 reading
+  // milliseconds between 2 reading
   #define EXTERNAL_HEAVY_LOAD_CURRENT_METER_SAMPLE_INTERVAL 150
   // V measured at 0 ampere flowing to the load
   #define EXTERNAL_HEAVY_LOAD_CURRENT_METER_VOLTAGE_ZERO_AMP_VOLT 0.009
