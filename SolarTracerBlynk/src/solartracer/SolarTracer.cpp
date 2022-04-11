@@ -81,13 +81,29 @@ bool SolarTracer::isVariableReadReady(Variable variable)
     return variable < Variable::VARIABLES_COUNT && (this->variableDefine[variable]->status & 2) > 0;
 }
 
+bool SolarTracer::isVariableOverWritten(Variable variable)
+{
+    return variable < Variable::VARIABLES_COUNT && (this->variableDefine[variable]->status & 4) > 0;
+}
+
+void SolarTracer::setVariableOverWritten(Variable variable, bool enable)
+{
+    if (variable < Variable::VARIABLES_COUNT && this->isVariableOverWritten(variable) != enable)
+    {
+        this->variableDefine[variable]->status += enable ? 4 : -4;
+    }
+}
+
 const void *SolarTracer::getValue(Variable variable)
 {
     return this->variableDefine[variable]->value;
 }
 
-bool SolarTracer::setVariableValue(Variable variable, const void *value)
+bool SolarTracer::setVariableValue(Variable variable, const void *value, bool ignoreOverWriteLock)
 {
+    if(!ignoreOverWriteLock &&  this->isVariableOverWritten(variable)){
+        return true;
+    }
     bool valueOk = value != nullptr;
     if (valueOk)
     {

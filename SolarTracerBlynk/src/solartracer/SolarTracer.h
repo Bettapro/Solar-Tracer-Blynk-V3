@@ -24,11 +24,15 @@
 
 #include "../core/VariableDefiner.h"
 
+typedef void (*OnUpdateRunCompletedCallback)();
+
+
 struct SolarTracerVariableDefinition
 {
   /**
    *  byte 0 - enabled
    *  byte 1 - ready
+   *  byte 2 - overwritten
    */
   uint8_t status;
   void *value;
@@ -51,7 +55,19 @@ public:
 
   bool isVariableReadReady(Variable variable);
 
+  bool isVariableOverWritten(Variable variable);
+
+  void setVariableOverWritten(Variable variable, bool enable);
+
   virtual const void *getValue(Variable variable);
+
+  bool setVariableValue(Variable variable, const void *value, bool ignoreOverWriteLock = false);
+
+  void setOnUpdateRunCompleted(OnUpdateRunCompletedCallback fn){
+    this->onUpdateRunCompleted = fn;
+  }
+
+
 
   /**
    * Return last status code, 0 means the controller is responding to requests correctly.
@@ -65,14 +81,22 @@ public:
   virtual bool writeValue(Variable variable, const void *value) = 0;
   virtual bool testConnection() = 0;
 
+
 protected:
   inline bool setFloatVariable(Variable variable, float value);
 
-  bool setVariableValue(Variable variable, const void *value);
+  void updateRunCompleted(){
+    if(this->onUpdateRunCompleted){
+      this->onUpdateRunCompleted();
+    }
+  }
+
+  
 
   uint16_t lastControllerCommunicationStatus;
 
 private:
+  OnUpdateRunCompletedCallback onUpdateRunCompleted = nullptr;
   SolarTracerVariableDefinition **variableDefine;
 };
 

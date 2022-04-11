@@ -146,6 +146,9 @@ void EPEVERSolarTracer::fetchAllValues()
   this->fetchValue(Variable::LOAD_MANUAL_ONOFF);
   this->fetchValue(Variable::CHARGING_DEVICE_ONOFF);
   this->fetchAddressStatusVariables();
+
+  // update run completed
+  this->updateRunCompleted();
 }
 
 bool EPEVERSolarTracer::updateRun()
@@ -181,6 +184,10 @@ bool EPEVERSolarTracer::updateRun()
       this->fetchValue(Variable::LOAD_MANUAL_ONOFF);
       this->fetchValue(Variable::CHARGING_DEVICE_ONOFF);
       this->fetchAddressStatusVariables();
+
+      // update run completed
+      this->updateRunCompleted();
+      
     }
     currentRealtimeUpdateCounter--;
   }

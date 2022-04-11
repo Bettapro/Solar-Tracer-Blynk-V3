@@ -132,7 +132,7 @@ void setup()
 
   WiFi.mode(WIFI_STA);
 
-  const environrmentData* envData = Environment::getData();
+  const environrmentData *envData = Environment::getData();
 
   IPAddress ip;
   IPAddress gateway;
@@ -140,23 +140,27 @@ void setup()
   IPAddress dns1;
   IPAddress dns2;
 
-  if(strlen(envData->wifiIp)){
+  if (strlen(envData->wifiIp))
+  {
     ip.fromString(envData->wifiIp);
   }
 
-  if(strlen(envData->wifiGateway)){
+  if (strlen(envData->wifiGateway))
+  {
     gateway.fromString(envData->wifiGateway);
   }
-  if(strlen(envData->wifiSubnet)){
+  if (strlen(envData->wifiSubnet))
+  {
     subnet.fromString(envData->wifiSubnet);
   }
-  if(strlen(envData->wifiDns1)){
+  if (strlen(envData->wifiDns1))
+  {
     dns1.fromString(envData->wifiDns1);
   }
-  if(strlen(envData->wifiDns2)){
+  if (strlen(envData->wifiDns2))
+  {
     dns1.fromString(envData->wifiDns2);
   }
-
 
   WiFi.config(ip, gateway, subnet, dns1, dns2);
   WiFi.begin(Environment::getData()->wifiSSID, Environment::getData()->wifiPassword);
@@ -273,28 +277,34 @@ void setup()
   Controller::getInstance().getSolarController()->syncRealtimeClock(Datetime::getMyNowTm());
   delay(500);
 #endif
+#ifdef USE_EXTERNAL_HEAVY_LOAD_CURRENT_METER
+  LoadCurrentOverwrite::setup(Controller::getInstance().getSolarController());
+    Controller::getInstance().getSolarController()->setOnUpdateRunCompleted([]()
+                                                                          { LoadCurrentOverwrite::overWrite(Controller::getInstance().getSolarController()); });
+#endif
   debugPrintln("Get all values");
   Controller::getInstance().getSolarController()->fetchAllValues();
+
   delay(1000);
   debugPrintln("Sync all values");
   uploadRealtimeAll();
   uploadStatsAll();
   delay(1000);
-
+  
   // periodically refresh tracer values
   Controller::getInstance().getMainTimer()->setInterval(CONTROLLER_UPDATE_MS_PERIOD, []()
                                                         {
-                           debugPrint("Update Solar-Tracer ");
-                           if (Controller::getInstance().getSolarController()->updateRun())
-                           {
-                             debugPrintln(Text::ok);
-                             Controller::getInstance().setErrorFlag(STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION, false);
-                           }
-                           else
-                           {
-                             debugPrintf(true, Text::errorWithCode, Controller::getInstance().getSolarController()->getLastControllerCommunicationStatus());
-                             Controller::getInstance().setErrorFlag(STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION, true);
-                           } });
+                                                          debugPrint("Update Solar-Tracer ");
+                                                          if (Controller::getInstance().getSolarController()->updateRun())
+                                                          {
+                                                            debugPrintln(Text::ok);
+                                                            Controller::getInstance().setErrorFlag(STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION, false);
+                                                          }
+                                                          else
+                                                          {
+                                                            debugPrintf(true, Text::errorWithCode, Controller::getInstance().getSolarController()->getLastControllerCommunicationStatus());
+                                                            Controller::getInstance().setErrorFlag(STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION, true);
+                                                          } });
   // periodically send STATS all value to blynk
   Controller::getInstance().getMainTimer()->setInterval(SYNC_STATS_MS_PERIOD, uploadStatsAll);
   // periodically send REALTIME  value to blynk

@@ -26,7 +26,9 @@
 
 #include "include_all_core.h"
 
-
+#ifdef USE_EXTERNAL_HEAVY_LOAD_CURRENT_METER
+  #include "../solartracer/overwrite/LoadCurrentOverwrite.h"
+#endif
 
 #ifdef USE_STATUS_LED
 #include "../feature/status_led.h"

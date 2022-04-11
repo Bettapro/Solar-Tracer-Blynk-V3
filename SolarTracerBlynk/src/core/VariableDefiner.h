@@ -115,6 +115,7 @@ typedef enum
         BATTERY_BOOST_DURATION,
         BATTERY_TEMPERATURE_COMPENSATION_COEFFICIENT,
         BATTERY_MANAGEMENT_MODE, // 0 - voltage compensation, 1 - SOC
+        CONSUMED_ENERGY_TOTAL,
         //----------------
         INTERNAL_STATUS,
         INTERNAL_DEBUG,

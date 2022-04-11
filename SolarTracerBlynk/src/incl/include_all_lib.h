@@ -51,4 +51,11 @@
 #include <ArduinoHA.h>
 #endif
 
+#ifdef USE_EXTERNAL_HEAVY_LOAD_CURRENT_METER
+    #ifdef USE_EXTERNAL_HEAVY_LOAD_CURRENT_METER_ADS1015_ADC
+        #include "ADS1X15.h"
+    #endif
+    #include <LinearSensHallCurrent.h>
+#endif
+
 #endif

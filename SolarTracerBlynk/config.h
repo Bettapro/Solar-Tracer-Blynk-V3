@@ -90,6 +90,30 @@
   //#define MODBUS_SLAVE_ID 1
 #endif
 
+//#define USE_EXTERNAL_HEAVY_LOAD_CURRENT_METER
+#ifdef USE_EXTERNAL_HEAVY_LOAD_CURRENT_METER
+  // voltage reading are taken using ESP adcs
+  //#define USE_EXTERNAL_HEAVY_LOAD_CURRENT_ADC
+  #ifdef USE_EXTERNAL_HEAVY_LOAD_CURRENT_ADC
+    #define ADC_LOAD_CURRENT_PIN 36
+  #endif
+
+  // voltage reading by I2c ADS1015 
+  #define USE_EXTERNAL_HEAVY_LOAD_CURRENT_METER_ADS1015_ADC
+  #ifdef USE_EXTERNAL_HEAVY_LOAD_CURRENT_METER_ADS1015_ADC
+    #define ADS1015_LOAD_CURRENT_CHANNEL 0
+  #endif
+
+  // number of samples to get each run
+  #define EXTERNAL_HEAVY_LOAD_CURRENT_METER_SAMPLES_NUMBER 4
+  // milliseconds beteween 2 reading
+  #define EXTERNAL_HEAVY_LOAD_CURRENT_METER_SAMPLE_INTERVAL 150
+  // V measured at 0 ampere flowing to the load
+  #define EXTERNAL_HEAVY_LOAD_CURRENT_METER_VOLTAGE_ZERO_AMP_VOLT 0.009
+  // Volt/Ampere ratio
+  #define EXTERNAL_HEAVY_LOAD_CURRENT_METER_VOLTAGE_AMP_VOLT 4/100.0
+#endif
+
 // How many ms between each refresh request 
 //#define CONTROLLER_UPDATE_MS_PERIOD 2000L
 
@@ -273,6 +297,7 @@
   #define vPIN_BATTERY_BOOST_DURATION                     50
   #define vPIN_BATTERY_TEMPERATURE_COMPENSATION_COEFF     51
   #define vPIN_BATTERY_MANAGEMENT_MODE                    52
+  #define vPIN_STAT_ENERGY_CONSUMED_TOTAL                 53
   // internal
   #define vPIN_INTERNAL_STATUS                            27
   #define vPIN_INTERNAL_DEBUG_TERMINAL                    44
@@ -375,6 +400,7 @@
   #define MQTT_TOPIC_BATTERY_BOOST_DURATION                   MQTT_TOPIC_ROOT "battery_settings_boost_duration"
   #define MQTT_TOPIC_BATTERY_TEMPERATURE_COMPENSATION_COEFF   MQTT_TOPIC_ROOT "battery_settings_temperature_compensation_coeff"
   #define MQTT_TOPIC_BATTERY_MANAGEMENT_MODE                  MQTT_TOPIC_ROOT "battery_settings_management_mode"
+  #define MQTT_TOPIC_STAT_ENERGY_CONSUMED_TOTAL               MQTT_TOPIC_ROOT "stats_consumption_total"
   // internal
   #define MQTT_TOPIC_INTERNAL_STATUS                          MQTT_TOPIC_ROOT "internal_status"
   //action

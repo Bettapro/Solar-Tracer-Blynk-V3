@@ -77,6 +77,8 @@ VariableDefiner::VariableDefiner()
     this->initializeVariable(Variable::BATTERY_BOOST_DURATION, "Boost duration", VariableDatatype::DT_UINT16, VariableUOM::UOM_MINUTE, VariableSource::SR_STATS, VariableMode::MD_READWRITE, vPIN_BATTERY_BOOST_DURATION_DF, MQTT_TOPIC_BATTERY_BOOST_DURATION_DF);
     this->initializeVariable(Variable::BATTERY_TEMPERATURE_COMPENSATION_COEFFICIENT, "Batt. temp. compensation coeff.", VariableDatatype::DT_FLOAT, VariableUOM::UOM_UNDEFINED, VariableSource::SR_STATS, VariableMode::MD_READWRITE, vPIN_BATTERY_TEMPERATURE_COMPENSATION_COEFF_DF, MQTT_TOPIC_BATTERY_TEMPERATURE_COMPENSATION_COEFF_DF);
     this->initializeVariable(Variable::BATTERY_MANAGEMENT_MODE, "Batt. management mode", VariableDatatype::DT_UINT16, VariableUOM::UOM_UNDEFINED, VariableSource::SR_STATS, VariableMode::MD_READWRITE, vPIN_BATTERY_MANAGEMENT_MODE_DF, MQTT_TOPIC_BATTERY_MANAGEMENT_MODE_DF);
+    this->initializeVariable(Variable::CONSUMED_ENERGY_TOTAL, "Energy consumed", VariableDatatype::DT_FLOAT, VariableUOM::UOM_KILOWATTHOUR, VariableSource::SR_STATS, VariableMode::MD_READ, vPIN_STAT_ENERGY_CONSUMED_TOTAL_DF, MQTT_TOPIC_STAT_ENERGY_CONSUMED_TOTAL_DF);
+
 }
 
 const VariableDefinition *VariableDefiner::getDefinitionByBlynkVPin(uint8_t pin)
