@@ -40,6 +40,7 @@ BaseSync::BaseSync()
         if (varSize > 0)
         {
             this->lastValuesCache[index] = malloc(varSize);
+            memset(this->lastValuesCache[index], 0, varSize);
         }
     }
 }
