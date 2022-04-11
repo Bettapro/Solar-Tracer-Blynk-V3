@@ -33,6 +33,8 @@ jobs:
         - name: PubSubClient
         - source-url : https://github.com/Bettapro/SimpleTimer.git
         - source-url : https://github.com/Bettapro/arduino-home-assistant.git
+        - source-url : https://github.com/Bettapro/LinearSensHallCurrent.git
+        - source-url : https://github.com/RobTillaart/ADS1X15.git
       # sketch paths to compile (recursive) for all boards
       sketch_paths: |
         - SolarTracerBlynk
