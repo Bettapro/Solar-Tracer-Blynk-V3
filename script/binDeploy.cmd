@@ -3,7 +3,7 @@ SETLOCAL EnableDelayedExpansion
 
 rmdir "binFiles" /S /Q
 
-set VERSION_number="3.0.5"
+set VERSION_number="3.0.6"
 
 set buildRun[0].env=esp32dev
 set buildRun[0].fileSuffix=blynk
