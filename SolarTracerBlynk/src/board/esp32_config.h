@@ -30,8 +30,16 @@
 #define BOARD_DEBUG_SERIAL_STREAM_BAUDRATE 115200
 #endif
 
+#if defined USE_PIN_AP_CONFIGURATION_TRIGGER and ! defined(PIN_AP_TRIGGER_PIN)
+    #define PIN_AP_TRIGGER_PIN 19
+#endif
+
 #if defined(USE_SERIAL_STREAM) && !defined(BOARD_ST_SERIAL_STREAM)
 #define BOARD_ST_SERIAL_STREAM Serial2
+#endif
+
+#if defined(USE_SERIAL_STREAM)  && !defined(BOARD_ST_SERIAL_PRETRANSMIT_WAIT)
+    #define BOARD_ST_SERIAL_PRETRANSMIT_WAIT 0
 #endif
 
 #if defined(USE_SERIAL_MAX485) && !defined(MAX485_DE)

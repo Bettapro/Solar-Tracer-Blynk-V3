@@ -30,8 +30,8 @@
 class EPEVERSolarTracer : public SolarTracer, public ModbusMasterCallable
 {
 public:
-  EPEVERSolarTracer(Stream &serialCom, uint16_t serialTimeoutMs, uint8_t slave, uint8_t max485_de, uint8_t max485_re_neg);
-  EPEVERSolarTracer(Stream &serialCom, uint16_t serialTimeoutMs, uint8_t slave);
+  EPEVERSolarTracer(Stream &serialCom, uint16_t serialTimeoutMs, uint8_t slave, uint8_t max485_de, uint8_t max485_re_neg, uint16_t preTransmitWait);
+  EPEVERSolarTracer(Stream &serialCom, uint16_t serialTimeoutMs, uint8_t slave, uint16_t preTransmitWait);
 
   virtual bool syncRealtimeClock(struct tm *ti);
 
@@ -75,7 +75,8 @@ public:
   virtual bool testConnection();
 
 protected:
-    uint8_t max485_re_neg, max485_de;
+  uint8_t max485_re_neg, max485_de;
+  uint16_t preTransmitWaitMs;
 
   bool rs485readSuccess;
 
@@ -83,7 +84,6 @@ protected:
   uint8_t currentRealtimeUpdateCounter = 0;
 
   ModbusMaster node;
-
 
   // MODBUS FUNCTION
 
@@ -140,20 +140,33 @@ protected:
 private:
   static const uint8_t voltageLevels[];
 
-  static uint16_t getBatteryVoltageLevelFromVoltage(uint16_t voltage){
-    uint8_t index = 0;
-    while(true){
-      if(voltageLevels[index] == 0){
-        return 0;
-      }
-      if(voltageLevels[index] == voltage){
-        return index + 1;
-      }
-      index ++;
+  void onPreNodeRequest()
+  {
+    if (this->preTransmitWaitMs > 0)
+    {
+      delay(this->preTransmitWaitMs);
     }
   }
 
-  static uint16_t getVoltageFromBatteryVoltageLevel(uint16_t index){
+  static uint16_t getBatteryVoltageLevelFromVoltage(uint16_t voltage)
+  {
+    uint8_t index = 0;
+    while (true)
+    {
+      if (voltageLevels[index] == 0)
+      {
+        return 0;
+      }
+      if (voltageLevels[index] == voltage)
+      {
+        return index + 1;
+      }
+      index++;
+    }
+  }
+
+  static uint16_t getVoltageFromBatteryVoltageLevel(uint16_t index)
+  {
     return voltageLevels[index];
   }
 };

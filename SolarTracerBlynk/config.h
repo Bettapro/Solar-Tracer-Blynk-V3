@@ -76,6 +76,9 @@
   // specify your tx pin
   //#define BOARD_ST_SERIAL_PIN_MAPPING_TX 17
 
+  // ms to wait before sending any request
+  //#define BOARD_ST_SERIAL_PRETRANSMIT_WAIT 0
+  
   #define USE_SERIAL_MAX485
   #ifdef USE_SERIAL_MAX485
     // specify the pin num. connected to DE
@@ -193,7 +196,7 @@
   #define USE_PIN_AP_CONFIGURATION_TRIGGER
   #if defined USE_PIN_AP_CONFIGURATION_TRIGGER
     // pin number to use
-    #define PIN_AP_TRIGGER_PIN 19
+    //#define PIN_AP_TRIGGER_PIN 19
     // value to consider the pin "triggered"
     #define PIN_AP_TRIGGER_VALUE HIGH
   #endif
