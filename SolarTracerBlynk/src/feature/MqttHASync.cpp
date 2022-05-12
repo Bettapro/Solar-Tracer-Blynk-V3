@@ -95,8 +95,11 @@ void onMqttBoolCallback(bool value, HASwitch *el)
                 if (value)
                 {
                     debugPrintln("UPDATE CONTROLLER DATETIME");
-                    Controller::getInstance().getSolarController()->syncRealtimeClock(Datetime::getMyNowTm());
-                    el->setState(false);
+                    if (Datetime::getMyNowTm() != nullptr)
+                    {
+                        Controller::getInstance().getSolarController()->syncRealtimeClock(Datetime::getMyNowTm());
+                        el->setState(false);
+                    }
                 }
                 break;
             case Variable::UPDATE_ALL_CONTROLLER_DATA:
@@ -245,6 +248,7 @@ void MqttHASync::connect()
         delay(500);
         counter++;
     }
+    debugPrintln(Text::ok);
 }
 void MqttHASync::loop()
 {

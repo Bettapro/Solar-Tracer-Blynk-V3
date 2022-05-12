@@ -112,16 +112,17 @@ bool BaseSync::syncVariable(const VariableDefinition *def, const void *value)
     if (this->isVariableAllowed(def))
     {
         if (!(
-                this->renewValueCount == 1                                                                                  // sync always enabled?
+                this->renewValueCount == 1
+                || (*cachedUntil) <= 0                                                                                  // sync always enabled?
                 || !VariableDefiner::getInstance().isValueEqual(def->variable, value, this->lastValuesCache[def->variable]) // value has changed?
                 || (this->renewValueCount > 1 && ((*cachedUntil)--) <= 0)                                                     // renew required?
                 )                                                                                                           // -> should sync evaluation?
             || this->sendUpdateToVariable(def, value))
         {
             memcpy(this->lastValuesCache[def->variable], value, VariableDefiner::getInstance().getVariableSize(def->variable));
-            if (this->renewValueCount > 1)
+            if (this->renewValueCount > 1 || (*cachedUntil) <= 0)
             {
-                (*cachedUntil) = this->renewValueCount;
+                (*cachedUntil) = this->renewValueCount + 1;
             }
             return true;
         }

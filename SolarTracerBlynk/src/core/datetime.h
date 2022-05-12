@@ -29,26 +29,28 @@
 
 class Datetime
 {
-    public:
+public:
 #ifdef USE_NTP_SERVER
-    static void setupDatetimeFromNTP()
+    static bool setupDatetimeFromNTP()
     {
+        uint8_t maxCount = 20;
         debugPrint(Text::connecting);
         configTzTime(Environment::getData()->ntpTimezone, Environment::getData()->ntpServer);
 
-        while (time(nullptr) < 100000ul)
+        while (time(nullptr) < 100000ul && --maxCount > 0)
         {
             debugPrint(Text::dot);
             delay(500);
         }
-        debugPrintln(Text::ok);
+        debugPrintln(maxCount > 0 ? Text::ok : Text::ko);
+        return maxCount > 0;
     }
 #endif
 
     static struct tm *getMyNowTm()
     {
         time_t tnow = time(nullptr) + 1;
-        return localtime(&tnow);
+        return tnow <= 100000ul ? nullptr : localtime(&tnow);
     }
 };
 

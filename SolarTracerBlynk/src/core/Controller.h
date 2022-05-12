@@ -47,6 +47,8 @@ public:
         this->mainTimer->run();
     }
 
+    bool getErrorFlag(uint8_t status);
+
     void setErrorFlag(uint8_t status, bool error);
 
     inline uint8_t getStatus();

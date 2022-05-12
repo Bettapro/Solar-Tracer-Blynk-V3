@@ -53,21 +53,33 @@ void uploadStatsAll()
 #endif
 }
 
+void onWifiDisconnected(WiFiEvent_t event, WiFiEventInfo_t info)
+{
+  debugPrintf(true, "WiFi disconnected. Reason: %d", info.wifi_sta_disconnected.reason);
+  Controller::getInstance().setErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION, true);
+}
+
 // ****************************************************************************
 // SETUP and LOOP
 
 void loop()
 {
-  if (!WiFi.isConnected())
+#ifdef USE_OTA_UPDATE
+  ArduinoOTA.handle();
+#endif
+  Controller::getInstance().getMainTimer()->run();
+
+  if (Controller::getInstance().getErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION))
   {
     WiFi.reconnect();
-    // cannot trust return value of reconnect()
-    if (!WiFi.isConnected())
+    if (WiFi.waitForConnectResult() != WL_CONNECTED)
     {
-      Controller::getInstance().setErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION, true);
+      delay(1000);
+      return;
     }
     else
     {
+      Controller::getInstance().setErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION, false);
 #if defined USE_BLYNK
       BlynkSync::getInstance().connect();
 #endif
@@ -79,10 +91,7 @@ void loop()
 #endif
     }
   }
-  else
-  {
-    Controller::getInstance().setErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION, false);
-  }
+
 #if defined USE_BLYNK
   BlynkSync::getInstance().loop();
 #endif
@@ -92,11 +101,6 @@ void loop()
 #if defined USE_MQTT_HOME_ASSISTANT
   MqttHASync::getInstance().loop();
 #endif
-
-#ifdef USE_OTA_UPDATE
-  ArduinoOTA.handle();
-#endif
-  Controller::getInstance().getMainTimer()->run();
 }
 
 void setup()
@@ -211,6 +215,9 @@ void setup()
 #endif
     ESP.restart();
   }
+
+  WiFi.onEvent(onWifiDisconnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
+
   debugPrintln("Connected.");
   debugPrint("IP address: ");
   debugPrintln(WiFi.localIP().toString());
@@ -256,10 +263,12 @@ void setup()
 
 #ifdef USE_NTP_SERVER
   debugPrintf(true, Text::setupWithName, "Local Time");
-  Datetime::setupDatetimeFromNTP();
+  if (Datetime::setupDatetimeFromNTP())
+  {
 
-  struct tm *ti = Datetime::getMyNowTm();
-  debugPrintf(true, "My NOW is: %i-%02i-%02i %02i:%02i:%02i", ti->tm_year + 1900, ti->tm_mon + 1, ti->tm_mday, ti->tm_hour, ti->tm_min, ti->tm_sec);
+    struct tm *ti = Datetime::getMyNowTm();
+    debugPrintf(true, "My NOW is: %i-%02i-%02i %02i:%02i:%02i", ti->tm_year + 1900, ti->tm_mon + 1, ti->tm_mday, ti->tm_hour, ti->tm_min, ti->tm_sec);
+  }
 #endif
 #if defined USE_BLYNK
   BlynkSync::getInstance().setup();
@@ -274,12 +283,15 @@ void setup()
   debugPrintf(true, Text::setupWithName, "Solar controller");
 #ifdef SYNC_ST_TIME
   debugPrintln("Synchronize NTP time with controller");
-  Controller::getInstance().getSolarController()->syncRealtimeClock(Datetime::getMyNowTm());
+  if (Datetime::getMyNowTm() != nullptr)
+  {
+    Controller::getInstance().getSolarController()->syncRealtimeClock(Datetime::getMyNowTm());
+  }
   delay(500);
 #endif
 #ifdef USE_EXTERNAL_HEAVY_LOAD_CURRENT_METER
   LoadCurrentOverwrite::setup(Controller::getInstance().getSolarController());
-    Controller::getInstance().getSolarController()->setOnUpdateRunCompleted([]()
+  Controller::getInstance().getSolarController()->setOnUpdateRunCompleted([]()
                                                                           { LoadCurrentOverwrite::overWrite(Controller::getInstance().getSolarController()); });
 #endif
   debugPrintln("Get all values");
@@ -290,7 +302,7 @@ void setup()
   uploadRealtimeAll();
   uploadStatsAll();
   delay(1000);
-  
+
   // periodically refresh tracer values
   Controller::getInstance().getMainTimer()->setInterval(CONTROLLER_UPDATE_MS_PERIOD, []()
                                                         {

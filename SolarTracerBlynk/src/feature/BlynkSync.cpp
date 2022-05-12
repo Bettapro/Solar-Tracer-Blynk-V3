@@ -150,7 +150,10 @@ BLYNK_WRITE_DEFAULT()
         if (param.asInt() > 0)
         {
           debugPrintln("UPDATE CONTROLLER DATETIME");
-          Controller::getInstance().getSolarController()->syncRealtimeClock(Datetime::getMyNowTm());
+          if (Datetime::getMyNowTm() != nullptr)
+          {
+            Controller::getInstance().getSolarController()->syncRealtimeClock(Datetime::getMyNowTm());
+          }
           Blynk.virtualWrite(*def->blynkVPin, 0);
         }
       }

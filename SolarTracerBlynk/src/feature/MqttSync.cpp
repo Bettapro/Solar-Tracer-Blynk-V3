@@ -62,7 +62,10 @@ void mqttCallback(char *topic, uint8_t *bytes, unsigned int length)
                 if (payload.toInt() > 0)
                 {
                     debugPrintln("UPDATE CONTROLLER DATETIME");
-                    Controller::getInstance().getSolarController()->syncRealtimeClock(Datetime::getMyNowTm());
+                    if (Datetime::getMyNowTm() != nullptr)
+                    {
+                        Controller::getInstance().getSolarController()->syncRealtimeClock(Datetime::getMyNowTm());
+                    }
                 }
             }
             break;
@@ -151,6 +154,7 @@ void MqttSync::connect()
         delay(500);
         counter++;
     }
+    debugPrintln(Text::ok);
 }
 void MqttSync::loop()
 {
