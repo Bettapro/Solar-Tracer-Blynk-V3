@@ -26,7 +26,7 @@
 
 #define PROJECT_NAME "Solar-Tracer-Blynk-V3"
 #define PROJECT_VERSION "v3.0.6"
-#define PROJECT_SUBVERSION 7
+#define PROJECT_SUBVERSION 8
 
 
 #include <Arduino.h>
