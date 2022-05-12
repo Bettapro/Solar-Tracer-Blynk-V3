@@ -56,3 +56,6 @@
 #if defined(BOARD_ST_SERIAL_PIN_MAPPING_RX) | defined(BOARD_ST_SERIAL_PIN_MAPPING_TX)
 #error "This board does not support HW serial pin mapping! [ disable BOARD_ST_SERIAL_PIN_MAPPING_RX, BOARD_ST_SERIAL_PIN_MAPPING_TX ]"
 #endif
+
+
+#define WIFI_STATION_MODE_DISCONNECTED WiFiEvent_t::WIFI_EVENT_STAMODE_DISCONNECTED

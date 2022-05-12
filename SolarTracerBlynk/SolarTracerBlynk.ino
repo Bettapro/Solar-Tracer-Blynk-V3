@@ -53,9 +53,9 @@ void uploadStatsAll()
 #endif
 }
 
-void onWifiDisconnected(WiFiEvent_t event, WiFiEventInfo_t info)
+void onWifiDisconnected(WiFiEvent_t event)
 {
-  debugPrintf(true, "WiFi disconnected. Reason: %d", info.wifi_sta_disconnected.reason);
+  debugPrintln("WiFi disconnected");
   Controller::getInstance().setErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION, true);
 }
 
@@ -215,8 +215,9 @@ void setup()
 #endif
     ESP.restart();
   }
+  
 
-  WiFi.onEvent(onWifiDisconnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
+  WiFi.onEvent(onWifiDisconnected, WIFI_STATION_MODE_DISCONNECTED);
 
   debugPrintln("Connected.");
   debugPrint("IP address: ");
