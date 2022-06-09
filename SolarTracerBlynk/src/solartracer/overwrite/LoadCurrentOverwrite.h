@@ -31,7 +31,6 @@
 #include "../../incl/include_all_lib.h"
 #include "../SolarTracer.h"
 
-
 class LoadCurrentOverwrite
 {
 public:
@@ -65,10 +64,12 @@ public:
         tracer->setVariableEnabled(Variable::LOAD_CURRENT);
         tracer->setVariableEnable(Variable::LOAD_POWER, tracer->isVariableEnabled(Variable::BATTERY_VOLTAGE));
         tracer->setVariableEnable(Variable::CONSUMED_ENERGY_TOTAL, tracer->isVariableEnabled(Variable::BATTERY_VOLTAGE));
+        tracer->setVariableEnable(Variable::BATTERY_OVERALL_CURRENT, tracer->isVariableEnabled(Variable::BATTERY_CHARGE_CURRENT));
 
         tracer->setVariableOverWritten(Variable::LOAD_CURRENT, true);
         tracer->setVariableOverWritten(Variable::LOAD_POWER, true);
         tracer->setVariableOverWritten(Variable::CONSUMED_ENERGY_TOTAL, true);
+        tracer->setVariableOverWritten(Variable::BATTERY_OVERALL_CURRENT, true);
     }
 
     static void overWrite(SolarTracer *tracer)
@@ -85,6 +86,13 @@ public:
             current = 0;
         }
         tracer->setVariableValue(Variable::LOAD_CURRENT, &current, true);
+
+        if (tracer->isVariableReadReady(Variable::BATTERY_CHARGE_CURRENT))
+        {
+            const void *chargingCurrent = tracer->getValue(Variable::BATTERY_CHARGE_CURRENT);
+            float overallCurrent = *(float *)chargingCurrent - current;
+            tracer->setVariableValue(Variable::BATTERY_OVERALL_CURRENT, &overallCurrent, true);
+        }
 
         const void *loadVoltage = tracer->getValue(Variable::BATTERY_VOLTAGE);
 

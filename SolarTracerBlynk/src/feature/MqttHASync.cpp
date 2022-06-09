@@ -137,7 +137,7 @@ void MqttHASync::setup()
     // set device's details
 
     device->setName(Environment::getData()->mqttHADeviceName);
-    device->setManufacturer(PROJECT_NAME);
+    device->setManufacturer(PROJECT_AUTHOR);
     device->setModel(PROJECT_NAME);
     device->setSoftwareVersion(PROJECT_VERSION);
 
