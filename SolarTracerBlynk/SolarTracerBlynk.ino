@@ -163,7 +163,7 @@ void setup()
   }
   if (strlen(envData->wifiDns2))
   {
-    dns1.fromString(envData->wifiDns2);
+    dns2.fromString(envData->wifiDns2);
   }
 
   WiFi.config(ip, gateway, subnet, dns1, dns2);
