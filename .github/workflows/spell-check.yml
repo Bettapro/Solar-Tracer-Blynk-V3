@@ -18,4 +18,4 @@ jobs:
       - name: Spell check
         uses: codespell-project/actions-codespell@master
         with:
-          skip: docs/1733_modbus_protocol.pdf
+          skip: ./docs/1733_modbus_protocol.pdf
