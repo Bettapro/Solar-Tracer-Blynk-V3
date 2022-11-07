@@ -80,8 +80,9 @@ jobs:
           enable-deltas-report: "true"
           sketches-report-path: sketches-reports
           cli-compile-flags: |
-            - --build-property
-            - compiler.cpp.extra_flag="-Wno-error=unused-function"
+            --warnings="all"
+#            - --build-property
+#            - compiler.cpp.extra_flag="-Wno-unused-function"
       - name: Report Arduino Sketch Size Deltas
         uses: arduino/report-size-deltas@v1.0.0
         with:
