@@ -56,7 +56,7 @@ inline const char *getVariableUOM(VariableUOM uom)
     return nullptr;
 }
 
-void onMqttNumberCallback(float value, HANumber *el)
+void onMqttNumberCallback(HANumeric value, HANumber *el)
 {
     if (!ignoreCallback)
     {
@@ -69,7 +69,7 @@ void onMqttNumberCallback(float value, HANumber *el)
             {
             case DT_UINT16:
             {
-                uint16_t rValue = round(value);
+                uint16_t rValue = value.toUInt16();
                 haSync.applyUpdateToVariable(var, &rValue, false);
             }
             break;
@@ -80,7 +80,7 @@ void onMqttNumberCallback(float value, HANumber *el)
     }
 }
 
-void onMqttBoolCallback(bool value, HASwitch *el)
+void onMqttBoolButtonCallback(HAButton *el)
 {
     if (!ignoreCallback)
     {
@@ -92,31 +92,60 @@ void onMqttBoolCallback(bool value, HASwitch *el)
             switch (var)
             {
             case Variable::REALTIME_CLOCK:
-                if (value)
+                debugPrintln("UPDATE CONTROLLER DATETIME");
+                if (Datetime::getMyNowTm() != nullptr)
                 {
-                    debugPrintln("UPDATE CONTROLLER DATETIME");
-                    if (Datetime::getMyNowTm() != nullptr)
-                    {
-                        Controller::getInstance().getSolarController()->syncRealtimeClock(Datetime::getMyNowTm());
-                        el->setState(false);
-                    }
+                    Controller::getInstance().getSolarController()->syncRealtimeClock(Datetime::getMyNowTm());
                 }
                 break;
             case Variable::UPDATE_ALL_CONTROLLER_DATA:
-                if (value)
-                {
-                    debugPrintln("REQUEST ALL VALUES TO CONTROLLER");
-                    Controller::getInstance().getSolarController()->fetchAllValues();
-                    MqttHASync::getInstance().uploadRealtimeToMqtt();
-                    MqttHASync::getInstance().uploadStatsToMqtt();
-                    el->setState(false);
-                }
+                debugPrintln("REQUEST ALL VALUES TO CONTROLLER");
+                Controller::getInstance().getSolarController()->fetchAllValues();
+                MqttHASync::getInstance().uploadRealtimeToMqtt();
+                MqttHASync::getInstance().uploadStatsToMqtt();
                 break;
-            default:
-                haSync.applyUpdateToVariable(var, &value, false);
             }
         }
     }
+}
+
+void onMqttBoolSwitchCallback(bool value, HASwitch *el)
+{
+    if (!ignoreCallback)
+    {
+        MqttHASync haSync = MqttHASync::getInstance();
+        Variable var = haSync.findVariableBySensor(el);
+        if (var < Variable::VARIABLES_COUNT)
+        {
+            haSync.applyUpdateToVariable(var, &value, false);
+        }
+    }
+}
+
+void setupHASensor(HASensor *sensor, const VariableUOM *uom)
+{
+    switch (*uom)
+    {
+    case UOM_TEMPERATURE_C:
+        sensor->setDeviceClass("temperature");
+        break;
+    case UOM_WATT:
+        sensor->setDeviceClass("power");
+        break;
+    case UOM_KILOWATTHOUR:
+        sensor->setDeviceClass("energy");
+        break;
+    case UOM_PERCENT:
+        sensor->setUnitOfMeasurement("%");
+        break;
+    case UOM_AMPERE:
+        sensor->setDeviceClass("current");
+        break;
+    case UOM_VOLT:
+        sensor->setDeviceClass("voltage");
+        break;
+    }
+    sensor->setUnitOfMeasurement(getVariableUOM(*uom));
 }
 
 MqttHASync::MqttHASync() : BaseSync()
@@ -154,50 +183,54 @@ void MqttHASync::setup()
             case DT_BOOL:
                 if (def->mode == MD_READWRITE)
                 {
-                    HASwitch *hASwitch = new HASwitch(def->mqttTopic, false);
-                    hASwitch->onStateChanged(onMqttBoolCallback);
-                    haSensors[index] = hASwitch;
+                    if (def->uom == UOM_TRIGGER)
+                    {
+                        HAButton *haButton = new HAButton(def->mqttTopic);
+                        haButton->onCommand(onMqttBoolButtonCallback);
+                        haSensors[index] = haButton;
+                    }
+                    else
+                    {
+                        HASwitch *haSwitch = new HASwitch(def->mqttTopic);
+                        haSwitch->onCommand(onMqttBoolSwitchCallback);
+                        haSensors[index] = haSwitch;
+                    }
                 }
                 else
                 {
-                    haSensors[index] = new HABinarySensor(def->mqttTopic, false);
+                    haSensors[index] = new HABinarySensor(def->mqttTopic);
+                }
+                break;
+            case DT_UINT16:
+            case DT_FLOAT:
+                if (def->mode == MD_READWRITE)
+                {
+                    HANumber *haNumber = new HANumber(def->mqttTopic);
+                    haNumber->onCommand(onMqttNumberCallback);
+                    haNumber->setStep(def->datatype == DT_FLOAT ? 0.01 : 1);
+                    haNumber->setUnitOfMeasurement(getVariableUOM(def->uom));
+                    haSensors[index] = haNumber;
+                }
+                else
+                {
+                    HASensorNumber *hASensor = new HASensorNumber(def->mqttTopic);
+                    setupHASensor(hASensor, &(def->uom));
+                    haSensors[index] = hASensor;
                 }
                 break;
             default:
                 if (def->mode == MD_READWRITE)
                 {
                     HANumber *haNumber = new HANumber(def->mqttTopic);
-                    haNumber->onValueChanged(onMqttNumberCallback);
+                    haNumber->onCommand(onMqttNumberCallback);
                     haNumber->setStep(def->datatype == DT_FLOAT ? 0.01 : 1);
-                    haNumber->setPrecision(def->datatype == DT_FLOAT ? 2 : 0);
                     haNumber->setUnitOfMeasurement(getVariableUOM(def->uom));
                     haSensors[index] = haNumber;
                 }
                 else
                 {
                     HASensor *hASensor = new HASensor(def->mqttTopic);
-                    switch (def->uom)
-                    {
-                    case UOM_TEMPERATURE_C:
-                        hASensor->setDeviceClass("temperature");
-                        break;
-                    case UOM_WATT:
-                        hASensor->setDeviceClass("power");
-                        break;
-                    case UOM_KILOWATTHOUR:
-                        hASensor->setDeviceClass("energy");
-                        break;
-                    case UOM_PERCENT:
-                        hASensor->setUnitOfMeasurement("%");
-                        break;
-                    case UOM_AMPERE:
-                        hASensor->setDeviceClass("current");
-                        break;
-                    case UOM_VOLT:
-                        hASensor->setDeviceClass("voltage");
-                        break;
-                    }
-                    hASensor->setUnitOfMeasurement(getVariableUOM(def->uom));
+                    setupHASensor(hASensor, &(def->uom));
                     haSensors[index] = hASensor;
                 }
             }
@@ -208,7 +241,7 @@ void MqttHASync::setup()
     this->connect();
 }
 
-Variable MqttHASync::findVariableBySensor(BaseDeviceType *haSensor)
+Variable MqttHASync::findVariableBySensor(HABaseDeviceType *haSensor)
 {
     for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++)
     {
@@ -262,21 +295,25 @@ bool MqttHASync::isVariableAllowed(const VariableDefinition *def)
 bool MqttHASync::sendUpdateToVariable(const VariableDefinition *def, const void *value)
 {
 
-    BaseDeviceType *sensor = haSensors[def->variable];
+    HABaseDeviceType *sensor = haSensors[def->variable];
     bool result = false;
     ignoreCallback = true;
     switch (def->datatype)
     {
     case VariableDatatype::DT_UINT16:
-        result = def->mode == MD_READ ? ((HASensor *)sensor)->setValue(*(uint16_t *)value) : ((HANumber *)sensor)->setValue(*(uint16_t *)value);
-        break;
     case VariableDatatype::DT_FLOAT:
-        result = def->mode == MD_READ ? ((HASensor *)sensor)->setValue(*(float *)value) : ((HANumber *)sensor)->setValue(*(float *)value);
+        result = def->mode == MD_READ
+                     ? ((HANumber *)sensor)->setState(*(uint16_t *)value)
+                     : ((HASensorNumber *)sensor)->setValue(*(uint16_t *)value);
         break;
     case VariableDatatype::DT_BOOL:
-        result = def->mode == MD_READ ? ((HABinarySensor *)sensor)->setState(*(bool *)value) : ((HASwitch *)sensor)->setState(*(bool *)value);
+        result = def->uom != UOM_TRIGGER
+                     ? def->mode == MD_READ
+                           ? ((HABinarySensor *)sensor)->setState(*(bool *)value)
+                           : ((HASwitch *)sensor)->setState(*(bool *)value)
+                     : false;
         break;
-    case VariableDatatype::DT_STRING:
+    default:
         result = ((HASensor *)sensor)->setValue((const char *)value);
         break;
     }

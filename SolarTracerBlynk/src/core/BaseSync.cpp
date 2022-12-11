@@ -51,7 +51,6 @@ void BaseSync::applyUpdateToVariable(Variable variable, const void *value, bool 
     const VariableDefinition *def = VariableDefiner::getInstance().getDefinition(variable);
     if (def != nullptr)
     {
-
         if (!silent)
         {
             debugPrint("WRITE REQUEST ");

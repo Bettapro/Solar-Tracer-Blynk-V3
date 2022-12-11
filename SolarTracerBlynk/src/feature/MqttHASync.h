@@ -49,7 +49,7 @@ public:
     // upload values realtime
     void uploadRealtimeToMqtt();
 
-    Variable findVariableBySensor(BaseDeviceType *haSensor);
+    Variable findVariableBySensor(HABaseDeviceType *haSensor);
 
 private:
     MqttHASync();
@@ -58,7 +58,7 @@ private:
 
     HADevice *device;
     HAMqtt *mqtt;
-    BaseDeviceType *haSensors[Variable::VARIABLES_COUNT];
+    HABaseDeviceType *haSensors[Variable::VARIABLES_COUNT];
 
     bool initialized;
 };

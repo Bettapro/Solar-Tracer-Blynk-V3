@@ -55,6 +55,7 @@ typedef enum
 {
         UOM_UNDEFINED,
         UOM_STATUS,
+        UOM_TRIGGER,
         UOM_PERCENT,
         UOM_VOLT,
         UOM_WATT,

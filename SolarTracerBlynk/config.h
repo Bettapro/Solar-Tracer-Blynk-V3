@@ -223,7 +223,7 @@
  * BLYNK
  * Specify how to connect to blynk server and when to sync the data from the tracer
  */
-#define USE_BLYNK
+//#define USE_BLYNK
 #ifdef USE_NOT_BLYNK
   #undef USE_BLYNK
 #endif
@@ -317,7 +317,7 @@
  * NOTE: mqtt support is till a WIP, it supports a small set of the features and variable compared
  *        to blynk. Developed and tested using a thingspeak server and mosquitto broker
  */
-//#define USE_MQTT
+#define USE_MQTT
 #ifdef USE_NOT_MQTT
   #undef USE_MQTT
 #endif
@@ -333,7 +333,7 @@
   // client id
   #define MQTT_CLIENT_ID "solarTracer1"
 
-  //#define USE_MQTT_HOME_ASSISTANT
+  #define USE_MQTT_HOME_ASSISTANT
   #ifdef USE_MQTT_HOME_ASSISTANT
     #define MQTT_HOME_ASSISTANT_DEVICE_NAME "SolarTracer1"
   #endif
