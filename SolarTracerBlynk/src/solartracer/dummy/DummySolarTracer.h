@@ -78,6 +78,9 @@ public:
         case VariableDatatype::DT_STRING:
             strcpy(this->dummyTextValue, "Text");
             return this->dummyTextValue;
+        case VariableDatatype::DT_UINT16:
+            this->dummyUInt16 = random(100) > 0;
+            return &this->dummyUInt16;
         }
         return nullptr;
     }
@@ -86,5 +89,6 @@ private:
     bool dummyBoolValue;
     float dummyFloatValue;
     char *dummyTextValue;
+    uint16_t dummyUInt16;
 };
 #endif
