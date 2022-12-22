@@ -155,7 +155,7 @@ MqttHASync::MqttHASync() : BaseSync()
     WiFiClient *wifiClient = new WiFiClient;
 
     device = new HADevice(Environment::getData()->mqttClientId);
-    mqtt = new HAMqtt(*wifiClient, *device);
+    mqtt = new HAMqtt(*wifiClient, *device, VARIABLES_COUNT);
 }
 
 void MqttHASync::setup()
@@ -169,6 +169,8 @@ void MqttHASync::setup()
     device->setManufacturer(PROJECT_AUTHOR);
     device->setModel(PROJECT_NAME);
     device->setSoftwareVersion(PROJECT_VERSION);
+    device->enableSharedAvailability();
+    device->enableLastWill();
 
     for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++)
     {
@@ -205,7 +207,9 @@ void MqttHASync::setup()
             case DT_FLOAT:
                 if (def->mode == MD_READWRITE)
                 {
-                    HANumber *haNumber = new HANumber(def->mqttTopic);
+                    HANumber *haNumber = new HANumber(
+                        def->mqttTopic,
+                        def->datatype == DT_FLOAT ? HABaseDeviceType::PrecisionP2 : HABaseDeviceType::PrecisionP0);
                     haNumber->onCommand(onMqttNumberCallback);
                     haNumber->setStep(def->datatype == DT_FLOAT ? 0.01 : 1);
                     haNumber->setUnitOfMeasurement(getVariableUOM(def->uom));
@@ -213,7 +217,9 @@ void MqttHASync::setup()
                 }
                 else
                 {
-                    HASensorNumber *hASensor = new HASensorNumber(def->mqttTopic);
+                    HASensorNumber *hASensor = new HASensorNumber(
+                        def->mqttTopic,
+                        def->datatype == DT_FLOAT ? HABaseDeviceType::PrecisionP2 : HABaseDeviceType::PrecisionP0);
                     setupHASensor(hASensor, &(def->uom));
                     haSensors[index] = hASensor;
                 }
@@ -301,16 +307,20 @@ bool MqttHASync::sendUpdateToVariable(const VariableDefinition *def, const void 
     switch (def->datatype)
     {
     case VariableDatatype::DT_UINT16:
+        result = def->mode == MD_READ
+                     ? ((HASensorNumber *)sensor)->setValue(*(uint16_t *)value)
+                     : ((HANumber *)sensor)->setState(*(uint16_t *)value);
+        break;
     case VariableDatatype::DT_FLOAT:
         result = def->mode == MD_READ
-                     ? ((HANumber *)sensor)->setState(*(uint16_t *)value)
-                     : ((HASensorNumber *)sensor)->setValue(*(uint16_t *)value);
+                     ? ((HASensorNumber *)sensor)->setValue(*(float *)value)
+                     : ((HANumber *)sensor)->setState(*(float *)value);
         break;
     case VariableDatatype::DT_BOOL:
         result = def->uom != UOM_TRIGGER
                      ? def->mode == MD_READ
-                           ? ((HABinarySensor *)sensor)->setState(*(bool *)value)
-                           : ((HASwitch *)sensor)->setState(*(bool *)value)
+                           ? ((HASwitch *)sensor)->setState(*(bool *)value)
+                           : ((HABinarySensor *)sensor)->setState(*(bool *)value)
                      : false;
         break;
     default:
