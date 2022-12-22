@@ -17,3 +17,5 @@ jobs:
         uses: actions/checkout@v2
       - name: Spell check
         uses: codespell-project/actions-codespell@master
+        with:
+          skip: ./docs/1733_modbus_protocol.pdf
