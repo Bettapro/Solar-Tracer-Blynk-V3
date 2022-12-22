@@ -54,6 +54,10 @@ void Environment::loadEnvData()
     strcpy(envData.ntpTimezone, CURRENT_TIMEZONE);
 #endif
 
+#ifdef USE_EXTERNAL_HEAVY_LOAD_CURRENT_METER
+    envData.hlZeroVOff = EXTERNAL_HEAVY_LOAD_CURRENT_METER_VOLTAGE_ZERO_AMP_VOLT;
+#endif
+
     // END OF LOAD FROM config.h
 
 #if defined USE_WIFI_AP_CONFIGURATION
@@ -128,6 +132,10 @@ void Environment::loadEnvData()
                 loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_NTP_SERVER, envData.ntpServer);
                 loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_NTP_TIMEZONE, envData.ntpTimezone);
 #endif
+#ifdef USE_EXTERNAL_HEAVY_LOAD_CURRENT_METER
+                if (doc.containsKey(CONFIG_PERSISTENCE_EXTERNAL_HEAVY_LOAD_CURRENT_METER_VOLTAGE_ZERO_AMP_VOLT))
+                    envData.hlZeroVOff = doc[CONFIG_PERSISTENCE_EXTERNAL_HEAVY_LOAD_CURRENT_METER_VOLTAGE_ZERO_AMP_VOLT];
+#endif
             }
         }
     }
@@ -152,7 +160,8 @@ void Environment::resetEnvData()
 {
     LittleFS.begin();
     // load from file
-    if (LittleFS.exists(CONFIG_PERSISTENCE)) {
+    if (LittleFS.exists(CONFIG_PERSISTENCE))
+    {
         LittleFS.remove(CONFIG_PERSISTENCE);
     }
     LittleFS.end();

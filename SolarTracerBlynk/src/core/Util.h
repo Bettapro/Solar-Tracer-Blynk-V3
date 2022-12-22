@@ -34,6 +34,14 @@ public:
     {
         return intToChar(v, sharedBuffer);
     }
+    static char *floatToChar(float v, char * buf);
+    static char *floatToChar(float v)
+    {
+        return floatToChar(v, sharedBuffer);
+    }
+
+    static uint8_t digits(int number);
+
     /**
      * Shared buffer, use it with caution as it will be reused
      * 

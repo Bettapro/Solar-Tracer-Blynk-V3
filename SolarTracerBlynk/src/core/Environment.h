@@ -72,6 +72,9 @@ struct environrmentData
     char ntpServer[CONFIG_PERSISTENCE_NTP_SERVER_LEN + 1];
     char ntpTimezone[CONFIG_PERSISTENCE_NTP_TIMEZONE_LEN + 1];
 #endif
+#ifdef USE_EXTERNAL_HEAVY_LOAD_CURRENT_METER
+    float hlZeroVOff;
+#endif
 };
 
 class Environment

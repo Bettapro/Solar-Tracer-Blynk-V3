@@ -65,7 +65,6 @@ public:
             wifiManager.setConfigPortalBlocking(true);
             wifiManager.setDebugOutput(false);
 
-
             WiFiManagerParameter customWIFIText("<p><b>WIFI:</b></p>");
             wifiManager.addParameter(&customWIFIText);
 
@@ -96,8 +95,6 @@ public:
             wifiManager.addParameter(&customBlynkServerPort);
 #endif
 #endif
-
-
 
 #ifdef USE_MQTT
             WiFiManagerParameter customMqttText("<p><b>MQTT:</b></p>");
@@ -144,6 +141,15 @@ public:
             wifiManager.addParameter(&customNtpServer);
             wifiManager.addParameter(&customNtpTimezone);
 #endif
+#ifdef USE_EXTERNAL_HEAVY_LOAD_CURRENT_METER
+            WiFiManagerParameter customExtLoadMeter("<p><b>EXT. LOAD METER:</b></p>");
+
+            char hlVoltOffsetString[8];
+            WiFiManagerParameter customExtZeroVOff(CONFIG_PERSISTENCE_EXTERNAL_HEAVY_LOAD_CURRENT_METER_VOLTAGE_ZERO_AMP_VOLT, "Volt off.", Util::floatToChar(Environment::getData()->hlZeroVOff, hlVoltOffsetString), 8, "type=\"number\" min=\"0\"");
+
+            wifiManager.addParameter(&customExtLoadMeter);
+            wifiManager.addParameter(&customExtZeroVOff);
+#endif
 
             WiFiManagerParameter customWmText("<p><b>ACCESS POINT:</b></p>");
             WiFiManagerParameter customWmSSID(CONFIG_PERSISTENCE_WM_AP_SSID, "SSID", Environment::getData()->wmApSSID, CONFIG_PERSISTENCE_WM_AP_SSID_LEN);
@@ -187,14 +193,18 @@ public:
                   doc[CONFIG_PERSISTENCE_BLYNK_AUTH] = customBlynkAuth.getValue();
 #ifndef USE_BLYNK_2
                   doc[CONFIG_PERSISTENCE_BLYNK_HOSTNAME] = customBlynkServerHostname.getValue();
-                  doc[CONFIG_PERSISTENCE_BLYNK_PORT] = strlen(customBlynkServerPort.getValue()) > 0 ? atoi(customBlynkServerPort.getValue()) : 0;
+                  doc[CONFIG_PERSISTENCE_BLYNK_PORT] = strlen(customBlynkServerPort.getValue()) > 0
+                                                           ? atoi(customBlynkServerPort.getValue())
+                                                           : 0;
 #endif
 #endif
 #ifdef USE_MQTT
-                  doc[CONFIG_PERSISTENCE_MQTT_HOSTNAME] =  customMqttServer.getValue();
-                  doc[CONFIG_PERSISTENCE_MQTT_PORT] = strlen(customMqttServerPort.getValue()) > 0 ? atoi(customMqttServerPort.getValue()) : 0;
+                  doc[CONFIG_PERSISTENCE_MQTT_HOSTNAME] = customMqttServer.getValue();
+                  doc[CONFIG_PERSISTENCE_MQTT_PORT] = strlen(customMqttServerPort.getValue()) > 0
+                                                          ? atoi(customMqttServerPort.getValue())
+                                                          : 0;
                   doc[CONFIG_PERSISTENCE_MQTT_USERNAME] = customMqttUsername.getValue();
-                  doc[CONFIG_PERSISTENCE_MQTT_PASSWORD] =  customMqttPassword.getValue();
+                  doc[CONFIG_PERSISTENCE_MQTT_PASSWORD] = customMqttPassword.getValue();
                   doc[CONFIG_PERSISTENCE_MQTT_CLIENT_ID] = customMqttClientId.getValue();
 #endif
 #ifdef USE_MQTT_HOME_ASSISTANT
@@ -209,6 +219,11 @@ public:
 #ifdef USE_NTP_SERVER
                   doc[CONFIG_PERSISTENCE_NTP_SERVER] = customNtpServer.getValue();
                   doc[CONFIG_PERSISTENCE_NTP_TIMEZONE] = customNtpTimezone.getValue();
+#endif
+#ifdef USE_EXTERNAL_HEAVY_LOAD_CURRENT_METER
+                  doc[CONFIG_PERSISTENCE_EXTERNAL_HEAVY_LOAD_CURRENT_METER_VOLTAGE_ZERO_AMP_VOLT] = strlen(customExtZeroVOff.getValue()) > 0
+                                                                                                        ? atof(customExtZeroVOff.getValue())
+                                                                                                        : 0;
 #endif
                   File configFile = LittleFS.open(CONFIG_PERSISTENCE, "w");
                   if (!configFile)
