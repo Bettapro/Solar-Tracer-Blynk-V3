@@ -61,84 +61,91 @@ void Environment::loadEnvData()
     // END OF LOAD FROM config.h
 
 #if defined USE_WIFI_AP_CONFIGURATION
-    LittleFS.begin();
+    if (!LittleFS.begin())
+    {
+        debugPrintf(true, Text::errorWithCode, ERROR_LITTLEFS_BEGIN_FAILED);
+        if (!LittleFS.begin(true))
+        {
+            debugPrintf(true, Text::errorWithCode, ERROR_LITTLEFS_FORMAT_FAILED);
+        }
+        return;
+    }
     // load from file
     if (!LittleFS.exists(CONFIG_PERSISTENCE))
     {
         // no file found
         debugPrintln("No configuration file found");
+        return;
+    }
+
+    debugPrintln("Restoring configuration from file");
+    // file exists, reading and loading
+    File configFile = LittleFS.open(CONFIG_PERSISTENCE, "r");
+    if (!configFile)
+    {
+        debugPrintln("ERROR: cannot open config file");
+        return;
+    }
+
+    size_t size = configFile.size();
+    DynamicJsonDocument doc(size * 3);
+    DeserializationError error = deserializeJson(doc, configFile);
+    if (error)
+    {
+        debugPrintln("ERROR: Cannot deserialize settings from file");
+        debugPrintln(error.c_str());
     }
     else
     {
-        debugPrintln("Restoring configuration from file");
-        // file exists, reading and loading
-        File configFile = LittleFS.open(CONFIG_PERSISTENCE, "r");
-        if (!configFile)
-        {
-            debugPrintln("ERROR: cannot open config file");
-        }
-        else
-        {
-            size_t size = configFile.size();
-            DynamicJsonDocument doc(size * 3);
-            DeserializationError error = deserializeJson(doc, configFile);
-            if (error)
-            {
-                debugPrintln("ERROR: Cannot deserialize settings from file");
-                debugPrintln(error.c_str());
-            }
-            else
-            {
-                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_WIFI_SSID, envData.wifiSSID);
-                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_WIFI_PASSWORD, envData.wifiPassword);
+        loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_WIFI_SSID, envData.wifiSSID);
+        loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_WIFI_PASSWORD, envData.wifiPassword);
 
-                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_WIFI_IP_ADDRESS, envData.wifiIp);
-                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_WIFI_GATEWAY, envData.wifiGateway);
-                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_WIFI_SUBNET, envData.wifiSubnet);
-                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_WIFI_DNS1, envData.wifiDns1);
-                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_WIFI_DNS2, envData.wifiDns2);
+        loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_WIFI_IP_ADDRESS, envData.wifiIp);
+        loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_WIFI_GATEWAY, envData.wifiGateway);
+        loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_WIFI_SUBNET, envData.wifiSubnet);
+        loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_WIFI_DNS1, envData.wifiDns1);
+        loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_WIFI_DNS2, envData.wifiDns2);
 
-                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_WM_AP_SSID, envData.wmApSSID);
-                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_WM_AP_PASSWORD, envData.wmApPassword);
+        loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_WM_AP_SSID, envData.wmApSSID);
+        loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_WM_AP_PASSWORD, envData.wmApPassword);
 
 #if defined USE_BLYNK
-                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_BLYNK_AUTH, envData.blynkAuth);
+        loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_BLYNK_AUTH, envData.blynkAuth);
 #ifndef USE_BLYNK_2
-                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_BLYNK_HOSTNAME, envData.blynkServerHostname);
+        loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_BLYNK_HOSTNAME, envData.blynkServerHostname);
 
-                if (doc.containsKey(CONFIG_PERSISTENCE_BLYNK_PORT))
-                    envData.blynkServerPort = doc[CONFIG_PERSISTENCE_BLYNK_PORT];
+        if (doc.containsKey(CONFIG_PERSISTENCE_BLYNK_PORT))
+            envData.blynkServerPort = doc[CONFIG_PERSISTENCE_BLYNK_PORT];
 #endif
 #endif
 #ifdef USE_MQTT
-                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_MQTT_HOSTNAME, envData.mqttServerHostname);
-                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_MQTT_PASSWORD, envData.mqttPassword);
-                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_MQTT_USERNAME, envData.mqttUsername);
-                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_MQTT_CLIENT_ID, envData.mqttClientId);
-                if (doc.containsKey(CONFIG_PERSISTENCE_MQTT_PORT))
-                    envData.mqttServerPort = doc[CONFIG_PERSISTENCE_MQTT_PORT];
+        loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_MQTT_HOSTNAME, envData.mqttServerHostname);
+        loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_MQTT_PASSWORD, envData.mqttPassword);
+        loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_MQTT_USERNAME, envData.mqttUsername);
+        loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_MQTT_CLIENT_ID, envData.mqttClientId);
+        if (doc.containsKey(CONFIG_PERSISTENCE_MQTT_PORT))
+            envData.mqttServerPort = doc[CONFIG_PERSISTENCE_MQTT_PORT];
 
 #endif
 #ifdef USE_MQTT_HOME_ASSISTANT
-                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_MQTT_HA_DEVICE_NAME, envData.mqttHADeviceName);
+        loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_MQTT_HA_DEVICE_NAME, envData.mqttHADeviceName);
 #endif
 
 #ifdef USE_OTA_UPDATE
-                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_OTA_HOSTNAME, envData.otaHostname);
-                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_OTA_PASSWORD, envData.otaPassword);
+        loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_OTA_HOSTNAME, envData.otaHostname);
+        loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_OTA_PASSWORD, envData.otaPassword);
 #endif
 
 #ifdef USE_NTP_SERVER
-                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_NTP_SERVER, envData.ntpServer);
-                loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_NTP_TIMEZONE, envData.ntpTimezone);
+        loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_NTP_SERVER, envData.ntpServer);
+        loadStringToEnvIfExist(doc, CONFIG_PERSISTENCE_NTP_TIMEZONE, envData.ntpTimezone);
 #endif
 #ifdef USE_EXTERNAL_HEAVY_LOAD_CURRENT_METER
-                if (doc.containsKey(CONFIG_PERSISTENCE_EXTERNAL_HEAVY_LOAD_CURRENT_METER_VOLTAGE_ZERO_AMP_VOLT))
-                    envData.hlZeroVOff = doc[CONFIG_PERSISTENCE_EXTERNAL_HEAVY_LOAD_CURRENT_METER_VOLTAGE_ZERO_AMP_VOLT];
+        if (doc.containsKey(CONFIG_PERSISTENCE_EXTERNAL_HEAVY_LOAD_CURRENT_METER_VOLTAGE_ZERO_AMP_VOLT))
+            envData.hlZeroVOff = doc[CONFIG_PERSISTENCE_EXTERNAL_HEAVY_LOAD_CURRENT_METER_VOLTAGE_ZERO_AMP_VOLT];
 #endif
-            }
-        }
     }
+
     LittleFS.end();
 #endif
 }
