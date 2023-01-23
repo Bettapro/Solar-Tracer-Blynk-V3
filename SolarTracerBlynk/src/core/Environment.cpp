@@ -64,7 +64,7 @@ void Environment::loadEnvData()
     if (!LittleFS.begin())
     {
         debugPrintf(true, Text::errorWithCode, STATUS_ERR_LITTLEFS_BEGIN_FAILED);
-        if (!LittleFS.begin(true))
+                        if (!LittleFS.format() || !LittleFS.begin())
         {
             debugPrintf(true, Text::errorWithCode, STATUS_ERR_LITTLEFS_FORMAT_FAILED);
         }
@@ -79,7 +79,7 @@ void Environment::loadEnvData()
 
     debugPrintln("Restoring configuration from file");
     // file exists, reading and loading
-    File configFile = LittleFS.open(CONFIG_PERSISTENCE, FILE_READ);
+    File configFile = LittleFS.open(CONFIG_PERSISTENCE, "r");
     if (!configFile)
     {
         debugPrintf(true, Text::errorWithCode, STATUS_ERR_CONFIGURATION_CANNOT_READ);

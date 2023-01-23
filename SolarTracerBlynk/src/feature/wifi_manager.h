@@ -162,7 +162,7 @@ public:
                   if (!LittleFS.begin())
                   {
                         debugPrintf(true, Text::errorWithCode, STATUS_ERR_LITTLEFS_BEGIN_FAILED);
-                        if (!LittleFS.begin(true))
+                        if (!LittleFS.format() || !LittleFS.begin())
                         {
                               debugPrintf(true, Text::errorWithCode, STATUS_ERR_LITTLEFS_FORMAT_FAILED);
                         }
@@ -218,7 +218,7 @@ public:
                                                                                             ? atof(customExtZeroVOff.getValue())
                                                                                             : 0;
 #endif
-                  File configFile = LittleFS.open(CONFIG_PERSISTENCE, FILE_WRITE);
+                  File configFile = LittleFS.open(CONFIG_PERSISTENCE, "w");
                   if (!configFile)
                   {
                         LittleFS.end();
