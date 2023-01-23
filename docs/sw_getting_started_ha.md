@@ -13,7 +13,7 @@ Choose the correct bin file according to your board (esp8266, esp32):
 Flash the correct firmware on your EPS8266/32 (v3.0.5 or later). Use the latest version from [Release page](https://github.com/Bettapro/Solar-Tracer-Blynk-V3/releases) ,
 download the bin file ending with "SolarTracerBlynk_xxxxxx_xxxxxx_mqttHA.bin".
 
-More information how to flash firmare are available [ESP32](esp32.md#how-to-flash) [ESP8266](esp8266.md#how-to-flash)
+More information how to flash firmware are available [ESP32](esp32.md#how-to-flash) [ESP8266](esp8266.md#how-to-flash)
 
 
 Boot the ESP in Configuration mode and double check all the settings.

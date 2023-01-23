@@ -11,9 +11,9 @@ You need:
 ---
 ### First time setup
 
-The very first time you procees with the firmware flash, you must prepare your board with one addiotional step.  
+The very first time you process with the firmware flash, you must prepare your board with one additional step.  
 
-You need one additional bin file the first time you flash this firmare, you can download it [here](https://github.com/Bettapro/Solar-Tracer-Blynk-V3/releases/download/v3.0.4/SolarTracerBlynk_3.0.4_esp32dev_FULL.bin)
+You need one additional bin file the first time you flash this firmware, you can download it [here](https://github.com/Bettapro/Solar-Tracer-Blynk-V3/releases/download/v3.0.4/SolarTracerBlynk_3.0.4_esp32dev_FULL.bin)
 This bin file contains a complete image of the flash memory.
 
 Start esp_flash_download_tool and select the correct board (ESP32):  
