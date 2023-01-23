@@ -41,12 +41,20 @@ You are welcome for suggestions, bugreports, and of course any further improveme
 ![Settings screen v3](images/screenshot-blynk_v3_settings.png)
 
 ## Tutorial
+Supported board:
+- [ESP8266]()
+- [ESP32](docs/esp32_flash.md)
 
-Refer to [Sw_getting_started.md](docs/Sw_getting_started.md) 
+Available sync. options:
+- [Blynk legacy](docs/sw_getting_started.md)
+- [Blynk 2.0]()
+- [Home assistant-MQTT](docs/sw_getting_started_ha.md)
+- [MQTT]()
 
-Some details:
-- ESP8266 + MAX485 +  EPEVER Solar Tracer [HOW TO](docs/Esp8266_max485_epever_rj45.md)
-- ESP32 + MAX485 +  EPEVER Solar Tracer [HOW TO](docs/Esp32_max485_epever_rj45.md)
+
+Some examples:
+- [ESP8266 + MAX485 +  EPEVER Solar Tracer](docs/Esp8266_max485_epever_rj45.md)
+- [ESP32 + MAX485 +  EPEVER Solar Tracer](docs/Esp32_max485_epever_rj45.md)
 
 ## Credits
 
