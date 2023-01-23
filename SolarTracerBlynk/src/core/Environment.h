@@ -41,7 +41,7 @@ public:
     }
 
     static ArduinoJson::JsonVariantConst getData(const char* key){
-        return envData->getMember(key);
+        return (*envData)[key];
     }
 
     static bool containsStringNotEmpty(const char* key);
