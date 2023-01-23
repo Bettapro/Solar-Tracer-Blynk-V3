@@ -154,7 +154,7 @@ MqttHASync::MqttHASync() : BaseSync()
 
     WiFiClient *wifiClient = new WiFiClient;
 
-    device = new HADevice(Environment::getData()->mqttClientId);
+    device = new HADevice(Environment::getData(CONFIG_MQTT_CLIENT_ID).as<const char*>());
     mqtt = new HAMqtt(*wifiClient, *device, VARIABLES_COUNT);
 }
 
@@ -165,7 +165,7 @@ void MqttHASync::setup()
 
     // set device's details
 
-    device->setName(Environment::getData()->mqttHADeviceName);
+    device->setName(Environment::getData(CONFIG_MQTT_HA_DEVICE_NAME));
     device->setManufacturer(PROJECT_AUTHOR);
     device->setModel(PROJECT_NAME);
     device->setSoftwareVersion(PROJECT_VERSION);
@@ -241,6 +241,7 @@ void MqttHASync::setup()
                 }
             }
 
+            // haSensors[index]->setName(def->mqttTopic);
             haSensors[index]->setName(def->text);
         }
     }
@@ -263,12 +264,11 @@ bool MqttHASync::attemptMqttHASyncConnect()
 {
     if (!initialized)
     {
-        environrmentData *envData = Environment::getData();
         initialized = mqtt->begin(
-            envData->mqttServerHostname,
-            envData->mqttServerPort,
-            strlen(envData->mqttUsername) > 0 ? envData->mqttUsername : nullptr,
-            strlen(envData->mqttPassword) > 0 ? envData->mqttPassword : nullptr);
+            Environment::getData(CONFIG_MQTT_HOSTNAME).as<const char*>(),
+            Environment::getData(CONFIG_MQTT_PORT).as<uint16_t>(),
+            Environment::containsStringNotEmpty(CONFIG_MQTT_USERNAME) ? Environment::getData(CONFIG_MQTT_USERNAME).as<const char*>() : nullptr,
+            Environment::containsStringNotEmpty(CONFIG_MQTT_PASSWORD) ? Environment::getData(CONFIG_MQTT_PASSWORD).as<const char*>() : nullptr);
     }
     mqtt->loop();
     return mqtt->isConnected();

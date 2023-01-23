@@ -45,13 +45,13 @@ void BlynkSync::connect()
   debugPrint(Text::connecting);
 
 #ifdef USE_BLYNK_2
-  Blynk.config(Environment::getData()->blynkAuth);
+  Blynk.config(Environment::getData(CONFIG_BLYNK_AUTH));
 #else
 
   Blynk.config(
-      Environment::getData()->blynkAuth,
-      strlen(Environment::getData()->blynkServerHostname) > 0 ? Environment::getData()->blynkServerHostname : BLYNK_DEFAULT_DOMAIN,
-      strlen(Environment::getData()->blynkServerHostname) > 0 ? Environment::getData()->blynkServerPort : BLYNK_DEFAULT_PORT);
+      Environment::getData(CONFIG_BLYNK_AUTH),
+      Environment::containsStringNotEmpty(CONFIG_BLYNK_HOSTNAME) ? Environment::getData(CONFIG_BLYNK_HOSTNAME).as<const char *>() : BLYNK_DEFAULT_DOMAIN,
+      Environment::containsStringNotEmpty(CONFIG_BLYNK_PORT) ? Environment::getData(CONFIG_BLYNK_PORT).as<uint16_t>() : BLYNK_DEFAULT_PORT);
 
 #endif
 

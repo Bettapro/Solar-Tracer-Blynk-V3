@@ -38,6 +38,7 @@
 #include "solartracer_all.h"
 #include "communication_protocol_all.h"
 #include "status_all.h"
+#include "error_code.h"
 #include "config_persistence.h"
 
 

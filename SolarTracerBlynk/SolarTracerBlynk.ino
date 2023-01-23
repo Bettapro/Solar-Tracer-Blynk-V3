@@ -133,42 +133,42 @@ void setup()
 #endif
 
   debugPrintf(true, Text::setupWithName, "WIFI");
-
   WiFi.mode(WIFI_STA);
+  bool wifiDataPresent = Environment::containsStringNotEmpty(CONFIG_WIFI_SSID);
 
-  const environrmentData *envData = Environment::getData();
-
-  IPAddress ip;
-  IPAddress gateway;
-  IPAddress subnet;
-  IPAddress dns1;
-  IPAddress dns2;
-
-  if (strlen(envData->wifiIp))
+  if (wifiDataPresent)
   {
-    ip.fromString(envData->wifiIp);
-  }
 
-  if (strlen(envData->wifiGateway))
-  {
-    gateway.fromString(envData->wifiGateway);
-  }
-  if (strlen(envData->wifiSubnet))
-  {
-    subnet.fromString(envData->wifiSubnet);
-  }
-  if (strlen(envData->wifiDns1))
-  {
-    dns1.fromString(envData->wifiDns1);
-  }
-  if (strlen(envData->wifiDns2))
-  {
-    dns2.fromString(envData->wifiDns2);
-  }
+    IPAddress ip;
+    IPAddress gateway;
+    IPAddress subnet;
+    IPAddress dns1;
+    IPAddress dns2;
 
-  WiFi.config(ip, gateway, subnet, dns1, dns2);
-  WiFi.begin(Environment::getData()->wifiSSID, Environment::getData()->wifiPassword);
+    if (Environment::containsStringNotEmpty(CONFIG_WIFI_IP_ADDRESS))
+    {
+      ip.fromString(Environment::getData(CONFIG_WIFI_IP_ADDRESS).as<const char *>());
+    }
+    if (Environment::containsStringNotEmpty(CONFIG_WIFI_GATEWAY))
+    {
+      gateway.fromString(Environment::getData(CONFIG_WIFI_GATEWAY).as<const char *>());
+    }
+    if (Environment::containsStringNotEmpty(CONFIG_WIFI_SUBNET))
+    {
+      subnet.fromString(Environment::getData(CONFIG_WIFI_SUBNET).as<const char *>());
+    }
+    if (Environment::containsStringNotEmpty(CONFIG_WIFI_DNS1))
+    {
+      dns1.fromString(Environment::getData(CONFIG_WIFI_DNS1).as<const char *>());
+    }
+    if (Environment::containsStringNotEmpty(CONFIG_WIFI_DNS2))
+    {
+      dns2.fromString(Environment::getData(CONFIG_WIFI_DNS2).as<const char *>());
+    }
 
+    WiFi.config(ip, gateway, subnet, dns1, dns2);
+    WiFi.begin(Environment::getData(CONFIG_WIFI_SSID).as<const char *>(), Environment::getData(CONFIG_WIFI_PASSWORD).as<const char *>());
+  }
 #if defined(USE_HALL_AP_CONFIGURATION_TRIGGER)
   for (uint8_t readCount = 3; readCount >= 0; readCount--)
   {
@@ -205,9 +205,10 @@ void setup()
   }
 #endif
 
-  if (WiFi.waitForConnectResult() != WL_CONNECTED)
+  if (!wifiDataPresent || WiFi.waitForConnectResult() != WL_CONNECTED)
   {
 #if defined USE_WIFI_AP_CONFIGURATION
+    debugPrintln(" ++ Start AP configuration");
     WifiManagerSTB::startWifiConfigurationAP(false);
 #else
     debugPrintln("Connection Failed! Rebooting...");
@@ -215,7 +216,6 @@ void setup()
 #endif
     ESP.restart();
   }
-  
 
   WiFi.onEvent(onWifiDisconnected, WIFI_STATION_MODE_DISCONNECTED);
 

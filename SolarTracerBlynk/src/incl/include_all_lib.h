@@ -30,9 +30,8 @@
 #include <ArduinoOTA.h>
 #endif
 
-
-#if defined USE_WIFI_AP_CONFIGURATION
 #include <ArduinoJson.h>
+#if defined USE_WIFI_AP_CONFIGURATION
 
 #include <LittleFS.h>
 
@@ -42,9 +41,6 @@
 #endif
 
 #if defined(USE_MQTT) && !defined(USE_MQTT_HOME_ASSISTANT)
-#if defined(USE_MQTT_RPC_SUBSCRIBE) || defined(USE_MQTT_JSON_PUBLISH)
-#include <ArduinoJson.h>
-#endif
 #include <PubSubClient.h>
 #endif
 #if defined(USE_MQTT) && defined(USE_MQTT_HOME_ASSISTANT)
