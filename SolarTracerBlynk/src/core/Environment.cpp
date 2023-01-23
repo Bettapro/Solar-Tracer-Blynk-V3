@@ -63,34 +63,33 @@ void Environment::loadEnvData()
 #if defined USE_WIFI_AP_CONFIGURATION
     if (!LittleFS.begin())
     {
-        debugPrintf(true, Text::errorWithCode, ERROR_LITTLEFS_BEGIN_FAILED);
+        debugPrintf(true, Text::errorWithCode, STATUS_ERR_LITTLEFS_BEGIN_FAILED);
         if (!LittleFS.begin(true))
         {
-            debugPrintf(true, Text::errorWithCode, ERROR_LITTLEFS_FORMAT_FAILED);
+            debugPrintf(true, Text::errorWithCode, STATUS_ERR_LITTLEFS_FORMAT_FAILED);
         }
         return;
     }
-    // load from file
+
     if (!LittleFS.exists(CONFIG_PERSISTENCE))
     {
-        // no file found
-        debugPrintln("No configuration file found");
+        // no configuration file found
         return;
     }
 
     debugPrintln("Restoring configuration from file");
     // file exists, reading and loading
-    File configFile = LittleFS.open(CONFIG_PERSISTENCE, "r");
+    File configFile = LittleFS.open(CONFIG_PERSISTENCE, FILE_READ);
     if (!configFile)
     {
-        debugPrintln("ERROR: cannot open config file");
+        debugPrintf(true, Text::errorWithCode, STATUS_ERR_CONFIGURATION_CANNOT_READ);
         return;
     }
 
     DeserializationError error = deserializeJson(*envData, configFile);
     if (error)
     {
-        debugPrintln("ERROR: Cannot deserialize settings from file");
+        debugPrintf(true, Text::errorWithCode, STATUS_ERR_CONFIGURATION_CANNOT_PARSE);
         debugPrintln(error.c_str());
     }
    

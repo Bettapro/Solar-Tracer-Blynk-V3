@@ -219,8 +219,7 @@ void setup()
 
   WiFi.onEvent(onWifiDisconnected, WIFI_STATION_MODE_DISCONNECTED);
 
-  debugPrintln("Connected.");
-  debugPrint("IP address: ");
+  debugPrint("Connected: ");
   debugPrintln(WiFi.localIP().toString());
 
 #ifdef USE_OTA_UPDATE
@@ -256,7 +255,7 @@ void setup()
     debugPrintln(Text::ok);
     break;
   case 4:
-    debugPrintf(true, Text::errorWithCode, Controller::getInstance().getSolarController()->getLastControllerCommunicationStatus());
+    debugPrintf(true, Text::errorWithCodeInt, STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION, Controller::getInstance().getSolarController()->getLastControllerCommunicationStatus());
     break;
   default:
     debugPrintf(true, "OK [attempt=%i]", attemptControllerConnectionCount);
@@ -315,7 +314,7 @@ void setup()
                                                           }
                                                           else
                                                           {
-                                                            debugPrintf(true, Text::errorWithCode, Controller::getInstance().getSolarController()->getLastControllerCommunicationStatus());
+                                                            debugPrintf(true, Text::errorWithCodeInt, STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION, Controller::getInstance().getSolarController()->getLastControllerCommunicationStatus());
                                                             Controller::getInstance().setErrorFlag(STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION, true);
                                                           } });
   // periodically send STATS all value to blynk
@@ -323,7 +322,7 @@ void setup()
   // periodically send REALTIME  value to blynk
   Controller::getInstance().getMainTimer()->setInterval(SYNC_REALTIME_MS_PERIOD, uploadRealtimeAll);
 
-  debugPrintln("\r\n\r\n");
+  debugPrintln();
 
   Controller::getInstance().setErrorFlag(STATUS_RUN_BOOTING, false);
 #ifdef USE_STATUS_LED

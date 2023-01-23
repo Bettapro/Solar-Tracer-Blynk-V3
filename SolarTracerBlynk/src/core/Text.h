@@ -34,10 +34,14 @@ public:
     static constexpr const char *connecting = "Connecting ";
     static constexpr const char *setupWithName = "++ SETTING UP %s";
     static constexpr const char *errorWithCode = "Error[%i]";
+    static constexpr const char *errorWithCodeText = "Error[%i] %s";
+    static constexpr const char *errorWithCodeInt = "Error[%i] %i";
     static constexpr const char *port = "Port";
     static constexpr const char *server = "Server";
     static constexpr const char *syncErrorWithCountAndType = "WARNING %i %s var. are not synced";
     static constexpr const char *syncErrorWithVariable = "WARNING \"%s\" is not synced";
 };
+
+
 
 #endif
