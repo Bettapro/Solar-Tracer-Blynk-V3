@@ -52,7 +52,7 @@ jobs:
           - board:
               type: esp8266
             platforms: |
-              - name: esp8266:esp8266
+              - name: esp8266:esp8266@3.0.2
                 source-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
             libraries:
           # ESP32 boards
@@ -90,10 +90,3 @@ jobs:
           sketches-reports-source: sketches-reports
           # GitHub access token used to comment the memory usage comparison results to the PR thread
           github-token: ${{ secrets.GITHUB_TOKEN }}
-            
-         
-              
-              
-
-          
-          
