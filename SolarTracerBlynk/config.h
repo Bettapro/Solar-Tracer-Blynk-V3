@@ -192,8 +192,11 @@
     //#define HALL_AP_CONFIGURATION_THR_VALUE 30
   #endif
 
+  // use a double reset to trigger ap mode
+  #define USE_DOUBLE_RESET_TRIGGER
+
   // use pin state to trigger ap mode
-  #define USE_PIN_AP_CONFIGURATION_TRIGGER
+  //#define USE_PIN_AP_CONFIGURATION_TRIGGER
   #if defined USE_PIN_AP_CONFIGURATION_TRIGGER
     // pin number to use
     //#define PIN_AP_TRIGGER_PIN 19
@@ -202,7 +205,7 @@
   #endif
 
   // use pin to reset settings
-  #define USE_PIN_RESET_CONFIGURATION_TRIGGER
+  //#define USE_PIN_RESET_CONFIGURATION_TRIGGER
   #if defined USE_PIN_RESET_CONFIGURATION_TRIGGER
     // pin number to use
     #define PIN_RESET_TRIGGER_PIN 18
@@ -223,7 +226,7 @@
  * BLYNK
  * Specify how to connect to blynk server and when to sync the data from the tracer
  */
-//#define USE_BLYNK
+#define USE_BLYNK
 #ifdef USE_NOT_BLYNK
   #undef USE_BLYNK
 #endif
@@ -317,7 +320,7 @@
  * NOTE: mqtt support is till a WIP, it supports a small set of the features and variable compared
  *        to blynk. Developed and tested using a thingspeak server and mosquitto broker
  */
-#define USE_MQTT
+//#define USE_MQTT
 #ifdef USE_NOT_MQTT
   #undef USE_MQTT
 #endif

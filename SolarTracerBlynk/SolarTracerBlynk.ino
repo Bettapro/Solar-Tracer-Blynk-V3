@@ -28,6 +28,15 @@
 // -------------------------------------------------------------------------------
 // MISC
 
+#ifdef USE_DOUBLE_RESET_TRIGGER
+#define DRD_EXEC_LOOP drd.loop();
+#define DRD_EXEC_STOP drd.stop();
+#else
+#define DRD_EXEC_LOOP
+#define DRD_EXEC_STOP
+#endif
+
+
 void uploadRealtimeAll()
 {
 #if defined USE_BLYNK
@@ -109,6 +118,11 @@ void setup()
   debugPrintf(true, " ++ STARTING %s %s [%d]", PROJECT_NAME, PROJECT_VERSION, PROJECT_SUBVERSION);
   Environment::loadEnvData();
 
+#if defined(USE_DOUBLE_RESET_TRIGGER)
+  DoubleResetDetector drd(2, 0);
+  drd.loop();
+#endif
+
 #if defined(USE_PIN_RESET_CONFIGURATION_TRIGGER)
   pinMode(PIN_RESET_TRIGGER_PIN, INPUT);
   for (uint8_t readCount = 3; readCount >= 0; readCount--)
@@ -169,6 +183,16 @@ void setup()
     WiFi.config(ip, gateway, subnet, dns1, dns2);
     WiFi.begin(Environment::getData(CONFIG_WIFI_SSID).as<const char *>(), Environment::getData(CONFIG_WIFI_PASSWORD).as<const char *>());
   }
+#if defined(USE_DOUBLE_RESET_TRIGGER)
+  if (drd.detectDoubleReset())
+  {
+    drd.stop();
+    debugPrintln(" ++ Start AP configuration");
+    WifiManagerSTB::startWifiConfigurationAP(true);
+    ESP.restart();
+  }
+#endif
+  DRD_EXEC_LOOP
 #if defined(USE_HALL_AP_CONFIGURATION_TRIGGER)
   for (uint8_t readCount = 3; readCount >= 0; readCount--)
   {
@@ -214,13 +238,15 @@ void setup()
     debugPrintln("Connection Failed! Rebooting...");
     delay(5000);
 #endif
+    DRD_EXEC_LOOP
     ESP.restart();
   }
-
+  DRD_EXEC_LOOP
   WiFi.onEvent(onWifiDisconnected, WIFI_STATION_MODE_DISCONNECTED);
 
   debugPrint("Connected: ");
   debugPrintln(WiFi.localIP().toString());
+  DRD_EXEC_STOP
 
 #ifdef USE_OTA_UPDATE
   debugPrintf(true, Text::setupWithName, "ArduinoOTA");
@@ -247,6 +273,7 @@ void setup()
     }
     debugPrint(Text::dot);
     delay(1000);
+    
   }
 
   switch (attemptControllerConnectionCount)

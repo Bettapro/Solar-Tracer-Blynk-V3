@@ -1,5 +1,5 @@
 
-#pragma once 
+#pragma once
 
 #ifndef INCLUDE_ALL_LIB_H
 #define INCLUDE_ALL_LIB_H
@@ -20,11 +20,13 @@
 #error This board is not supported.
 #endif
 
-
 #include <SimpleTimer.h>
 
-
-// BLYNK ?!
+#ifdef USE_DOUBLE_RESET_TRIGGER
+#include <LittleFS.h>
+#define ESP_DRD_USE_LITTLEFS true
+#include <ESP_DoubleResetDetector.h>
+#endif
 
 #ifdef USE_OTA_UPDATE
 #include <ArduinoOTA.h>
@@ -32,9 +34,7 @@
 
 #include <ArduinoJson.h>
 #if defined USE_WIFI_AP_CONFIGURATION
-
 #include <LittleFS.h>
-
 // disable WM all logs
 // #define WM_NODEBUG
 #include <WiFiManager.h>
@@ -48,10 +48,10 @@
 #endif
 
 #ifdef USE_EXTERNAL_HEAVY_LOAD_CURRENT_METER
-    #ifdef USE_EXTERNAL_HEAVY_LOAD_CURRENT_METER_ADS1015_ADC
-        #include "ADS1X15.h"
-    #endif
-    #include <LinearSensHallCurrent.h>
+#ifdef USE_EXTERNAL_HEAVY_LOAD_CURRENT_METER_ADS1015_ADC
+#include "ADS1X15.h"
+#endif
+#include <LinearSensHallCurrent.h>
 #endif
 
 #endif

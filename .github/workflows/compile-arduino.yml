@@ -35,6 +35,7 @@ jobs:
         - source-url : https://github.com/Bettapro/arduino-home-assistant.git
         - source-url : https://github.com/Bettapro/LinearSensHallCurrent.git
         - source-url : https://github.com/RobTillaart/ADS1X15.git
+        - source-url : https://github.com/khoih-prog/ESP_DoubleResetDetector.git
       # sketch paths to compile (recursive) for all boards
       sketch_paths: |
         - SolarTracerBlynk
