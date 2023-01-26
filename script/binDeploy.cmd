@@ -5,29 +5,33 @@ rmdir "binFiles" /S /Q
 
 set VERSION_number="3.0.6"
 
+set esp32_build_flag_base=-DUSE_HALL_AP_CONFIGURATION_TRIGGER
+set esp8266_build_flag_base=
+
+
 set buildRun[0].env=esp32dev
 set buildRun[0].fileSuffix=blynk
-set buildRun[0].buildFlags=
+set buildRun[0].buildFlags=%esp32_build_flag_base%
 
 set buildRun[1].env=esp32dev
 set buildRun[1].fileSuffix=mqtt
-set buildRun[1].buildFlags=-DUSE_NOT_BLYNK -DUSE_MQTT
+set buildRun[1].buildFlags=%esp32_build_flag_base% -DUSE_NOT_BLYNK -DUSE_MQTT 
 
 set buildRun[2].env=esp32dev
 set buildRun[2].fileSuffix=mqttHA
-set buildRun[2].buildFlags=-DUSE_NOT_BLYNK -DUSE_MQTT -DUSE_MQTT_HOME_ASSISTANT
+set buildRun[2].buildFlags=%esp32_build_flag_base% -DUSE_NOT_BLYNK -DUSE_MQTT -DUSE_MQTT_HOME_ASSISTANT
 
 set buildRun[3].env=esp8266
 set buildRun[3].fileSuffix=blynk
-set buildRun[3].buildFlags=
+set buildRun[3].buildFlags=%esp8266_build_flag_base%
 
 set buildRun[4].env=esp8266
 set buildRun[4].fileSuffix=mqtt
-set buildRun[4].buildFlags=-DUSE_NOT_BLYNK -DUSE_MQTT
+set buildRun[4].buildFlags=%esp8266_build_flag_base% -DUSE_NOT_BLYNK -DUSE_MQTT
 
 set buildRun[5].env=esp8266
 set buildRun[5].fileSuffix=mqttHA
-set buildRun[5].buildFlags=-DUSE_NOT_BLYNK -DUSE_MQTT -DUSE_MQTT_HOME_ASSISTANT
+set buildRun[5].buildFlags=%esp8266_build_flag_base% -DUSE_NOT_BLYNK -DUSE_MQTT -DUSE_MQTT_HOME_ASSISTANT
 
 
 set "x=0"
