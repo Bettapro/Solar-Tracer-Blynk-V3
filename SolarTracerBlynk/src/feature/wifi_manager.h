@@ -153,6 +153,7 @@ public:
             wifiManager.addParameter(&customWmSSID);
             wifiManager.addParameter(&customWmPassword);
 
+            wifiManager.setConfigPortalTimeout(WIFI_AP_TIMEOUT);
             wifiManager.startConfigPortal(Environment::getData(CONFIG_WM_AP_SSID), Environment::getData(CONFIG_WM_AP_PASSWORD));
 
             if (shouldSaveConfig)

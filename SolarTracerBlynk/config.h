@@ -182,6 +182,8 @@
   #define WIFI_AP_CONFIGURATION_HOSTNAME "SolarTracerAP"
   // ap password
   #define WIFI_AP_CONFIGURATION_PASSWORD "admin1234"
+  // max seconds ap will wait to be configured
+  #define WIFI_AP_TIMEOUT 150
 
   // use hall sensor to trigger ap mode
   //#define USE_HALL_AP_CONFIGURATION_TRIGGER
