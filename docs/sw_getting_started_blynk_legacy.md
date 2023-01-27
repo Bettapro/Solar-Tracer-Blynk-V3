@@ -31,7 +31,7 @@ Original version of the mobile app, shows a small set of data. ENERGY REQUIRED: 
 Boot the ESP in Configuration mode and double check all the settings, double check the mqtt section and make sure that mqtt settings are correct.  
 ![Alt text](../images/wifi_manager_config.png)
 
-Thats all! your mobile app will get updated with the data from your SCC.
+That's all! your mobile app will get updated with the data from your SCC.
 
 
 
