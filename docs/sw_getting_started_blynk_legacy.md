@@ -33,8 +33,9 @@ Boot the ESP in Configuration mode and double check all the settings, double che
 
 That's all! your mobile app will get updated with the data from your SCC.
 
+## Sample screenshot
 
-
-
-
-
+![Realtime data screen v3](images/screenshot-blynk_v3_realtime.png)
+![Battery data screen v3](images/screenshot-blynk_v3_battery.png)
+![PV data screen v3](images/screenshot-blynk_v3_pv.png)
+![Settings screen v3](images/screenshot-blynk_v3_settings.png)

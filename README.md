@@ -33,13 +33,6 @@ You are welcome for suggestions, bugreports, and of course any further improveme
 ![Tracer-AN](images/tracer-a.png)
 ![Tracer-BN](images/tracer-b.png)
 
-## Sample screenshot
-
-![Realtime data screen v3](images/screenshot-blynk_v3_realtime.png)
-![Battery data screen v3](images/screenshot-blynk_v3_battery.png)
-![PV data screen v3](images/screenshot-blynk_v3_pv.png)
-![Settings screen v3](images/screenshot-blynk_v3_settings.png)
-
 ## Tutorial
 Supported board:
 - [ESP8266](docs/esp8266.md)
@@ -55,6 +48,11 @@ Available sync. options:
 Some examples:
 - [ESP8266 + MAX485 +  EPEVER Solar Tracer](docs/Esp8266_max485_epever_rj45.md)
 - [ESP32 + MAX485 +  EPEVER Solar Tracer](docs/Esp32_max485_epever_rj45.md)
+
+## Sample screenshot
+
+![Realtime data BLYNK LEGACY](images/screenshot-blynk_v3_realtime.png)
+![PV data screen BLYNK LEGACY](images/screenshot-blynk_v3_pv.png)
 
 ## Credits
 
