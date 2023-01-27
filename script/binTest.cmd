@@ -11,7 +11,7 @@ set esp8266_build_flag_base=
 
 set buildRun[0].env=esp32dev
 set buildRun[0].fileSuffix=run
-set buildRun[0].buildFlags=%esp32_build_flag_base% -DUSE_EXTERNAL_HEAVY_LOAD_CURRENT_METER
+set buildRun[0].buildFlags=%esp32_build_flag_base% -DUSE_NOT_BLYNK -DUSE_MQTT -DUSE_MQTT_HOME_ASSISTANT -DUSE_EXTERNAL_HEAVY_LOAD_CURRENT_METER
 
 
 set "x=0"

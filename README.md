@@ -6,7 +6,7 @@
 [![Spell Check](https://github.com/Bettapro/Solar-Tracer-Blynk-V3/actions/workflows/spell-check.yml/badge.svg)](https://github.com/Bettapro/Solar-Tracer-Blynk-V3/actions/workflows/spell-check.yml)
 
 
-### An Arduino project to connect one MPPT Solar Controllers to an `ESP8266/ESP32` and monitor it using the `Blynk` mobile app!
+### An Arduino project to connect one MPPT Solar Controllers to an `ESP8266/ESP32` and monitor it!
 
 You can take a look to the previous version of this software:
 * *v1* [Tracer-RS485-Modbus-Blynk](https://github.com/jaminNZx/Tracer-RS485-Modbus-Blynk)
@@ -42,14 +42,14 @@ You are welcome for suggestions, bugreports, and of course any further improveme
 
 ## Tutorial
 Supported board:
-- [ESP8266]()
-- [ESP32](docs/esp32_flash.md)
+- [ESP8266](docs/esp8266.md)
+- [ESP32](docs/esp32.md)
 
 Available sync. options:
-- [Blynk legacy](docs/sw_getting_started.md)
+- [Blynk legacy](docs/sw_getting_started_blynk_legacy.md)
 - [Blynk 2.0]()
 - [Home assistant-MQTT](docs/sw_getting_started_ha.md)
-- [MQTT]()
+- [MQTT](docs/sw_getting_started_mqtt.md)
 
 
 Some examples:

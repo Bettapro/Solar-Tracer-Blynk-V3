@@ -1,4 +1,4 @@
-# SW getting started HomeAssistant
+# SW getting started Home Assistant
 
 *!You must have a working mqtt broker and also the mqtt integration in you home assistant integration!*
 
@@ -7,18 +7,13 @@ Choose the correct bin file according to your board (esp8266, esp32):
 - *SolarTracerBlynk_xxxx_esp32dev_mqttHA.bin*: ESP32 only
 - *SolarTracerBlynk_xxxx_esp8266_mqttHA.bin*: ESP8266 only
 
+Flash the firmware on your EPS8266/ESP32, more information how to flash firmware are available [ESP32](esp32.md#how-to-flash) [ESP8266](esp8266.md#how-to-flash)
 
 
+Boot the ESP in Configuration mode and double check all the settings, double check the mqtt section and make sure that settings are correct.
+![Alt text](../images/wifi_manager_mqtt_settings.png)  
 
-Flash the correct firmware on your EPS8266/32 (v3.0.5 or later). Use the latest version from [Release page](https://github.com/Bettapro/Solar-Tracer-Blynk-V3/releases) ,
-download the bin file ending with "SolarTracerBlynk_xxxxxx_xxxxxx_mqttHA.bin".
-
-More information how to flash firmware are available [ESP32](esp32.md#how-to-flash) [ESP8266](esp8266.md#how-to-flash)
-
-
-Boot the ESP in Configuration mode and double check all the settings.
-If everything is working your mqtt integration will discover and configure the solar tracer.
-
+If everything is working your mqtt integration will discover and configure the solar tracer.  
 ![image](https://user-images.githubusercontent.com/3984840/160839821-8fd79592-4d98-4107-8b78-3d2c2c555c7f.png)
 
 ![image](https://user-images.githubusercontent.com/3984840/160840312-218e7718-c8e7-4236-bc88-470d8f4ea4ed.png)
