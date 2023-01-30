@@ -36,7 +36,6 @@
 #define DRD_EXEC_STOP
 #endif
 
-
 void uploadRealtimeAll()
 {
 #if defined USE_BLYNK
@@ -117,6 +116,7 @@ void setup()
   BOARD_DEBUG_SERIAL_STREAM.begin(BOARD_DEBUG_SERIAL_STREAM_BAUDRATE);
   debugPrintf(true, " ++ STARTING %s %s [%d]", PROJECT_NAME, PROJECT_VERSION, PROJECT_SUBVERSION);
   Environment::loadEnvData();
+  setDebugEnabled(Environment::getData()->serialDebug);
 
 #if defined(USE_DOUBLE_RESET_TRIGGER)
   DoubleResetDetector drd(2, 0);
@@ -148,7 +148,9 @@ void setup()
 
   debugPrintf(true, Text::setupWithName, "WIFI");
   WiFi.mode(WIFI_STA);
-  bool wifiDataPresent = Environment::containsStringNotEmpty(CONFIG_WIFI_SSID);
+  const EnvironrmentData *envData = Environment::getData();
+
+  bool wifiDataPresent = strlen(Environment::getData()->wifiSSID);
 
   if (wifiDataPresent)
   {
@@ -159,29 +161,30 @@ void setup()
     IPAddress dns1;
     IPAddress dns2;
 
-    if (Environment::containsStringNotEmpty(CONFIG_WIFI_IP_ADDRESS))
+    if (strlen(envData->wifiIp))
     {
-      ip.fromString(Environment::getData(CONFIG_WIFI_IP_ADDRESS).as<const char *>());
+      ip.fromString(envData->wifiIp);
     }
-    if (Environment::containsStringNotEmpty(CONFIG_WIFI_GATEWAY))
+
+    if (strlen(envData->wifiGateway))
     {
-      gateway.fromString(Environment::getData(CONFIG_WIFI_GATEWAY).as<const char *>());
+      gateway.fromString(envData->wifiGateway);
     }
-    if (Environment::containsStringNotEmpty(CONFIG_WIFI_SUBNET))
+    if (strlen(envData->wifiSubnet))
     {
-      subnet.fromString(Environment::getData(CONFIG_WIFI_SUBNET).as<const char *>());
+      subnet.fromString(envData->wifiSubnet);
     }
-    if (Environment::containsStringNotEmpty(CONFIG_WIFI_DNS1))
+    if (strlen(envData->wifiDns1))
     {
-      dns1.fromString(Environment::getData(CONFIG_WIFI_DNS1).as<const char *>());
+      dns1.fromString(envData->wifiDns1);
     }
-    if (Environment::containsStringNotEmpty(CONFIG_WIFI_DNS2))
+    if (strlen(envData->wifiDns2))
     {
-      dns2.fromString(Environment::getData(CONFIG_WIFI_DNS2).as<const char *>());
+      dns2.fromString(envData->wifiDns2);
     }
 
     WiFi.config(ip, gateway, subnet, dns1, dns2);
-    WiFi.begin(Environment::getData(CONFIG_WIFI_SSID).as<const char *>(), Environment::getData(CONFIG_WIFI_PASSWORD).as<const char *>());
+    WiFi.begin(envData->wifiSSID, envData->wifiPassword);
   }
 #if defined(USE_DOUBLE_RESET_TRIGGER)
   if (drd.detectDoubleReset())
@@ -273,7 +276,6 @@ void setup()
     }
     debugPrint(Text::dot);
     delay(1000);
-    
   }
 
   switch (attemptControllerConnectionCount)

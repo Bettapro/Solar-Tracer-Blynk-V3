@@ -27,6 +27,11 @@
 
 #define DEBUG_REGISTER_CALLBACKS_MAX 2
 
+bool debugEnabled = true;
+
+void setDebugEnabled(bool enabled)  {
+    debugEnabled = enabled;
+}
 
 
 uint8_t regCallbacksIndex = 0;
@@ -48,7 +53,9 @@ void debugDispactMessageRegisterCallback(String msg){
 
 void debugPrint(String message)
 {
-    BOARD_DEBUG_SERIAL_STREAM.print(message);
+   if(debugEnabled){
+        BOARD_DEBUG_SERIAL_STREAM.print(message);
+   }
     for(uint8_t index = 0; index < regCallbacksIndex; index ++){
         (*regCallbacks[index])(message);
     }

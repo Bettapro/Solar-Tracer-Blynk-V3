@@ -25,7 +25,7 @@
 #define DEBUG_H
 
 #include "../incl/include_all_core.h"
-
+void setDebugEnabled(bool enable);
 void debugAddRegisterCallback(void (*regCallback)(String));
 void debugDispactMessageRegisterCallback(String msg);
 void debugPrint(String message);

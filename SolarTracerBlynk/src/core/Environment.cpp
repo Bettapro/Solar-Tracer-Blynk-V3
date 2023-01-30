@@ -1,105 +1,147 @@
 #include "Environment.h"
 
-DynamicJsonDocument* Environment::envData = new DynamicJsonDocument(1024);
+struct EnvironrmentData Environment::envData;
 
 void Environment::loadEnvData()
 {
     // default from config.h
-    (*envData)[CONFIG_WIFI_SSID] = WIFI_SSID;
-    (*envData)[CONFIG_WIFI_SSID] = WIFI_PASS;
-    (*envData)[CONFIG_WIFI_IP_ADDRESS] = WIFI_IP_ADDRESS;
-    (*envData)[CONFIG_WIFI_GATEWAY] = WIFI_GATEWAY;
-    (*envData)[CONFIG_WIFI_SUBNET] = WIFI_SUBNET;
-    (*envData)[CONFIG_WIFI_DNS1] = WIFI_DNS1;
-    (*envData)[CONFIG_WIFI_DNS2] = WIFI_DNS2;
+    strcpy(envData.wifiSSID, WIFI_SSID);
+    strcpy(envData.wifiPassword, WIFI_PASS);
+
+    strcpy(envData.wifiIp, WIFI_IP_ADDRESS);
+    strcpy(envData.wifiGateway, WIFI_GATEWAY);
+    strcpy(envData.wifiSubnet, WIFI_SUBNET);
+    strcpy(envData.wifiDns1, WIFI_DNS1);
+    strcpy(envData.wifiDns2, WIFI_DNS2);
 
 #ifdef USE_WIFI_AP_CONFIGURATION
-    (*envData)[CONFIG_WM_AP_SSID] = WIFI_AP_CONFIGURATION_HOSTNAME;
-    (*envData)[CONFIG_WM_AP_PASSWORD] = WIFI_AP_CONFIGURATION_PASSWORD;
+    strcpy(envData.wmApSSID, WIFI_AP_CONFIGURATION_HOSTNAME);
+    strcpy(envData.wmApPassword, WIFI_AP_CONFIGURATION_PASSWORD);
 #endif
 
 #ifdef USE_BLYNK
-(*envData)[CONFIG_BLYNK_AUTH] = BLYNK_AUTH;
-#ifdef USE_BLYNK_2
-#else
+#ifndef USE_BLYNK_2
 #ifdef USE_BLYNK_LOCAL_SERVER
-    (*envData)[CONFIG_BLYNK_HOSTNAME] = BLYNK_SERVER;
-    (*envData)[CONFIG_BLYNK_PORT] = BLYNK_PORT;
+    strcpy(envData.blynkServerHostname, BLYNK_SERVER);
+    envData.blynkServerPort = BLYNK_PORT;
 #else
-    (*envData)[CONFIG_BLYNK_HOSTNAME] = "";
-    (*envData)[CONFIG_BLYNK_PORT] = 0;
+    strcpy(envData.blynkServerHostname, "");
+    envData.blynkServerPort = 0;
 #endif
 #endif
+#if defined USE_BLYNK
+    strcpy(envData.blynkAuth, BLYNK_AUTH);
 #endif
-
+#endif
 #ifdef USE_MQTT
-    (*envData)[CONFIG_MQTT_HOSTNAME] = MQTT_SERVER;
-    (*envData)[CONFIG_MQTT_USERNAME] = MQTT_USERNAME;
-    (*envData)[CONFIG_MQTT_PASSWORD] = MQTT_PASSWORD;
-    (*envData)[CONFIG_MQTT_CLIENT_ID] = MQTT_CLIENT_ID;
-    (*envData)[CONFIG_MQTT_PORT] = MQTT_PORT;
+    strcpy(envData.mqttServerHostname, MQTT_SERVER);
+    strcpy(envData.mqttUsername, MQTT_USERNAME);
+    strcpy(envData.mqttPassword, MQTT_PASSWORD);
+    strcpy(envData.mqttClientId, MQTT_CLIENT_ID);
+    envData.mqttServerPort = MQTT_PORT;
 #endif
 #ifdef USE_MQTT_HOME_ASSISTANT
-    (*envData)[CONFIG_MQTT_HA_DEVICE_NAME] = MQTT_HOME_ASSISTANT_DEVICE_NAME;
+    strcpy(envData.mqttHADeviceName, MQTT_HOME_ASSISTANT_DEVICE_NAME);
 #endif
 
 #ifdef USE_OTA_UPDATE
-    (*envData)[CONFIG_OTA_HOSTNAME] = OTA_HOSTNAME;
-    (*envData)[CONFIG_OTA_PASSWORD] = OTA_PASS;
+    strcpy(envData.otaHostname, OTA_HOSTNAME);
+    strcpy(envData.otaPassword, OTA_PASS);
 #endif
 
 #ifdef USE_NTP_SERVER
-    (*envData)[CONFIG_NTP_SERVER] = NTP_SERVER_CONNECT_TO;
-    (*envData)[CONFIG_NTP_TIMEZONE] = CURRENT_TIMEZONE;
+    strcpy(envData.ntpServer, NTP_SERVER_CONNECT_TO);
+    strcpy(envData.ntpTimezone, CURRENT_TIMEZONE);
 #endif
-
-#ifdef USE_EXTERNAL_HEAVY_LOAD_CURRENT_METER
-    (*envData)[CONFIG_EXTERNAL_HEAVY_LOAD_CURRENT_METER_VOLTAGE_ZERO_AMP_VOLT] = EXTERNAL_HEAVY_LOAD_CURRENT_METER_VOLTAGE_ZERO_AMP_VOLT;
-#endif
-
 
     // END OF LOAD FROM config.h
 
 #if defined USE_WIFI_AP_CONFIGURATION
-    if (!LittleFS.begin())
-    {
-        debugPrintf(true, Text::errorWithCode, STATUS_ERR_LITTLEFS_BEGIN_FAILED);
-                        if (!LittleFS.format() || !LittleFS.begin())
-        {
-            debugPrintf(true, Text::errorWithCode, STATUS_ERR_LITTLEFS_FORMAT_FAILED);
-        }
-        return;
-    }
-
+    LittleFS.begin();
+    // load from file
     if (!LittleFS.exists(CONFIG_PERSISTENCE))
     {
-        // no configuration file found
-        return;
+        // no file found
+        debugPrintln("No configuration file found");
     }
-
-    debugPrintln("Restoring configuration from file");
-    // file exists, reading and loading
-    File configFile = LittleFS.open(CONFIG_PERSISTENCE, "r");
-    if (!configFile)
+    else
     {
-        debugPrintf(true, Text::errorWithCode, STATUS_ERR_CONFIGURATION_CANNOT_READ);
-        return;
-    }
+        debugPrintln("Restoring configuration from file");
+        // file exists, reading and loading
+        File configFile = LittleFS.open(CONFIG_PERSISTENCE, "r");
+        if (!configFile)
+        {
+            debugPrintln("ERROR: cannot open config file");
+        }
+        else
+        {
+            size_t size = configFile.size();
+            DynamicJsonDocument doc(size * 3);
+            DeserializationError error = deserializeJson(doc, configFile);
+            if (error)
+            {
+                debugPrintln("ERROR: Cannot deserialize settings from file");
+                debugPrintln(error.c_str());
+            }
+            else
+            {
+                if (doc.containsKey(CONFIG_SERIAL_DEBUG))
+                    envData.serialDebug = doc[CONFIG_SERIAL_DEBUG];
 
-    DeserializationError error = deserializeJson(*envData, configFile);
-    if (error)
-    {
-        debugPrintf(true, Text::errorWithCode, STATUS_ERR_CONFIGURATION_CANNOT_PARSE);
-        debugPrintln(error.c_str());
-    }
-   
+                loadStringToEnvIfExist(doc, CONFIG_WIFI_SSID, envData.wifiSSID);
+                loadStringToEnvIfExist(doc, CONFIG_WIFI_PASSWORD, envData.wifiPassword);
 
+                loadStringToEnvIfExist(doc, CONFIG_WIFI_IP_ADDRESS, envData.wifiIp);
+                loadStringToEnvIfExist(doc, CONFIG_WIFI_GATEWAY, envData.wifiGateway);
+                loadStringToEnvIfExist(doc, CONFIG_WIFI_SUBNET, envData.wifiSubnet);
+                loadStringToEnvIfExist(doc, CONFIG_WIFI_DNS1, envData.wifiDns1);
+                loadStringToEnvIfExist(doc, CONFIG_WIFI_DNS2, envData.wifiDns2);
+
+                loadStringToEnvIfExist(doc, CONFIG_WM_AP_SSID, envData.wmApSSID);
+                loadStringToEnvIfExist(doc, CONFIG_WM_AP_PASSWORD, envData.wmApPassword);
+
+#if defined USE_BLYNK
+                loadStringToEnvIfExist(doc, CONFIG_BLYNK_AUTH, envData.blynkAuth);
+#ifndef USE_BLYNK_2
+                loadStringToEnvIfExist(doc, CONFIG_BLYNK_HOSTNAME, envData.blynkServerHostname);
+
+                if (doc.containsKey(CONFIG_BLYNK_PORT))
+                    envData.blynkServerPort = doc[CONFIG_BLYNK_PORT];
+#endif
+#endif
+#ifdef USE_MQTT
+                loadStringToEnvIfExist(doc, CONFIG_MQTT_HOSTNAME, envData.mqttServerHostname);
+                loadStringToEnvIfExist(doc, CONFIG_MQTT_PASSWORD, envData.mqttPassword);
+                loadStringToEnvIfExist(doc, CONFIG_MQTT_USERNAME, envData.mqttUsername);
+                loadStringToEnvIfExist(doc, CONFIG_MQTT_CLIENT_ID, envData.mqttClientId);
+                if (doc.containsKey(CONFIG_MQTT_PORT))
+                    envData.mqttServerPort = doc[CONFIG_MQTT_PORT];
+
+#endif
+#ifdef USE_MQTT_HOME_ASSISTANT
+                loadStringToEnvIfExist(doc, CONFIG_MQTT_HA_DEVICE_NAME, envData.mqttHADeviceName);
+#endif
+
+#ifdef USE_OTA_UPDATE
+                loadStringToEnvIfExist(doc, CONFIG_OTA_HOSTNAME, envData.otaHostname);
+                loadStringToEnvIfExist(doc, CONFIG_OTA_PASSWORD, envData.otaPassword);
+#endif
+
+#ifdef USE_NTP_SERVER
+                loadStringToEnvIfExist(doc, CONFIG_NTP_SERVER, envData.ntpServer);
+                loadStringToEnvIfExist(doc, CONFIG_NTP_TIMEZONE, envData.ntpTimezone);
+#endif
+            }
+        }
+    }
     LittleFS.end();
 #endif
 }
 
-bool Environment::containsStringNotEmpty(const char* key){
-    return envData->containsKey(key) && strlen((*envData)[key]) > 0;
+void Environment::loadStringToEnvIfExist(DynamicJsonDocument doc, const char *envKey, char *envValue)
+{
+    if (doc.containsKey(envKey))
+        strcpy(envValue, doc[envKey]);
 }
 
 void Environment::resetEnvData()

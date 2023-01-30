@@ -93,7 +93,7 @@
   //#define MODBUS_SLAVE_ID 1
 #endif
 
-//#define USE_EXTERNAL_HEAVY_LOAD_CURRENT_METER
+#define USE_EXTERNAL_HEAVY_LOAD_CURRENT_METER
 #ifdef USE_EXTERNAL_HEAVY_LOAD_CURRENT_METER
   // voltage reading are taken using ESP adcs
   //#define USE_EXTERNAL_HEAVY_LOAD_CURRENT_ADC
@@ -338,7 +338,7 @@
   // client id
   #define MQTT_CLIENT_ID "solarTracer1"
 
-  #define USE_MQTT_HOME_ASSISTANT
+  //#define USE_MQTT_HOME_ASSISTANT
   #ifdef USE_MQTT_HOME_ASSISTANT
     #define MQTT_HOME_ASSISTANT_DEVICE_NAME "SolarTracer1"
   #endif

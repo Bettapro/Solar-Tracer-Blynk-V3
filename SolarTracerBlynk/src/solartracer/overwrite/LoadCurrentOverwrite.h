@@ -57,7 +57,7 @@ public:
         sensor = new LinearSensHallCurrent(LinearSensHallCurrentType::CUSTOM, ADC_LOAD_CURRENT_PIN, 3.3, 12);
 #endif
 
-        sensor->setZeroVout(Environment::getData(CONFIG_EXTERNAL_HEAVY_LOAD_CURRENT_METER_VOLTAGE_ZERO_AMP_VOLT));
+        sensor->setZeroVout(Environment::getData()->heavyLoadCurrentZeroV);
         sensor->setSampleNumber(EXTERNAL_HEAVY_LOAD_CURRENT_METER_SAMPLES_NUMBER);
         sensor->setSampleDelay(EXTERNAL_HEAVY_LOAD_CURRENT_METER_SAMPLE_INTERVAL);
         sensor->setVASensitivity(EXTERNAL_HEAVY_LOAD_CURRENT_METER_VOLTAGE_AMP_VOLT);

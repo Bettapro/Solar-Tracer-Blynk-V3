@@ -35,7 +35,7 @@ public:
     {
         uint8_t maxCount = 20;
         debugPrint(Text::connecting);
-        configTzTime(Environment::getData(CONFIG_NTP_TIMEZONE), Environment::getData(CONFIG_NTP_SERVER));
+        configTzTime(Environment::getData()->ntpTimezone, Environment::getData()->ntpTimezone);
 
         while (time(nullptr) < 100000ul && --maxCount > 0)
         {

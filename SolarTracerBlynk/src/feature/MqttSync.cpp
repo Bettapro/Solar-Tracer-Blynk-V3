@@ -117,7 +117,7 @@ MqttSync::MqttSync()
 void MqttSync::setup()
 {
 
-    this->mqttClient->setServer(Environment::getData(CONFIG_MQTT_HOSTNAME).as<const char *>(), Environment::getData(CONFIG_MQTT_PORT).as<uint16_t>());
+    this->mqttClient->setServer(Environment::getData()->mqttServerHostname, Environment::getData()->mqttServerPort);
 
     mqttClient->setCallback(mqttCallback);
     for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++)
@@ -135,9 +135,10 @@ void MqttSync::setup()
 bool MqttSync::attemptMqttSyncConnect()
 {
     mqttClient->connect(
-            Environment::containsStringNotEmpty(CONFIG_MQTT_CLIENT_ID) ? Environment::getData(CONFIG_MQTT_CLIENT_ID).as<const char*>() : nullptr,
-            Environment::containsStringNotEmpty(CONFIG_MQTT_USERNAME) ? Environment::getData(CONFIG_MQTT_USERNAME).as<const char*>() : nullptr,
-            Environment::containsStringNotEmpty(CONFIG_MQTT_PASSWORD) ? Environment::getData(CONFIG_MQTT_PASSWORD).as<const char*>() : nullptr);
+
+            Environment::getData()->mqttClientId,
+            strlen(Environment::getData()->mqttUsername) > 0 ? Environment::getData()->mqttUsername : nullptr,
+            strlen(Environment::getData()->mqttPassword) > 0 ? Environment::getData()->mqttPassword : nullptr);
     return mqttClient->connected();
 }
 

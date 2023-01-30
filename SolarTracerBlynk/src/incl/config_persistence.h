@@ -24,6 +24,8 @@
 #define CONFIG_PERSISTENCE "/config.json"
 
 //settings
+#define CONFIG_SERIAL_DEBUG "debug"
+
 #define CONFIG_WIFI_SSID "ssid"
 #define CONFIG_WIFI_SSID_LEN 20
 

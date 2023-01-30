@@ -59,31 +59,38 @@ public:
             wifiManager.setConfigPortalBlocking(true);
             wifiManager.setDebugOutput(false);
 
+            WiFiManagerParameter customDebug(
+                CONFIG_SERIAL_DEBUG,
+                "Serial debug",
+                CONFIG_SERIAL_DEBUG, 15,
+                Environment::getData()->serialDebug ? "type=\"checkbox\" checked" : "type=\"checkbox\"");
+            wifiManager.addParameter(&customDebug);
+
             WiFiManagerParameter customWIFIText("<p><b>WIFI:</b></p>");
             wifiManager.addParameter(&customWIFIText);
 
-            WiFiManagerParameter customWIFIIpAddress(CONFIG_WIFI_IP_ADDRESS, "IP", Environment::getData(CONFIG_WIFI_IP_ADDRESS), CONFIG_WIFI_IP_ADDRESS_LEN);
+            WiFiManagerParameter customWIFIIpAddress(CONFIG_WIFI_IP_ADDRESS, "IP", Environment::getData()->wifiIp, CONFIG_WIFI_IP_ADDRESS_LEN);
             wifiManager.addParameter(&customWIFIIpAddress);
-            WiFiManagerParameter customWIFIGateway(CONFIG_WIFI_GATEWAY, "Gateway", Environment::getData(CONFIG_WIFI_GATEWAY), CONFIG_WIFI_GATEWAY_LEN);
+            WiFiManagerParameter customWIFIGateway(CONFIG_WIFI_GATEWAY, "Gateway", Environment::getData()->wifiGateway, CONFIG_WIFI_GATEWAY_LEN);
             wifiManager.addParameter(&customWIFIGateway);
-            WiFiManagerParameter customWIFISubnet(CONFIG_WIFI_SUBNET, "Subnet", Environment::getData(CONFIG_WIFI_SUBNET), CONFIG_WIFI_SUBNET_LEN);
+            WiFiManagerParameter customWIFISubnet(CONFIG_WIFI_SUBNET, "Subnet", Environment::getData()->wifiSubnet, CONFIG_WIFI_SUBNET_LEN);
             wifiManager.addParameter(&customWIFISubnet);
-            WiFiManagerParameter customWIFIDns1(CONFIG_WIFI_DNS1, "Dns1", Environment::getData(CONFIG_WIFI_DNS1), CONFIG_WIFI_DNS1_LEN);
+            WiFiManagerParameter customWIFIDns1(CONFIG_WIFI_DNS1, "Dns1", Environment::getData()->wifiDns1, CONFIG_WIFI_DNS1_LEN);
             wifiManager.addParameter(&customWIFIDns1);
-            WiFiManagerParameter customWIFIDns2(CONFIG_WIFI_DNS2, "Dns2", Environment::getData(CONFIG_WIFI_DNS2), CONFIG_WIFI_DNS2_LEN);
+            WiFiManagerParameter customWIFIDns2(CONFIG_WIFI_DNS2, "Dns2", Environment::getData()->wifiDns2, CONFIG_WIFI_DNS2_LEN);
             wifiManager.addParameter(&customWIFIDns2);
 
 #ifdef USE_BLYNK
             WiFiManagerParameter customBlynkLocalServerText("<p><b>BLYNK:</b></p>");
             wifiManager.addParameter(&customBlynkLocalServerText);
 
-            WiFiManagerParameter customBlynkAuth(CONFIG_BLYNK_AUTH, "API key", Environment::getData(CONFIG_BLYNK_AUTH), CONFIG_BLYNK_AUTH_LEN);
+            WiFiManagerParameter customBlynkAuth(CONFIG_BLYNK_AUTH, "API key", Environment::getData()->blynkAuth, CONFIG_BLYNK_AUTH_LEN);
             wifiManager.addParameter(&customBlynkAuth);
 
 #ifndef USE_BLYNK_2
 
-            WiFiManagerParameter customBlynkServerHostname(CONFIG_BLYNK_HOSTNAME, Text::server, Environment::getData(CONFIG_BLYNK_HOSTNAME), CONFIG_BLYNK_HOSTNAME_LEN);
-            WiFiManagerParameter customBlynkServerPort(CONFIG_BLYNK_PORT, Text::port, Environment::getData(CONFIG_BLYNK_PORT), 5, "type=\"number\" min=\"0\"");
+            WiFiManagerParameter customBlynkServerHostname(CONFIG_BLYNK_HOSTNAME, Text::server, Environment::getData()->blynkServerHostname, CONFIG_BLYNK_HOSTNAME_LEN);
+            WiFiManagerParameter customBlynkServerPort(CONFIG_BLYNK_PORT, Text::port, Util::intToChar( Environment::getData()->blynkServerPort), 5, "type=\"number\" min=\"0\"");
 
             wifiManager.addParameter(&customBlynkServerHostname);
             wifiManager.addParameter(&customBlynkServerPort);
@@ -94,31 +101,31 @@ public:
             WiFiManagerParameter customMqttText("<p><b>MQTT:</b></p>");
             wifiManager.addParameter(&customMqttText);
 
-            WiFiManagerParameter customMqttServer(CONFIG_MQTT_HOSTNAME, Text::server, Environment::getData(CONFIG_MQTT_HOSTNAME), CONFIG_MQTT_HOSTNAME_LEN);
+            WiFiManagerParameter customMqttServer(CONFIG_MQTT_HOSTNAME, Text::server, Environment::getData()->mqttServerHostname, CONFIG_MQTT_HOSTNAME_LEN);
             wifiManager.addParameter(&customMqttServer);
             char portString[5];
-            WiFiManagerParameter customMqttServerPort(CONFIG_MQTT_PORT, Text::port, Environment::getData(CONFIG_MQTT_PORT), 5, "type=\"number\" min=\"0\"");
+            WiFiManagerParameter customMqttServerPort(CONFIG_MQTT_PORT, Text::port, Util::intToChar( Environment::getData()->mqttServerPort), 5, "type=\"number\" min=\"0\"");
             wifiManager.addParameter(&customMqttServerPort);
-            WiFiManagerParameter customMqttClientId(CONFIG_MQTT_CLIENT_ID, "Client ID", Environment::getData(CONFIG_MQTT_CLIENT_ID), CONFIG_MQTT_CLIENT_ID_LEN);
+            WiFiManagerParameter customMqttClientId(CONFIG_MQTT_CLIENT_ID, "Client ID", Environment::getData()->mqttClientId, CONFIG_MQTT_CLIENT_ID_LEN);
             wifiManager.addParameter(&customMqttClientId);
-            WiFiManagerParameter customMqttUsername(CONFIG_MQTT_USERNAME, "Username", Environment::getData(CONFIG_MQTT_USERNAME), CONFIG_MQTT_USERNAME_LEN);
+            WiFiManagerParameter customMqttUsername(CONFIG_MQTT_USERNAME, "Username", Environment::getData()->mqttUsername, CONFIG_MQTT_USERNAME_LEN);
             wifiManager.addParameter(&customMqttUsername);
-            WiFiManagerParameter customMqttPassword(CONFIG_MQTT_PASSWORD, Text::password, Environment::getData(CONFIG_MQTT_PASSWORD), CONFIG_MQTT_PASSWORD_LEN);
+            WiFiManagerParameter customMqttPassword(CONFIG_MQTT_PASSWORD, Text::password, Environment::getData()->mqttPassword, CONFIG_MQTT_PASSWORD_LEN);
             wifiManager.addParameter(&customMqttPassword);
 #endif
 #ifdef USE_MQTT_HOME_ASSISTANT
             WiFiManagerParameter customMqttHAText("<p><b>MQTT-HA:</b></p>");
             wifiManager.addParameter(&customMqttHAText);
 
-            WiFiManagerParameter customMqttHADeviceName(CONFIG_MQTT_HA_DEVICE_NAME, "Device Name", Environment::getData(CONFIG_MQTT_HA_DEVICE_NAME), CONFIG_MQTT_HA_DEVICE_NAME_LEN);
+            WiFiManagerParameter customMqttHADeviceName(CONFIG_MQTT_HA_DEVICE_NAME, "Device Name", Environment::getData()->mqttHADeviceName, CONFIG_MQTT_HA_DEVICE_NAME_LEN);
             wifiManager.addParameter(&customMqttHADeviceName);
 #endif
 
 #ifdef USE_OTA_UPDATE
             WiFiManagerParameter customOtaUpdateText("<p><b>OTA:</b></p>");
 
-            WiFiManagerParameter customOtaHostname(CONFIG_OTA_HOSTNAME, "Hostname", Environment::getData(CONFIG_OTA_HOSTNAME), CONFIG_OTA_HOSTNAME_LEN);
-            WiFiManagerParameter customOtaPassword(CONFIG_OTA_PASSWORD, Text::password, Environment::getData(CONFIG_OTA_PASSWORD), CONFIG_OTA_PASSWORD_LEN);
+            WiFiManagerParameter customOtaHostname(CONFIG_OTA_HOSTNAME, "Hostname", Environment::getData()->otaHostname, CONFIG_OTA_HOSTNAME_LEN);
+            WiFiManagerParameter customOtaPassword(CONFIG_OTA_PASSWORD, Text::password, Environment::getData()->otaPassword, CONFIG_OTA_PASSWORD_LEN);
 
             wifiManager.addParameter(&customOtaUpdateText);
             wifiManager.addParameter(&customOtaHostname);
@@ -128,8 +135,8 @@ public:
 #ifdef USE_NTP_SERVER
             WiFiManagerParameter customNtpText("<p><b>NTP:</b></p>");
 
-            WiFiManagerParameter customNtpServer(CONFIG_NTP_SERVER, Text::server, Environment::getData(CONFIG_NTP_SERVER), CONFIG_NTP_SERVER_LEN);
-            WiFiManagerParameter customNtpTimezone(CONFIG_NTP_TIMEZONE, "Timezone", Environment::getData(CONFIG_NTP_TIMEZONE), CONFIG_NTP_TIMEZONE_LEN);
+            WiFiManagerParameter customNtpServer(CONFIG_NTP_SERVER, Text::server, Environment::getData()->ntpServer, CONFIG_NTP_SERVER_LEN);
+            WiFiManagerParameter customNtpTimezone(CONFIG_NTP_TIMEZONE, "Timezone", Environment::getData()->ntpTimezone, CONFIG_NTP_TIMEZONE_LEN);
 
             wifiManager.addParameter(&customNtpText);
             wifiManager.addParameter(&customNtpServer);
@@ -139,22 +146,22 @@ public:
             WiFiManagerParameter customExtLoadMeter("<p><b>EXT. LOAD METER:</b></p>");
 
             char hlVoltOffsetString[8];
-            WiFiManagerParameter customExtZeroVOff(CONFIG_EXTERNAL_HEAVY_LOAD_CURRENT_METER_VOLTAGE_ZERO_AMP_VOLT, "Volt off.", Environment::getData(CONFIG_EXTERNAL_HEAVY_LOAD_CURRENT_METER_VOLTAGE_ZERO_AMP_VOLT), 8, "type=\"number\" min=\"0\"");
+            WiFiManagerParameter customExtZeroVOff(CONFIG_EXTERNAL_HEAVY_LOAD_CURRENT_METER_VOLTAGE_ZERO_AMP_VOLT, "Volt off.", Util::floatToChar( Environment::getData()->heavyLoadCurrentZeroV), 8, "type=\"number\" min=\"0\"");
 
             wifiManager.addParameter(&customExtLoadMeter);
             wifiManager.addParameter(&customExtZeroVOff);
 #endif
 
             WiFiManagerParameter customWmText("<p><b>ACCESS POINT:</b></p>");
-            WiFiManagerParameter customWmSSID(CONFIG_WM_AP_SSID, "SSID", Environment::getData(CONFIG_WM_AP_SSID), CONFIG_WM_AP_SSID_LEN);
-            WiFiManagerParameter customWmPassword(CONFIG_WM_AP_PASSWORD, Text::password, Environment::getData(CONFIG_WM_AP_PASSWORD), CONFIG_WM_AP_PASSWORD_LEN);
+            WiFiManagerParameter customWmSSID(CONFIG_WM_AP_SSID, "SSID", Environment::getData()->wmApSSID, CONFIG_WM_AP_SSID_LEN);
+            WiFiManagerParameter customWmPassword(CONFIG_WM_AP_PASSWORD, Text::password, Environment::getData()->wmApPassword, CONFIG_WM_AP_PASSWORD_LEN);
 
             wifiManager.addParameter(&customWmText);
             wifiManager.addParameter(&customWmSSID);
             wifiManager.addParameter(&customWmPassword);
 
             wifiManager.setConfigPortalTimeout(WIFI_AP_TIMEOUT);
-            wifiManager.startConfigPortal(Environment::getData(CONFIG_WM_AP_SSID), Environment::getData(CONFIG_WM_AP_PASSWORD));
+            wifiManager.startConfigPortal(Environment::getData()->wmApSSID, Environment::getData()->wmApPassword);
 
             if (shouldSaveConfig)
             {
@@ -170,8 +177,11 @@ public:
                         return;
                   }
 
-                  DynamicJsonDocument doc = *Environment::getData();
+                  DynamicJsonDocument doc(1024);
 
+                  Serial.println(customDebug.getValue());
+
+                  doc[CONFIG_SERIAL_DEBUG] = strcmp(customDebug.getValue(), CONFIG_SERIAL_DEBUG) == 0;
                   doc[CONFIG_WIFI_SSID] = WiFi.SSID();
                   doc[CONFIG_WIFI_PASSWORD] = WiFi.psk();
 

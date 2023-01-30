@@ -34,8 +34,8 @@
 
 inline void arduinoOtaSetup()
 {
-    ArduinoOTA.setHostname(Environment::getData(CONFIG_OTA_HOSTNAME));
-    ArduinoOTA.setPassword(Environment::getData(CONFIG_OTA_PASSWORD));
+    ArduinoOTA.setHostname(Environment::getData()->otaHostname);
+    ArduinoOTA.setPassword(Environment::getData()->otaPassword);
 
     ArduinoOTA.onStart([]()
                        {
