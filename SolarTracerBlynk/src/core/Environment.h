@@ -48,7 +48,6 @@ struct EnvironrmentData
 // blynk
 #ifdef USE_BLYNK
 #ifndef USE_BLYNK_2
-    bool blynkLocalServer;
     char blynkServerHostname[CONFIG_BLYNK_HOSTNAME_LEN + 1];
     uint16_t blynkServerPort;
 #endif

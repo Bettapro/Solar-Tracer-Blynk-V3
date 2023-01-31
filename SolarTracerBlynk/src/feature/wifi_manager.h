@@ -81,8 +81,8 @@ public:
             wifiManager.addParameter(&customWIFIDns2);
 
 #ifdef USE_BLYNK
-            WiFiManagerParameter customBlynkLocalServerText("<p><b>BLYNK:</b></p>");
-            wifiManager.addParameter(&customBlynkLocalServerText);
+            WiFiManagerParameter customBlynkText("<p><b>BLYNK:</b></p>");
+            wifiManager.addParameter(&customBlynkText);
 
             WiFiManagerParameter customBlynkAuth(CONFIG_BLYNK_AUTH, "API key", Environment::getData()->blynkAuth, CONFIG_BLYNK_AUTH_LEN);
             wifiManager.addParameter(&customBlynkAuth);
