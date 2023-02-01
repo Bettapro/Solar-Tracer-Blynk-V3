@@ -23,7 +23,7 @@
 
 #include "Util.h"
 
-#define UTIL_MAX_DEC_DIV 100
+#define UTIL_MAX_DEC_DIV 1000
 
 
 uint8_t Util::digits(int number){
@@ -57,8 +57,8 @@ char *Util::floatToChar(float v, char *buf)
 
     if(dValue >= 1){
         buf[index++] = '.';
-        int decMissPosition = Util::digits(UTIL_MAX_DEC_DIV) - Util::digits(iValue);
-        while (decMissPosition-- >= 0)
+        int decMissPosition = Util::digits(UTIL_MAX_DEC_DIV)- Util::digits(dValue);
+        while (--decMissPosition > 0)
         {
             buf[index++] = '0';
         }

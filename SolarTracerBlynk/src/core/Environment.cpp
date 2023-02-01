@@ -4,6 +4,7 @@ struct EnvironrmentData Environment::envData;
 
 void Environment::loadEnvData()
 {
+    envData.serialDebug = true;
     // default from config.h
     strcpy(envData.wifiSSID, WIFI_SSID);
     strcpy(envData.wifiPassword, WIFI_PASS);

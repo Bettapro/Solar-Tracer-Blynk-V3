@@ -241,7 +241,7 @@ void MqttHASync::setup()
                 }
             }
 
-            // haSensors[index]->setName(def->mqttTopic);
+            //haSensors[index]->setName(def->mqttTopic);
             haSensors[index]->setName(def->text);
         }
     }

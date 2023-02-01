@@ -146,7 +146,7 @@ public:
             WiFiManagerParameter customExtLoadMeter("<p><b>EXT. LOAD METER:</b></p>");
 
             char hlVoltOffsetString[8];
-            WiFiManagerParameter customExtZeroVOff(CONFIG_EXTERNAL_HEAVY_LOAD_CURRENT_METER_VOLTAGE_ZERO_AMP_VOLT, "Volt off.", Util::floatToChar( Environment::getData()->heavyLoadCurrentZeroV), 8, "type=\"number\" min=\"0\"");
+            WiFiManagerParameter customExtZeroVOff(CONFIG_EXTERNAL_HEAVY_LOAD_CURRENT_METER_VOLTAGE_ZERO_AMP_VOLT, "Volt off.", Util::floatToChar( Environment::getData()->heavyLoadCurrentZeroV), 8, "type=\"number\" step=\"0.001\"");
 
             wifiManager.addParameter(&customExtLoadMeter);
             wifiManager.addParameter(&customExtZeroVOff);

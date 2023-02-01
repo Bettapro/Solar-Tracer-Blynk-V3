@@ -20,6 +20,7 @@
  */
 
 #include "EPEVERSolarTracer.h"
+#include "EPEVER_modbus_address.h"
 
 const uint8_t EPEVERSolarTracer::voltageLevels[] = {12, 24, 36, 48, 60, 110, 120, 220, 240, 0};
 
