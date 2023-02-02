@@ -21,6 +21,7 @@
 
 #pragma once
 
+#ifdef ESP32
 
 #ifndef BOARD_DEBUG_SERIAL_STREAM
 #define BOARD_DEBUG_SERIAL_STREAM Serial
@@ -60,3 +61,4 @@
 #endif
 
 #define WIFI_STATION_MODE_DISCONNECTED WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_DISCONNECTED
+#endif

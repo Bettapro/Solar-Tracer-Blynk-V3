@@ -23,15 +23,6 @@
 
 #include "../../incl/include_all_core.h"
 
-#if !defined(USE_SERIAL_STREAM)
-#error You must enable USE_SERIAL_STREAM !
-#endif
-
-#if !defined(BOARD_ST_SERIAL_STREAM)
-#error You must specify a serial in BOARD_ST_SERIAL_STREAM!
-#endif
-
-
 #ifndef BOARD_ST_SERIAL_STREAM_BAUDRATE
     #define BOARD_ST_SERIAL_STREAM_BAUDRATE 115200 
 #endif

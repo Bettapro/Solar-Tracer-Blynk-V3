@@ -24,8 +24,9 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
-#include "../incl/include_all_feature.h"
-#include "../solartracer/incl/solar_config.h"
+
+#include "../solartracer/SolarTracer.h"
+#include "../incl/include_all_lib.h"
 
 class Controller
 {
@@ -36,10 +37,10 @@ public:
         return instance;
     }
 
-    void setup()
+    void setup(SolarTracer* tracer, SimpleTimer* timer)
     {
-        this->mainTimer = new SimpleTimer();
-        this->thisController = new SOLAR_TRACER_INSTANCE;
+        this->mainTimer = timer;
+        this->thisController = tracer;
     }
 
     void loop()

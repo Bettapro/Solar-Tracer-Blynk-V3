@@ -63,6 +63,8 @@
 // use serial as communication interfce
 #define USE_SERIAL_STREAM
 #ifdef USE_SERIAL_STREAM
+  // use a software serial (instead of the emulated one)
+  //#define USE_SOFTWARE_SERIAL
   // specify the serial port to use 
   //#define BOARD_ST_SERIAL_STREAM Serial2
   // specify the baudrate to use (leave commented to use the correct based on you solar tracer)

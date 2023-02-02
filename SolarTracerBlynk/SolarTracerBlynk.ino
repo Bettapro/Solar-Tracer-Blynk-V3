@@ -19,11 +19,12 @@
  *
  */
 //
-#include "src/incl/include_all_core.h"
-#include "src/incl/include_all_lib.h"
-#include "src/core/datetime.h"
-#include "src/core/Controller.h"
-#include "src/incl/include_all_feature.h"
+
+
+#include "src/incl/include.h"
+
+#include "src/solartracer/incl/solar_config.h"
+
 
 // -------------------------------------------------------------------------------
 // MISC
@@ -35,6 +36,9 @@
 #define DRD_EXEC_LOOP
 #define DRD_EXEC_STOP
 #endif
+
+
+
 
 void uploadRealtimeAll()
 {
@@ -257,15 +261,15 @@ void setup()
   debugPrintln(Text::ok);
 #endif
 
-#ifdef USE_SERIAL_STREAM
-#if defined(BOARD_ST_SERIAL_PIN_MAPPING_RX) & defined(BOARD_ST_SERIAL_PIN_MAPPING_TX)
+#if defined(USE_SERIAL_STREAM) &  defined(USE_SOFTWARE_SERIAL) & defined(BOARD_ST_SERIAL_PIN_MAPPING_RX) & defined(BOARD_ST_SERIAL_PIN_MAPPING_TX)
+  BOARD_ST_SERIAL_STREAM.begin(BOARD_ST_SERIAL_STREAM_BAUDRATE, SWSERIAL_8N1, BOARD_ST_SERIAL_PIN_MAPPING_RX, BOARD_ST_SERIAL_PIN_MAPPING_TX, false);
+#elif defined(USE_SERIAL_STREAM) & !defined(USE_SOFTWARE_SERIAL) & defined(BOARD_ST_SERIAL_PIN_MAPPING_RX) & defined(BOARD_ST_SERIAL_PIN_MAPPING_TX)
   BOARD_ST_SERIAL_STREAM.begin(BOARD_ST_SERIAL_STREAM_BAUDRATE, SERIAL_8N1, BOARD_ST_SERIAL_PIN_MAPPING_RX, BOARD_ST_SERIAL_PIN_MAPPING_TX);
-#else
+#elif defined(USE_SERIAL_STREAM) & ! defined(USE_SOFTWARE_SERIAL)
   BOARD_ST_SERIAL_STREAM.begin(BOARD_ST_SERIAL_STREAM_BAUDRATE);
 #endif
-#endif
   debugPrintf(true, Text::setupWithName, "Solar Charge Controller");
-  Controller::getInstance().setup();
+  Controller::getInstance().setup(new SOLAR_TRACER_INSTANCE, new SimpleTimer());
   debugPrint("Connection Test: ");
   uint8_t attemptControllerConnectionCount;
   for (attemptControllerConnectionCount = 1; attemptControllerConnectionCount < 4; attemptControllerConnectionCount++)

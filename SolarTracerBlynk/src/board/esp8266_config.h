@@ -21,19 +21,33 @@
 
 #pragma once
 
+#ifdef ESP8266
+
 #ifndef BOARD_DEBUG_SERIAL_STREAM
-#define BOARD_DEBUG_SERIAL_STREAM Serial
+    #define BOARD_DEBUG_SERIAL_STREAM Serial
 #endif
 
 #ifndef BOARD_DEBUG_SERIAL_STREAM_BAUDRATE
-#define BOARD_DEBUG_SERIAL_STREAM_BAUDRATE 115200
+    #define BOARD_DEBUG_SERIAL_STREAM_BAUDRATE 115200
 #endif
 
 #if defined USE_PIN_AP_CONFIGURATION_TRIGGER and ! defined(PIN_AP_TRIGGER_PIN)
     #define PIN_AP_TRIGGER_PIN 16
 #endif
 
-#if defined(USE_SERIAL_STREAM) && !defined(BOARD_ST_SERIAL_STREAM)
+#ifdef USE_SOFTWARE_SERIAL
+    #ifndef BOARD_ST_SERIAL_PIN_MAPPING_TX
+        #define BOARD_ST_SERIAL_PIN_MAPPING_TX 12
+    #endif
+    #ifndef BOARD_ST_SERIAL_PIN_MAPPING_RX
+        #define BOARD_ST_SERIAL_PIN_MAPPING_RX 13
+    #endif
+#else
+#define BOARD_ST_SERIAL_DECLARATION
+#endif
+
+
+#if defined(USE_SERIAL_STREAM) && !defined(BOARD_ST_SERIAL_STREAM) && !defined(USE_SOFTWARE_SERIAL)
 #define BOARD_ST_SERIAL_STREAM Serial
 #endif
 
@@ -49,13 +63,7 @@
 #define MAX485_RE_NEG 5
 #endif
 
-#if defined(USE_HALL_AP_CONFIGURATION_TRIGGER)
-#error "This board has no hall sensor to use! [ disable USE_HALL_AP_CONFIGURATION_TRIGGER ]"
-#endif
-
-#if defined(BOARD_ST_SERIAL_PIN_MAPPING_RX) | defined(BOARD_ST_SERIAL_PIN_MAPPING_TX)
-#error "This board does not support HW serial pin mapping! [ disable BOARD_ST_SERIAL_PIN_MAPPING_RX, BOARD_ST_SERIAL_PIN_MAPPING_TX ]"
-#endif
-
 
 #define WIFI_STATION_MODE_DISCONNECTED WiFiEvent_t::WIFI_EVENT_STAMODE_DISCONNECTED
+
+#endif
