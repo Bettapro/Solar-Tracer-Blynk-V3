@@ -20,9 +20,9 @@
  */
 
 // INCL all core dependendecies
-#include "src/incl/include_all_core.h"
+#include "include_all_core.h"
 // INCL all third party libs
-#include "src/incl/include_all_lib.h"
+#include "include_all_lib.h"
 // EXCEPTION: SoftwareSerial
 #ifdef USE_SOFTWARE_SERIAL
   SoftwareSerial softSerial;
@@ -30,10 +30,10 @@
 #endif
 
 // INCL main components
-#include "src/core/datetime.h"
-#include "src/core/Controller.h"
+#include "../core/datetime.h"
+#include "../core/Controller.h"
 // INCL optional features
-#include "src/incl/include_all_feature.h"
+#include "include_all_feature.h"
 
 
 
