@@ -40,7 +40,7 @@ Supported board:
 
 Available sync. options:
 - [Blynk legacy](docs/sw_getting_started_blynk_legacy.md)
-- [Blynk 2.0]()
+- [Blynk IOT](docs/sw_getting_started_blynk_iot.md)
 - [Home assistant-MQTT](docs/sw_getting_started_ha.md)
 - [MQTT](docs/sw_getting_started_mqtt.md)
 
