@@ -33,6 +33,18 @@ set buildRun[5].env=esp8266
 set buildRun[5].fileSuffix=mqttHA
 set buildRun[5].buildFlags=%esp8266_build_flag_base% -DUSE_NOT_BLYNK -DUSE_MQTT -DUSE_MQTT_HOME_ASSISTANT
 
+set buildRun[6].env=esp8266
+set buildRun[6].fileSuffix=blynk_swsser
+set buildRun[6].buildFlags=%esp8266_build_flag_base% -DUSE_SOFTWARE_SERIAL
+
+set buildRun[7].env=esp8266
+set buildRun[7].fileSuffix=mqtt_swser
+set buildRun[7].buildFlags=%esp8266_build_flag_base% -DUSE_NOT_BLYNK -DUSE_MQTT -DUSE_SOFTWARE_SERIAL
+
+set buildRun[8].env=esp8266
+set buildRun[8].fileSuffix=mqttHA_swser
+set buildRun[8].buildFlags=%esp8266_build_flag_base% -DUSE_NOT_BLYNK -DUSE_MQTT -DUSE_MQTT_HOME_ASSISTANT -DUSE_SOFTWARE_SERIAL
+
 
 set "x=0"
 
