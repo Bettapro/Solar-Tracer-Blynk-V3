@@ -36,6 +36,9 @@
 #include "include_all_feature.h"
 
 
+#if !defined(ESP8266) && !defined(ESP8266)
+#error "Your board is not supported"
+#endif
 
 #if defined(USE_SOFTWARE_SERIAL) & !defined(BOARD_ST_SERIAL_PIN_MAPPING_RX) 
 #error "USE_SOFTWARE_SERIAL requires BOARD_ST_SERIAL_PIN_MAPPING_RX"
@@ -45,8 +48,6 @@
 #error "USE_SOFTWARE_SERIAL requires BOARD_ST_SERIAL_PIN_MAPPING_TX"
 #endif
 
-
-
 // DIRECTIVE VALIDATION FOR ESP8266 ONLY
 #ifdef ESP8266
 #if defined(USE_HALL_AP_CONFIGURATION_TRIGGER)
@@ -55,6 +56,13 @@
 
 #if !defined(USE_SOFTWARE_SERIAL) && ( defined(BOARD_ST_SERIAL_PIN_MAPPING_RX) | defined(BOARD_ST_SERIAL_PIN_MAPPING_TX) )
 #error "This board does not support HW serial pin mapping! [ disable BOARD_ST_SERIAL_PIN_MAPPING_RX, BOARD_ST_SERIAL_PIN_MAPPING_TX ]"
+#endif
+#endif
+
+// DIRECTIVE VALIDATION FOR ESP32 ONLY
+#ifdef ESP32
+#ifdef USE_SOFTWARE_SERIAL
+#error "ESP32 does not need to use a sof. serial emulation [disable USE_SOFTWARE_SERIAL]"
 #endif
 #endif
 

@@ -32,14 +32,9 @@
 #include <WiFi.h>
 #elif defined ESP8266
 #include <ESP8266WiFi.h>
-#else
-#error This board is not supported.
 #endif
 
 #ifdef USE_SOFTWARE_SERIAL
-#if defined ESP32
-#error "ESP32 does not need to use a sof. serial emulation [disable USE_SOFTWARE_SERIAL]"
-#endif
 #include <SoftwareSerial.h>
 #endif
 
