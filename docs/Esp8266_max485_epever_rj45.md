@@ -20,7 +20,7 @@ Required connections:
 ## ESP8266 <-> MAX485 module + SOFTWARE SERIAL (since v3.0.7)
 
 Required connections:
-- `DI` -> `D3` / `GPIO1`
+- `DI` -> `D2` / `GPIO4`
 - `RO` -> `D4` / `GPIO2`
 - `DE` and `RE` are interconnected with a jumper and then connected to pin `D1` / `GPIO5`
 - `VCC` to `3.3V` on ESP8266

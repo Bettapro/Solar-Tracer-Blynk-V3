@@ -36,7 +36,7 @@
 #include "include_all_feature.h"
 
 
-#if !defined(ESP8266) && !defined(ESP8266)
+#if !defined(ESP8266) && !defined(ESP32)
 #error "Your board is not supported"
 #endif
 
