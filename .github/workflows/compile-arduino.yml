@@ -32,7 +32,7 @@ jobs:
         - source-url : https://github.com/Bettapro/ModbusMaster.git
         - name: PubSubClient
         - source-url : https://github.com/Bettapro/SimpleTimer.git
-        - source-url : https://github.com/Bettapro/arduino-home-assistant.git
+        - source-url : https://github.com/dawidchyrzynski/arduino-home-assistant.git
         - source-url : https://github.com/Bettapro/LinearSensHallCurrent.git
         - source-url : https://github.com/RobTillaart/ADS1X15.git
         - source-url : https://github.com/khoih-prog/ESP_DoubleResetDetector.git
