@@ -9,19 +9,23 @@ Here the material involved:
 
 ## ESP8266 <-> MAX485 module
 
-![This one worked for me](../images/max485_module.jpg)
-
-I'm using this cheapo module and it works quite fine.
-It's powered from `+5V` from ESP8266, and wired as following:
-
-
+Required connections:
 - `DI` -> `D10` / `GPIO1` / `TX`
 - `RO` -> `D9` / `GPIO3` / `RX`
 - `DE` and `RE` are interconnected with a jumper and then connected to pin `D1` / `GPIO5`
-- `VCC` to `+5V` / `VIN` on ESP8266
+- `VCC` to `3.3V` on ESP8266
 
-	
-![ESP8266 NodeMCU v0.9](../images/nodemcu_pins.png)
+![Alt text](../images/esp8266_hw_serial.png)	
+
+## ESP8266 <-> MAX485 module + SOFTWARE SERIAL (since v3.0.7)
+
+Required connections:
+- `DI` -> `D3` / `GPIO1`
+- `RO` -> `D4` / `GPIO2`
+- `DE` and `RE` are interconnected with a jumper and then connected to pin `D1` / `GPIO5`
+- `VCC` to `3.3V` on ESP8266
+
+![Alt text](../images/esp8266_sw_serial.png)
 
 ## MAX485 module <-> EPEVER CONTROLLER (RJ45)
 
