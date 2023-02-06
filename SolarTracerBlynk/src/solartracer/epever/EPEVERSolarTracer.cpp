@@ -113,7 +113,8 @@ EPEVERSolarTracer::EPEVERSolarTracer(Stream &serialCom, uint16_t serialTimeoutMs
 
 bool EPEVERSolarTracer::testConnection()
 {
-  return this->fetchValue(Variable::LOAD_MANUAL_ONOFF);
+  this->readControllerSingleCoil(MODBUS_ADDRESS_LOAD_MANUAL_ONOFF);
+  return rs485readSuccess;
 }
 
 bool EPEVERSolarTracer::syncRealtimeClock(struct tm *ti)
@@ -316,6 +317,8 @@ bool EPEVERSolarTracer::readControllerSingleCoil(uint16_t address)
   rs485readSuccess = this->lastControllerCommunicationStatus == this->node.ku8MBSuccess;
   if (rs485readSuccess)
   {
+    Serial.print(address);
+    Serial.println((node.getResponseBuffer(0x00) > 0) ? " ON" : " OFF"); 
     return (node.getResponseBuffer(0x00) > 0);
   }
   return false;
