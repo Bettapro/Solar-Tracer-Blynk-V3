@@ -193,7 +193,7 @@ void setup()
 #if defined(USE_DOUBLE_RESET_TRIGGER)
   if (drd.detectDoubleReset())
   {
-    drd.stop();
+    DRD_EXEC_STOP
     debugPrintln(" ++ Start AP configuration");
     WifiManagerSTB::startWifiConfigurationAP(true);
     ESP.restart();
@@ -212,6 +212,7 @@ void setup()
     if (readCount == 0)
     {
       debugPrintln(" ++ Start AP configuration");
+      DRD_EXEC_STOP
       WifiManagerSTB::startWifiConfigurationAP(true);
       ESP.restart();
     }
@@ -239,16 +240,15 @@ void setup()
   if (!wifiDataPresent || WiFi.waitForConnectResult() != WL_CONNECTED)
   {
 #if defined USE_WIFI_AP_CONFIGURATION
+    DRD_EXEC_STOP
     debugPrintln(" ++ Start AP configuration");
     WifiManagerSTB::startWifiConfigurationAP(false);
 #else
     debugPrintln("Connection Failed! Rebooting...");
     delay(5000);
 #endif
-    DRD_EXEC_LOOP
     ESP.restart();
   }
-  DRD_EXEC_LOOP
   WiFi.onEvent(onWifiDisconnected, WIFI_STATION_MODE_DISCONNECTED);
 
   debugPrint("Connected: ");
