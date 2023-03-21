@@ -37,7 +37,7 @@ It's powered from `+5V` from ESP32 module, and wired as following:
 
 Cut open your ethernet cable and split out pin 4, 6, 8 (B, A, GND). Refer to [Tracer Modbus PDF](../docs/1733_modbus_protocol.pdf) for additional info.
 
-Connect cables as follows (make sure you wire matches the color schema below - otherwise refer to pin numbers only):
+Connect wires as follows (make sure your cable matches the color schema below - otherwise refer to pin numbers only):
 - Ethernet green / pin `6` -> `A`
 - Ethernet blue / pin `4` -> `B`
 - Ethernet brown / pin `8` -> `GND` on module **and** ESP8266 `GND` pin
