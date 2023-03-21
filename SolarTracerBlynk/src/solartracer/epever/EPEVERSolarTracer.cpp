@@ -113,7 +113,8 @@ EPEVERSolarTracer::EPEVERSolarTracer(Stream &serialCom, uint16_t serialTimeoutMs
 
 bool EPEVERSolarTracer::testConnection()
 {
-  return this->fetchValue(Variable::LOAD_MANUAL_ONOFF);
+  this->readControllerSingleCoil(MODBUS_ADDRESS_LOAD_MANUAL_ONOFF);
+  return rs485readSuccess;
 }
 
 bool EPEVERSolarTracer::syncRealtimeClock(struct tm *ti)
