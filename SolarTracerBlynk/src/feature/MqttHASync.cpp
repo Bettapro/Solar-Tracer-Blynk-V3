@@ -64,7 +64,6 @@ void onMqttNumberCallback(HANumeric value, HANumber *el)
         Variable var = haSync.findVariableBySensor(el);
         if (var < Variable::VARIABLES_COUNT)
         {
-
             switch (VariableDefiner::getInstance().getDatatype(var))
             {
             case DT_UINT16:
@@ -73,8 +72,12 @@ void onMqttNumberCallback(HANumeric value, HANumber *el)
                 haSync.applyUpdateToVariable(var, &rValue, false);
             }
             break;
-            default:
-                haSync.applyUpdateToVariable(var, &value, false);
+            case DT_FLOAT:
+            {
+                float rValue = value.toFloat();
+                haSync.applyUpdateToVariable(var, &rValue, false);
+            }
+            break;
             }
         }
     }
@@ -241,7 +244,7 @@ void MqttHASync::setup()
                 }
             }
 
-            //haSensors[index]->setName(def->mqttTopic);
+            // haSensors[index]->setName(def->mqttTopic);
             haSensors[index]->setName(def->text);
         }
     }
