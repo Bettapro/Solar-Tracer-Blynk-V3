@@ -180,7 +180,9 @@ void MqttHASync::setup()
 
         const VariableDefinition *def = VariableDefiner::getInstance().getDefinition((Variable)index);
 
-        if (def->mqttTopic != nullptr)
+        if (def->mqttTopic != nullptr
+             && (Controller::getInstance().getSolarController()->isVariableEnabled(def->variable)
+             || Controller::getInstance().getSolarController()->isVariableOverWritten(def->variable)))
         {
             haSensors[index] = nullptr;
             switch (def->datatype)

@@ -61,16 +61,11 @@ public:
         sensor->setSampleNumber(EXTERNAL_HEAVY_LOAD_CURRENT_METER_SAMPLES_NUMBER);
         sensor->setSampleDelay(EXTERNAL_HEAVY_LOAD_CURRENT_METER_SAMPLE_INTERVAL);
         sensor->setVASensitivity(EXTERNAL_HEAVY_LOAD_CURRENT_METER_VOLTAGE_AMP_VOLT);
-
-        tracer->setVariableEnabled(Variable::LOAD_CURRENT);
-        tracer->setVariableEnable(Variable::LOAD_POWER, tracer->isVariableEnabled(Variable::BATTERY_VOLTAGE));
-        tracer->setVariableEnable(Variable::CONSUMED_ENERGY_TOTAL, tracer->isVariableEnabled(Variable::BATTERY_VOLTAGE));
-        tracer->setVariableEnable(Variable::BATTERY_OVERALL_CURRENT, tracer->isVariableEnabled(Variable::BATTERY_CHARGE_CURRENT));
-
+        
         tracer->setVariableOverWritten(Variable::LOAD_CURRENT, true);
-        tracer->setVariableOverWritten(Variable::LOAD_POWER, true);
-        tracer->setVariableOverWritten(Variable::CONSUMED_ENERGY_TOTAL, true);
-        tracer->setVariableOverWritten(Variable::BATTERY_OVERALL_CURRENT, true);
+        tracer->setVariableOverWritten(Variable::LOAD_POWER, tracer->isVariableEnabled(Variable::BATTERY_VOLTAGE));
+        tracer->setVariableOverWritten(Variable::CONSUMED_ENERGY_TOTAL, tracer->isVariableEnabled(Variable::BATTERY_VOLTAGE));
+        tracer->setVariableOverWritten(Variable::BATTERY_OVERALL_CURRENT, tracer->isVariableEnabled(Variable::BATTERY_CHARGE_CURRENT));
     }
 
     static void overWrite(SolarTracer *tracer)

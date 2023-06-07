@@ -84,7 +84,7 @@ uint8_t BaseSync::sendUpdateAllBySource(VariableSource allowedSource, bool silen
     for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++)
     {
         def = VariableDefiner::getInstance().getDefinition((Variable)index);
-        if (def->source == allowedSource && this->isVariableAllowed(def) && solarT->isVariableEnabled(def->variable))
+        if (def->source == allowedSource && this->isVariableAllowed(def) && (solarT->isVariableEnabled(def->variable) || solarT->isVariableOverWritten(def->variable)))
         {
             if (!solarT->isVariableReadReady(def->variable) || !this->syncVariable(def, solarT->getValue(def->variable)))
             {

@@ -59,56 +59,56 @@ EPEVERSolarTracer::EPEVERSolarTracer(Stream &serialCom, uint16_t serialTimeoutMs
   };
 
   // set enabled variables
-  this->setVariableEnabled(Variable::PV_POWER);
-  this->setVariableEnabled(Variable::PV_CURRENT);
-  this->setVariableEnabled(Variable::PV_VOLTAGE);
-  this->setVariableEnabled(Variable::LOAD_CURRENT);
-  this->setVariableEnabled(Variable::LOAD_POWER);
-  this->setVariableEnabled(Variable::BATTERY_TEMP);
-  this->setVariableEnabled(Variable::BATTERY_VOLTAGE);
-  this->setVariableEnabled(Variable::BATTERY_SOC);
-  this->setVariableEnabled(Variable::CONTROLLER_TEMP);
-  this->setVariableEnabled(Variable::BATTERY_CHARGE_CURRENT);
-  this->setVariableEnabled(Variable::BATTERY_CHARGE_POWER);
-  this->setVariableEnabled(Variable::BATTERY_OVERALL_CURRENT);
-  this->setVariableEnabled(Variable::LOAD_MANUAL_ONOFF);
-  this->setVariableEnabled(Variable::CHARGING_DEVICE_ONOFF);
-  this->setVariableEnabled(Variable::BATTERY_STATUS_TEXT);
-  this->setVariableEnabled(Variable::CHARGING_EQUIPMENT_STATUS_TEXT);
-  this->setVariableEnabled(Variable::DISCHARGING_EQUIPMENT_STATUS_TEXT);
-  this->setVariableEnabled(Variable::REMOTE_BATTERY_TEMP);
-  this->setVariableEnabled(Variable::GENERATED_ENERGY_TODAY);
-  this->setVariableEnabled(Variable::GENERATED_ENERGY_MONTH);
-  this->setVariableEnabled(Variable::GENERATED_ENERGY_YEAR);
-  this->setVariableEnabled(Variable::GENERATED_ENERGY_TOTAL);
-  this->setVariableEnabled(Variable::MAXIMUM_PV_VOLTAGE_TODAY);
-  this->setVariableEnabled(Variable::MINIMUM_PV_VOLTAGE_TODAY);
-  this->setVariableEnabled(Variable::MAXIMUM_BATTERY_VOLTAGE_TODAY);
-  this->setVariableEnabled(Variable::MINIMUM_BATTERY_VOLTAGE_TODAY);
-  this->setVariableEnabled(Variable::HEATSINK_TEMP);
-  this->setVariableEnabled(Variable::BATTERY_BOOST_VOLTAGE);
-  this->setVariableEnabled(Variable::BATTERY_EQUALIZATION_VOLTAGE);
-  this->setVariableEnabled(Variable::BATTERY_FLOAT_VOLTAGE);
-  this->setVariableEnabled(Variable::BATTERY_FLOAT_MIN_VOLTAGE);
-  this->setVariableEnabled(Variable::BATTERY_CHARGING_LIMIT_VOLTAGE);
-  this->setVariableEnabled(Variable::BATTERY_DISCHARGING_LIMIT_VOLTAGE);
-  this->setVariableEnabled(Variable::BATTERY_LOW_VOLTAGE_DISCONNECT);
-  this->setVariableEnabled(Variable::BATTERY_LOW_VOLTAGE_RECONNECT);
-  this->setVariableEnabled(Variable::BATTERY_OVER_VOLTAGE_DISCONNECT);
-  this->setVariableEnabled(Variable::BATTERY_OVER_VOLTAGE_RECONNECT);
-  this->setVariableEnabled(Variable::BATTERY_UNDER_VOLTAGE_SET);
-  this->setVariableEnabled(Variable::BATTERY_UNDER_VOLTAGE_RESET);
-  this->setVariableEnabled(Variable::BATTERY_OVER_VOLTAGE_RECONNECT);
-  this->setVariableEnabled(Variable::BATTERY_UNDER_VOLTAGE_SET);
-  this->setVariableEnabled(Variable::BATTERY_UNDER_VOLTAGE_RESET);
-  this->setVariableEnabled(Variable::BATTERY_TYPE);
-  this->setVariableEnabled(Variable::BATTERY_CAPACITY);
-  this->setVariableEnabled(Variable::BATTERY_TEMPERATURE_COMPENSATION_COEFFICIENT);
+  this->setVariableEnable(Variable::PV_POWER);
+  this->setVariableEnable(Variable::PV_CURRENT);
+  this->setVariableEnable(Variable::PV_VOLTAGE);
+  this->setVariableEnable(Variable::LOAD_CURRENT);
+  this->setVariableEnable(Variable::LOAD_POWER);
+  this->setVariableEnable(Variable::BATTERY_TEMP);
+  this->setVariableEnable(Variable::BATTERY_VOLTAGE);
+  this->setVariableEnable(Variable::BATTERY_SOC);
+  this->setVariableEnable(Variable::CONTROLLER_TEMP);
+  this->setVariableEnable(Variable::BATTERY_CHARGE_CURRENT);
+  this->setVariableEnable(Variable::BATTERY_CHARGE_POWER);
+  this->setVariableEnable(Variable::BATTERY_OVERALL_CURRENT);
+  this->setVariableEnable(Variable::LOAD_MANUAL_ONOFF);
+  this->setVariableEnable(Variable::CHARGING_DEVICE_ONOFF);
+  this->setVariableEnable(Variable::BATTERY_STATUS_TEXT);
+  this->setVariableEnable(Variable::CHARGING_EQUIPMENT_STATUS_TEXT);
+  this->setVariableEnable(Variable::DISCHARGING_EQUIPMENT_STATUS_TEXT);
+  this->setVariableEnable(Variable::REMOTE_BATTERY_TEMP);
+  this->setVariableEnable(Variable::GENERATED_ENERGY_TODAY);
+  this->setVariableEnable(Variable::GENERATED_ENERGY_MONTH);
+  this->setVariableEnable(Variable::GENERATED_ENERGY_YEAR);
+  this->setVariableEnable(Variable::GENERATED_ENERGY_TOTAL);
+  this->setVariableEnable(Variable::MAXIMUM_PV_VOLTAGE_TODAY);
+  this->setVariableEnable(Variable::MINIMUM_PV_VOLTAGE_TODAY);
+  this->setVariableEnable(Variable::MAXIMUM_BATTERY_VOLTAGE_TODAY);
+  this->setVariableEnable(Variable::MINIMUM_BATTERY_VOLTAGE_TODAY);
+  this->setVariableEnable(Variable::HEATSINK_TEMP);
+  this->setVariableEnable(Variable::BATTERY_BOOST_VOLTAGE);
+  this->setVariableEnable(Variable::BATTERY_EQUALIZATION_VOLTAGE);
+  this->setVariableEnable(Variable::BATTERY_FLOAT_VOLTAGE);
+  this->setVariableEnable(Variable::BATTERY_FLOAT_MIN_VOLTAGE);
+  this->setVariableEnable(Variable::BATTERY_CHARGING_LIMIT_VOLTAGE);
+  this->setVariableEnable(Variable::BATTERY_DISCHARGING_LIMIT_VOLTAGE);
+  this->setVariableEnable(Variable::BATTERY_LOW_VOLTAGE_DISCONNECT);
+  this->setVariableEnable(Variable::BATTERY_LOW_VOLTAGE_RECONNECT);
+  this->setVariableEnable(Variable::BATTERY_OVER_VOLTAGE_DISCONNECT);
+  this->setVariableEnable(Variable::BATTERY_OVER_VOLTAGE_RECONNECT);
+  this->setVariableEnable(Variable::BATTERY_UNDER_VOLTAGE_SET);
+  this->setVariableEnable(Variable::BATTERY_UNDER_VOLTAGE_RESET);
+  this->setVariableEnable(Variable::BATTERY_OVER_VOLTAGE_RECONNECT);
+  this->setVariableEnable(Variable::BATTERY_UNDER_VOLTAGE_SET);
+  this->setVariableEnable(Variable::BATTERY_UNDER_VOLTAGE_RESET);
+  this->setVariableEnable(Variable::BATTERY_TYPE);
+  this->setVariableEnable(Variable::BATTERY_CAPACITY);
+  this->setVariableEnable(Variable::BATTERY_TEMPERATURE_COMPENSATION_COEFFICIENT);
 
-  this->setVariableEnabled(Variable::BATTERY_MANAGEMENT_MODE);
-  this->setVariableEnabled(Variable::BATTERY_RATED_VOLTAGE);
-  this->setVariableEnabled(Variable::BATTERY_BOOST_DURATION);
-  this->setVariableEnabled(Variable::BATTERY_EQUALIZATION_DURATION);
+  this->setVariableEnable(Variable::BATTERY_MANAGEMENT_MODE);
+  this->setVariableEnable(Variable::BATTERY_RATED_VOLTAGE);
+  this->setVariableEnable(Variable::BATTERY_BOOST_DURATION);
+  this->setVariableEnable(Variable::BATTERY_EQUALIZATION_DURATION);
 }
 
 bool EPEVERSolarTracer::testConnection()
@@ -220,7 +220,7 @@ bool EPEVERSolarTracer::fetchValue(Variable variable)
 
 bool EPEVERSolarTracer::writeValue(Variable variable, const void *value)
 {
-  if (!this->isVariableEnabled(variable))
+  if (!this->isVariableEnabled(variable) || this->isVariableOverWritten(variable))
   {
     return false;
   }

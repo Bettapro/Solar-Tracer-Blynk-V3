@@ -20,11 +20,9 @@
  */
 //
 
-
 #include "src/incl/include.h"
 
 #include "src/solartracer/incl/solar_config.h"
-
 
 // -------------------------------------------------------------------------------
 // MISC
@@ -36,9 +34,6 @@
 #define DRD_EXEC_LOOP
 #define DRD_EXEC_STOP
 #endif
-
-
-
 
 void uploadRealtimeAll()
 {
@@ -263,11 +258,11 @@ void setup()
   debugPrintln(Text::ok);
 #endif
 
-#if defined(USE_SERIAL_STREAM) &  defined(USE_SOFTWARE_SERIAL) & defined(BOARD_ST_SERIAL_PIN_MAPPING_RX) & defined(BOARD_ST_SERIAL_PIN_MAPPING_TX)
+#if defined(USE_SERIAL_STREAM) & defined(USE_SOFTWARE_SERIAL) & defined(BOARD_ST_SERIAL_PIN_MAPPING_RX) & defined(BOARD_ST_SERIAL_PIN_MAPPING_TX)
   BOARD_ST_SERIAL_STREAM.begin(BOARD_ST_SERIAL_STREAM_BAUDRATE, SWSERIAL_8N1, BOARD_ST_SERIAL_PIN_MAPPING_RX, BOARD_ST_SERIAL_PIN_MAPPING_TX, false);
 #elif defined(USE_SERIAL_STREAM) & !defined(USE_SOFTWARE_SERIAL) & defined(BOARD_ST_SERIAL_PIN_MAPPING_RX) & defined(BOARD_ST_SERIAL_PIN_MAPPING_TX)
   BOARD_ST_SERIAL_STREAM.begin(BOARD_ST_SERIAL_STREAM_BAUDRATE, SERIAL_8N1, BOARD_ST_SERIAL_PIN_MAPPING_RX, BOARD_ST_SERIAL_PIN_MAPPING_TX);
-#elif defined(USE_SERIAL_STREAM) & ! defined(USE_SOFTWARE_SERIAL)
+#elif defined(USE_SERIAL_STREAM) & !defined(USE_SOFTWARE_SERIAL)
   BOARD_ST_SERIAL_STREAM.begin(BOARD_ST_SERIAL_STREAM_BAUDRATE);
 #endif
   debugPrintf(true, Text::setupWithName, "Solar Charge Controller");
@@ -295,6 +290,12 @@ void setup()
   default:
     debugPrintf(true, "OK [attempt=%i]", attemptControllerConnectionCount);
   }
+
+#ifdef USE_EXTERNAL_HEAVY_LOAD_CURRENT_METER
+  LoadCurrentOverwrite::setup(Controller::getInstance().getSolarController());
+  Controller::getInstance().getSolarController()->setOnUpdateRunCompleted([]()
+                                                                          { LoadCurrentOverwrite::overWrite(Controller::getInstance().getSolarController()); });
+#endif
 
 #ifdef USE_NTP_SERVER
   debugPrintf(true, Text::setupWithName, "Local Time");
@@ -324,11 +325,7 @@ void setup()
   }
   delay(500);
 #endif
-#ifdef USE_EXTERNAL_HEAVY_LOAD_CURRENT_METER
-  LoadCurrentOverwrite::setup(Controller::getInstance().getSolarController());
-  Controller::getInstance().getSolarController()->setOnUpdateRunCompleted([]()
-                                                                          { LoadCurrentOverwrite::overWrite(Controller::getInstance().getSolarController()); });
-#endif
+
   debugPrintln("Get all values");
   Controller::getInstance().getSolarController()->fetchAllValues();
 

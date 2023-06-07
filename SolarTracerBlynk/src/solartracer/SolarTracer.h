@@ -26,7 +26,6 @@
 
 typedef void (*OnUpdateRunCompletedCallback)();
 
-
 struct SolarTracerVariableDefinition
 {
   /**
@@ -43,31 +42,40 @@ class SolarTracer
 public:
   SolarTracer();
 
-  inline void setVariableEnabled(Variable variable);
-
-  void setVariableEnable(Variable variable, bool enable);
-
+  /**
+   * Check if the variable is supporter by the SCC
+   */
   bool isVariableEnabled(Variable variable);
 
-  void setVariableReadReady(Variable variable, bool enable);
-
-  void setVariableReadReady(uint8_t count, bool ready, ...);
-
+  /**
+   * Check if variable is ready to be read (value has been fetched from the scc)
+   */
   bool isVariableReadReady(Variable variable);
 
+  /**
+   * Check if variable has been overwritten
+   */
   bool isVariableOverWritten(Variable variable);
 
+  /**
+   * Set variable as overwritten (not managed by the scc)
+  */
   void setVariableOverWritten(Variable variable, bool enable);
 
+  /**
+   * Get the value of the variable, null if variable is not ready
+  */
   virtual const void *getValue(Variable variable);
 
+  /**
+   * Set the value of the variable
+  */
   bool setVariableValue(Variable variable, const void *value, bool ignoreOverWriteLock = false);
 
-  void setOnUpdateRunCompleted(OnUpdateRunCompletedCallback fn){
+  void setOnUpdateRunCompleted(OnUpdateRunCompletedCallback fn)
+  {
     this->onUpdateRunCompleted = fn;
   }
-
-
 
   /**
    * Return last status code, 0 means the controller is responding to requests correctly.
@@ -81,17 +89,23 @@ public:
   virtual bool writeValue(Variable variable, const void *value) = 0;
   virtual bool testConnection() = 0;
 
-
 protected:
   inline bool setFloatVariable(Variable variable, float value);
 
-  void updateRunCompleted(){
-    if(this->onUpdateRunCompleted){
+  void updateRunCompleted()
+  {
+    if (this->onUpdateRunCompleted)
+    {
       this->onUpdateRunCompleted();
     }
   }
 
-  
+
+  void setVariableEnable(Variable variable, bool enable = true);
+
+  void setVariableReadReady(Variable variable, bool enable);
+
+  void setVariableReadReady(uint8_t count, bool ready, ...);
 
   uint16_t lastControllerCommunicationStatus;
 
@@ -103,11 +117,6 @@ private:
 inline const uint16_t SolarTracer::getLastControllerCommunicationStatus()
 {
   return this->lastControllerCommunicationStatus;
-}
-
-inline void SolarTracer::setVariableEnabled(Variable variable)
-{
-  this->setVariableEnable(variable, true);
 }
 
 inline bool SolarTracer::setFloatVariable(Variable variable, float value)
