@@ -117,6 +117,9 @@ public:
             WiFiManagerParameter customMqttHAText("<p><b>MQTT-HA:</b></p>");
             wifiManager.addParameter(&customMqttHAText);
 
+            WiFiManagerParameter customMqttHADeviceId(CONFIG_MQTT_HA_DEVICE_ID, "Device ID", Environment::getData()->mqttHADeviceId, CONFIG_MQTT_HA_DEVICE_ID_LEN);
+            wifiManager.addParameter(&customMqttHADeviceId);
+
             WiFiManagerParameter customMqttHADeviceName(CONFIG_MQTT_HA_DEVICE_NAME, "Device Name", Environment::getData()->mqttHADeviceName, CONFIG_MQTT_HA_DEVICE_NAME_LEN);
             wifiManager.addParameter(&customMqttHADeviceName);
 #endif
@@ -209,6 +212,7 @@ public:
                   doc[CONFIG_MQTT_CLIENT_ID] = customMqttClientId.getValue();
 #endif
 #ifdef USE_MQTT_HOME_ASSISTANT
+                  doc[CONFIG_MQTT_HA_DEVICE_ID] = customMqttHADeviceId.getValue();
                   doc[CONFIG_MQTT_HA_DEVICE_NAME] = customMqttHADeviceName.getValue();
 #endif
 

@@ -173,7 +173,7 @@ BLYNK_WRITE_DEFAULT()
       break;
       }
     }
-    else
+    else if(Controller::getInstance().getSolarController()->isVariableEnabled(def->variable))
     {
       switch (def->datatype)
       {

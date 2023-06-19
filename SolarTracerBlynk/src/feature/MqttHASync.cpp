@@ -181,7 +181,9 @@ void MqttHASync::setup()
         const VariableDefinition *def = VariableDefiner::getInstance().getDefinition((Variable)index);
 
         if (def->mqttTopic != nullptr
-             && (Controller::getInstance().getSolarController()->isVariableEnabled(def->variable)
+             && (
+                def->source == VariableSource::SR_INTERNAL
+             ||  Controller::getInstance().getSolarController()->isVariableEnabled(def->variable)
              || Controller::getInstance().getSolarController()->isVariableOverWritten(def->variable)))
         {
             haSensors[index] = nullptr;
@@ -247,7 +249,17 @@ void MqttHASync::setup()
             }
 
             // haSensors[index]->setName(def->mqttTopic);
-            haSensors[index]->setName(def->text);
+            if(strlen( Environment::getData()->mqttHADeviceId) <= 0){
+                haSensors[index]->setName(def->text);
+            }
+            else{
+                char * idName = new char[strlen( Environment::getData()->mqttHADeviceId) + strlen(def->text) + 2];
+                strcpy(idName, Environment::getData()->mqttHADeviceId);
+                strcat(idName, " ");
+                strcat(idName, def->text);
+                haSensors[index]->setName(idName);
+            }
+            
         }
     }
     this->connect();

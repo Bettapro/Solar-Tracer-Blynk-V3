@@ -42,6 +42,7 @@ void Environment::loadEnvData()
     envData.mqttServerPort = MQTT_PORT;
 #endif
 #ifdef USE_MQTT_HOME_ASSISTANT
+    strcpy(envData.mqttHADeviceId, MQTT_HOME_ASSISTANT_DEVICE_ID);
     strcpy(envData.mqttHADeviceName, MQTT_HOME_ASSISTANT_DEVICE_NAME);
 #endif
 
@@ -58,7 +59,7 @@ void Environment::loadEnvData()
     // END OF LOAD FROM config.h
 
 #if defined USE_WIFI_AP_CONFIGURATION
-    LittleFS.begin();
+    LittleFS.begin(true);
     // load from file
     if (!LittleFS.exists(CONFIG_PERSISTENCE))
     {
@@ -120,6 +121,7 @@ void Environment::loadEnvData()
 
 #endif
 #ifdef USE_MQTT_HOME_ASSISTANT
+                loadStringToEnvIfExist(doc, CONFIG_MQTT_HA_DEVICE_ID, envData.mqttHADeviceId);
                 loadStringToEnvIfExist(doc, CONFIG_MQTT_HA_DEVICE_NAME, envData.mqttHADeviceName);
 #endif
 

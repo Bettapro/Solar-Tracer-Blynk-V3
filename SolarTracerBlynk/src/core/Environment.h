@@ -62,6 +62,7 @@ struct EnvironrmentData
     char mqttClientId[CONFIG_MQTT_CLIENT_ID_LEN + 1];
 #endif
   #ifdef USE_MQTT_HOME_ASSISTANT
+    char mqttHADeviceId[CONFIG_MQTT_HA_DEVICE_ID_LEN + 1];
     char mqttHADeviceName[CONFIG_MQTT_HA_DEVICE_NAME_LEN + 1];
   #endif
 #ifdef USE_OTA_UPDATE

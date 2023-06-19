@@ -116,14 +116,13 @@ MqttSync::MqttSync()
 
 void MqttSync::setup()
 {
-
     this->mqttClient->setServer(Environment::getData()->mqttServerHostname, Environment::getData()->mqttServerPort);
 
     mqttClient->setCallback(mqttCallback);
     for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++)
     {
         const VariableDefinition *def = VariableDefiner::getInstance().getDefinition((Variable)index);
-        if (def->mqttTopic != nullptr && def->mode == MD_READWRITE)
+        if (def->mqttTopic != nullptr && def->mode == MD_READWRITE && (def->source == VariableSource::SR_INTERNAL || Controller::getInstance().getSolarController()->isVariableEnabled(def->variable)))
         {
             this->mqttClient->subscribe(def->mqttTopic);
         }
@@ -136,9 +135,9 @@ bool MqttSync::attemptMqttSyncConnect()
 {
     mqttClient->connect(
 
-            Environment::getData()->mqttClientId,
-            strlen(Environment::getData()->mqttUsername) > 0 ? Environment::getData()->mqttUsername : nullptr,
-            strlen(Environment::getData()->mqttPassword) > 0 ? Environment::getData()->mqttPassword : nullptr);
+        Environment::getData()->mqttClientId,
+        strlen(Environment::getData()->mqttUsername) > 0 ? Environment::getData()->mqttUsername : nullptr,
+        strlen(Environment::getData()->mqttPassword) > 0 ? Environment::getData()->mqttPassword : nullptr);
     return mqttClient->connected();
 }
 
