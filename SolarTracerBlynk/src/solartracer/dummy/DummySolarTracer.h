@@ -37,7 +37,7 @@ public:
         {
             if (VariableDefiner::getInstance().isFromScc((Variable)index))
             {
-                this->setVariableEnabled((Variable)index);
+                this->setVariableEnable((Variable)index, true);
                 this->setVariableReadReady((Variable)index, true);
             }
         }

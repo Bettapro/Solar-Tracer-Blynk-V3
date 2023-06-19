@@ -83,7 +83,7 @@ bool SolarTracer::isVariableReadReady(Variable variable)
 
 bool SolarTracer::isVariableOverWritten(Variable variable)
 {
-    return variable < Variable::VARIABLES_COUNT && (this->variableDefine[variable]->status & 4) > 0;
+    return variable < Variable::VARIABLES_COUNT && this->variableDefine[variable] != nullptr && (this->variableDefine[variable]->status & 4) > 0;
 }
 
 void SolarTracer::setVariableOverWritten(Variable variable, bool enable)
