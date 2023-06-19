@@ -59,7 +59,9 @@ void Environment::loadEnvData()
     // END OF LOAD FROM config.h
 
 #if defined USE_WIFI_AP_CONFIGURATION
-    LittleFS.begin(true);
+    if(!LittleFS.begin()){
+        LittleFS.format();
+    }
     // load from file
     if (!LittleFS.exists(CONFIG_PERSISTENCE))
     {
