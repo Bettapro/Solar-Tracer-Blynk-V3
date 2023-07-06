@@ -28,33 +28,27 @@
 
 #ifdef USE_WIFI_AP_CONFIGURATION
 
-#include "../incl/include_all_lib.h"
 #include "../core/Environment.h"
+#include "../incl/include_all_lib.h"
 
-class WifiManagerSTB
-{
-public:
-      static void startWifiConfigurationAP(bool tryConnection)
-      {
+class WifiManagerSTB {
+    public:
+        static void startWifiConfigurationAP(bool tryConnection) {
             bool shouldSaveConfig = false;
 
             // making sure to be connected to wifi from settings to get WiFi.SSID and WiFi.psk
-            if (tryConnection)
-            {
-                  WiFi.waitForConnectResult();
+            if (tryConnection) {
+                WiFi.waitForConnectResult();
             }
 
             WiFiManager wifiManager;
             wifiManager.setTitle("Solar-tracer-Blynk-V3");
             wifiManager.setBreakAfterConfig(true);
-            wifiManager.setSaveParamsCallback([&shouldSaveConfig, &wifiManager]()
-                                              {
+            wifiManager.setSaveParamsCallback([&shouldSaveConfig, &wifiManager]() {
                                       shouldSaveConfig = true;
                                       wifiManager.stopConfigPortal(); });
-            wifiManager.setSaveConfigCallback([&shouldSaveConfig]()
-                                              { shouldSaveConfig = true; });
-            wifiManager.setConfigResetCallback([]()
-                                               { Environment::resetEnvData(); });
+            wifiManager.setSaveConfigCallback([&shouldSaveConfig]() { shouldSaveConfig = true; });
+            wifiManager.setConfigResetCallback([]() { Environment::resetEnvData(); });
             wifiManager.setParamsPage(true);
             wifiManager.setConfigPortalBlocking(true);
             wifiManager.setDebugOutput(false);
@@ -90,7 +84,7 @@ public:
 #ifndef USE_BLYNK_2
 
             WiFiManagerParameter customBlynkServerHostname(CONFIG_BLYNK_HOSTNAME, Text::server, Environment::getData()->blynkServerHostname, CONFIG_BLYNK_HOSTNAME_LEN);
-            WiFiManagerParameter customBlynkServerPort(CONFIG_BLYNK_PORT, Text::port, Util::intToChar( Environment::getData()->blynkServerPort), 5, "type=\"number\" min=\"0\"");
+            WiFiManagerParameter customBlynkServerPort(CONFIG_BLYNK_PORT, Text::port, Util::intToChar(Environment::getData()->blynkServerPort), 5, "type=\"number\" min=\"0\"");
 
             wifiManager.addParameter(&customBlynkServerHostname);
             wifiManager.addParameter(&customBlynkServerPort);
@@ -104,7 +98,7 @@ public:
             WiFiManagerParameter customMqttServer(CONFIG_MQTT_HOSTNAME, Text::server, Environment::getData()->mqttServerHostname, CONFIG_MQTT_HOSTNAME_LEN);
             wifiManager.addParameter(&customMqttServer);
             char portString[5];
-            WiFiManagerParameter customMqttServerPort(CONFIG_MQTT_PORT, Text::port, Util::intToChar( Environment::getData()->mqttServerPort), 5, "type=\"number\" min=\"0\"");
+            WiFiManagerParameter customMqttServerPort(CONFIG_MQTT_PORT, Text::port, Util::intToChar(Environment::getData()->mqttServerPort), 5, "type=\"number\" min=\"0\"");
             wifiManager.addParameter(&customMqttServerPort);
             WiFiManagerParameter customMqttClientId(CONFIG_MQTT_CLIENT_ID, "Client ID", Environment::getData()->mqttClientId, CONFIG_MQTT_CLIENT_ID_LEN);
             wifiManager.addParameter(&customMqttClientId);
@@ -149,7 +143,7 @@ public:
             WiFiManagerParameter customExtLoadMeter("<p><b>EXT. LOAD METER:</b></p>");
 
             char hlVoltOffsetString[8];
-            WiFiManagerParameter customExtZeroVOff(CONFIG_EXTERNAL_HEAVY_LOAD_CURRENT_METER_VOLTAGE_ZERO_AMP_VOLT, "Volt off.", Util::floatToChar( Environment::getData()->heavyLoadCurrentZeroV), 8, "type=\"number\" step=\"0.001\"");
+            WiFiManagerParameter customExtZeroVOff(CONFIG_EXTERNAL_HEAVY_LOAD_CURRENT_METER_VOLTAGE_ZERO_AMP_VOLT, "Volt off.", Util::floatToChar(Environment::getData()->heavyLoadCurrentZeroV), 8, "type=\"number\" step=\"0.001\"");
 
             wifiManager.addParameter(&customExtLoadMeter);
             wifiManager.addParameter(&customExtZeroVOff);
@@ -166,85 +160,79 @@ public:
             wifiManager.setConfigPortalTimeout(WIFI_AP_TIMEOUT);
             wifiManager.startConfigPortal(Environment::getData()->wmApSSID, Environment::getData()->wmApPassword);
 
-            if (shouldSaveConfig)
-            {
-                  debugPrintln("Saving wifimanager parameters... ");
+            if (shouldSaveConfig) {
+                debugPrintln("Saving wifimanager parameters... ");
 
-                  if (!LittleFS.begin())
-                  {
-                        debugPrintf(true, Text::errorWithCode, STATUS_ERR_LITTLEFS_BEGIN_FAILED);
-                        if (!LittleFS.format() || !LittleFS.begin())
-                        {
-                              debugPrintf(true, Text::errorWithCode, STATUS_ERR_LITTLEFS_FORMAT_FAILED);
-                        }
-                        return;
-                  }
+                if (!LittleFS.begin()) {
+                    debugPrintf(true, Text::errorWithCode, STATUS_ERR_LITTLEFS_BEGIN_FAILED);
+                    if (!LittleFS.format() || !LittleFS.begin()) {
+                        debugPrintf(true, Text::errorWithCode, STATUS_ERR_LITTLEFS_FORMAT_FAILED);
+                    }
+                    return;
+                }
 
-                  DynamicJsonDocument doc(1024);
-                  doc[CONFIG_SERIAL_DEBUG] = strcmp(customDebug.getValue(), CONFIG_SERIAL_DEBUG) == 0;
-                  doc[CONFIG_WIFI_SSID] = WiFi.SSID();
-                  doc[CONFIG_WIFI_PASSWORD] = WiFi.psk();
+                DynamicJsonDocument doc(1024);
+                doc[CONFIG_SERIAL_DEBUG] = strcmp(customDebug.getValue(), CONFIG_SERIAL_DEBUG) == 0;
+                doc[CONFIG_WIFI_SSID] = WiFi.SSID();
+                doc[CONFIG_WIFI_PASSWORD] = WiFi.psk();
 
-                  doc[CONFIG_WIFI_IP_ADDRESS] = customWIFIIpAddress.getValue();
-                  doc[CONFIG_WIFI_GATEWAY] = customWIFIGateway.getValue();
-                  doc[CONFIG_WIFI_SUBNET] = customWIFISubnet.getValue();
-                  doc[CONFIG_WIFI_DNS1] = customWIFIDns1.getValue();
-                  doc[CONFIG_WIFI_DNS2] = customWIFIDns2.getValue();
+                doc[CONFIG_WIFI_IP_ADDRESS] = customWIFIIpAddress.getValue();
+                doc[CONFIG_WIFI_GATEWAY] = customWIFIGateway.getValue();
+                doc[CONFIG_WIFI_SUBNET] = customWIFISubnet.getValue();
+                doc[CONFIG_WIFI_DNS1] = customWIFIDns1.getValue();
+                doc[CONFIG_WIFI_DNS2] = customWIFIDns2.getValue();
 
-                  doc[CONFIG_WM_AP_SSID] = customWmSSID.getValue();
-                  doc[CONFIG_WM_AP_PASSWORD] = customWmPassword.getValue();
+                doc[CONFIG_WM_AP_SSID] = customWmSSID.getValue();
+                doc[CONFIG_WM_AP_PASSWORD] = customWmPassword.getValue();
 #ifdef USE_BLYNK
-                  doc[CONFIG_BLYNK_AUTH] = customBlynkAuth.getValue();
+                doc[CONFIG_BLYNK_AUTH] = customBlynkAuth.getValue();
 #ifndef USE_BLYNK_2
-                  doc[CONFIG_BLYNK_HOSTNAME] = customBlynkServerHostname.getValue();
-                  doc[CONFIG_BLYNK_PORT] = strlen(customBlynkServerPort.getValue()) > 0
-                                               ? atoi(customBlynkServerPort.getValue())
-                                               : 0;
+                doc[CONFIG_BLYNK_HOSTNAME] = customBlynkServerHostname.getValue();
+                doc[CONFIG_BLYNK_PORT] = strlen(customBlynkServerPort.getValue()) > 0
+                                             ? atoi(customBlynkServerPort.getValue())
+                                             : 0;
 #endif
 #endif
 #ifdef USE_MQTT
-                  doc[CONFIG_MQTT_HOSTNAME] = customMqttServer.getValue();
-                  doc[CONFIG_MQTT_PORT] = strlen(customMqttServerPort.getValue()) > 0
-                                              ? atoi(customMqttServerPort.getValue())
-                                              : 0;
-                  doc[CONFIG_MQTT_USERNAME] = customMqttUsername.getValue();
-                  doc[CONFIG_MQTT_PASSWORD] = customMqttPassword.getValue();
-                  doc[CONFIG_MQTT_CLIENT_ID] = customMqttClientId.getValue();
+                doc[CONFIG_MQTT_HOSTNAME] = customMqttServer.getValue();
+                doc[CONFIG_MQTT_PORT] = strlen(customMqttServerPort.getValue()) > 0
+                                            ? atoi(customMqttServerPort.getValue())
+                                            : 0;
+                doc[CONFIG_MQTT_USERNAME] = customMqttUsername.getValue();
+                doc[CONFIG_MQTT_PASSWORD] = customMqttPassword.getValue();
+                doc[CONFIG_MQTT_CLIENT_ID] = customMqttClientId.getValue();
 #endif
 #ifdef USE_MQTT_HOME_ASSISTANT
-                  doc[CONFIG_MQTT_HA_DEVICE_ID] = customMqttHADeviceId.getValue();
-                  doc[CONFIG_MQTT_HA_DEVICE_NAME] = customMqttHADeviceName.getValue();
+                doc[CONFIG_MQTT_HA_DEVICE_ID] = customMqttHADeviceId.getValue();
+                doc[CONFIG_MQTT_HA_DEVICE_NAME] = customMqttHADeviceName.getValue();
 #endif
 
 #ifdef USE_OTA_UPDATE
-                  doc[CONFIG_OTA_HOSTNAME] = customOtaHostname.getValue();
-                  doc[CONFIG_OTA_PASSWORD] = customOtaPassword.getValue();
+                doc[CONFIG_OTA_HOSTNAME] = customOtaHostname.getValue();
+                doc[CONFIG_OTA_PASSWORD] = customOtaPassword.getValue();
 #endif
 
 #ifdef USE_NTP_SERVER
-                  doc[CONFIG_NTP_SERVER] = customNtpServer.getValue();
-                  doc[CONFIG_NTP_TIMEZONE] = customNtpTimezone.getValue();
+                doc[CONFIG_NTP_SERVER] = customNtpServer.getValue();
+                doc[CONFIG_NTP_TIMEZONE] = customNtpTimezone.getValue();
 #endif
 #ifdef USE_EXTERNAL_HEAVY_LOAD_CURRENT_METER
-                  doc[CONFIG_EXTERNAL_HEAVY_LOAD_CURRENT_METER_VOLTAGE_ZERO_AMP_VOLT] = strlen(customExtZeroVOff.getValue()) > 0
-                                                                                            ? atof(customExtZeroVOff.getValue())
-                                                                                            : 0;
+                doc[CONFIG_EXTERNAL_HEAVY_LOAD_CURRENT_METER_VOLTAGE_ZERO_AMP_VOLT] = strlen(customExtZeroVOff.getValue()) > 0
+                                                                                          ? atof(customExtZeroVOff.getValue())
+                                                                                          : 0;
 #endif
-                  File configFile = LittleFS.open(CONFIG_PERSISTENCE, "w");
-                  if (!configFile)
-                  {
-                        LittleFS.end();
-                  }
-                  else
-                  {
-                        serializeJson(doc, configFile);
-                        configFile.flush();
-                        configFile.close();
-                        LittleFS.end();
-                        debugPrintln(Text::ok);
-                  }
+                File configFile = LittleFS.open(CONFIG_PERSISTENCE, "w");
+                if (!configFile) {
+                    LittleFS.end();
+                } else {
+                    serializeJson(doc, configFile);
+                    configFile.flush();
+                    configFile.close();
+                    LittleFS.end();
+                    debugPrintln(Text::ok);
+                }
             }
-      }
+        }
 };
 
 #endif

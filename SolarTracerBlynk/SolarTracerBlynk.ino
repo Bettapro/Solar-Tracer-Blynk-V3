@@ -21,7 +21,6 @@
 //
 
 #include "src/incl/include.h"
-
 #include "src/solartracer/incl/solar_config.h"
 
 // -------------------------------------------------------------------------------
@@ -35,307 +34,272 @@
 #define DRD_EXEC_STOP
 #endif
 
-void uploadRealtimeAll()
-{
+void uploadRealtimeAll() {
 #if defined USE_BLYNK
-  BlynkSync::getInstance().uploadRealtimeToBlynk();
+    BlynkSync::getInstance().uploadRealtimeToBlynk();
 #endif
 #if defined USE_MQTT && !defined USE_MQTT_HOME_ASSISTANT
-  MqttSync::getInstance().uploadRealtimeToMqtt();
+    MqttSync::getInstance().uploadRealtimeToMqtt();
 #endif
 #if defined USE_MQTT_HOME_ASSISTANT
-  MqttHASync::getInstance().uploadRealtimeToMqtt();
+    MqttHASync::getInstance().uploadRealtimeToMqtt();
 #endif
 }
-void uploadStatsAll()
-{
+void uploadStatsAll() {
 #if defined USE_BLYNK
-  BlynkSync::getInstance().uploadStatsToBlynk();
+    BlynkSync::getInstance().uploadStatsToBlynk();
 #endif
 #if defined USE_MQTT && !defined USE_MQTT_HOME_ASSISTANT
-  MqttSync::getInstance().uploadStatsToMqtt();
+    MqttSync::getInstance().uploadStatsToMqtt();
 #endif
 #if defined USE_MQTT_HOME_ASSISTANT
-  MqttHASync::getInstance().uploadStatsToMqtt();
+    MqttHASync::getInstance().uploadStatsToMqtt();
 #endif
 }
 
-void onWifiDisconnected(WiFiEvent_t event)
-{
-  debugPrintln("WiFi disconnected");
-  Controller::getInstance().setErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION, true);
+void onWifiDisconnected(WiFiEvent_t event) {
+    debugPrintln("WiFi disconnected");
+    Controller::getInstance().setErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION, true);
 }
 
 // ****************************************************************************
 // SETUP and LOOP
 
-void loop()
-{
+void loop() {
 #ifdef USE_OTA_UPDATE
-  ArduinoOTA.handle();
+    ArduinoOTA.handle();
 #endif
-  Controller::getInstance().getMainTimer()->run();
+    Controller::getInstance().getMainTimer()->run();
 
-  if (Controller::getInstance().getErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION))
-  {
-    WiFi.reconnect();
-    if (WiFi.waitForConnectResult() != WL_CONNECTED)
-    {
-      delay(1000);
-      return;
-    }
-    else
-    {
-      Controller::getInstance().setErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION, false);
+    if (Controller::getInstance().getErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION)) {
+        WiFi.reconnect();
+        if (WiFi.waitForConnectResult() != WL_CONNECTED) {
+            delay(1000);
+            return;
+        } else {
+            Controller::getInstance().setErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION, false);
 #if defined USE_BLYNK
-      BlynkSync::getInstance().connect();
+            BlynkSync::getInstance().connect();
 #endif
 #if defined USE_MQTT && !defined USE_MQTT_HOME_ASSISTANT
-      MqttSync::getInstance().connect();
+            MqttSync::getInstance().connect();
 #endif
 #if defined USE_MQTT_HOME_ASSISTANT
-      MqttHASync::getInstance().connect();
+            MqttHASync::getInstance().connect();
 #endif
+        }
     }
-  }
 
 #if defined USE_BLYNK
-  BlynkSync::getInstance().loop();
+    BlynkSync::getInstance().loop();
 #endif
 #if defined USE_MQTT && !defined USE_MQTT_HOME_ASSISTANT
-  MqttSync::getInstance().loop();
+    MqttSync::getInstance().loop();
 #endif
 #if defined USE_MQTT_HOME_ASSISTANT
-  MqttHASync::getInstance().loop();
+    MqttHASync::getInstance().loop();
 #endif
 }
 
-void setup()
-{
-  BOARD_DEBUG_SERIAL_STREAM.begin(BOARD_DEBUG_SERIAL_STREAM_BAUDRATE);
-  debugPrintf(true, " ++ STARTING %s %s [%d]", PROJECT_NAME, PROJECT_VERSION, PROJECT_SUBVERSION);
-  Environment::loadEnvData();
-  setDebugEnabled(Environment::getData()->serialDebug);
+void setup() {
+    BOARD_DEBUG_SERIAL_STREAM.begin(BOARD_DEBUG_SERIAL_STREAM_BAUDRATE);
+    debugPrintf(true, " ++ STARTING %s %s [%d]", PROJECT_NAME, PROJECT_VERSION, PROJECT_SUBVERSION);
+    Environment::loadEnvData();
+    setDebugEnabled(Environment::getData()->serialDebug);
 
 #if defined(USE_DOUBLE_RESET_TRIGGER)
-  DoubleResetDetector drd(2, 0);
-  drd.loop();
+    DoubleResetDetector drd(2, 0);
+    drd.loop();
 #endif
 
 #if defined(USE_PIN_RESET_CONFIGURATION_TRIGGER)
-  pinMode(PIN_RESET_TRIGGER_PIN, INPUT);
-  for (uint8_t readCount = 3; readCount >= 0; readCount--)
-  {
-    delay(500);
-    if (digitalRead(PIN_RESET_TRIGGER_PIN) != PIN_RESET_TRIGGER_VALUE)
-    {
-      break;
+    pinMode(PIN_RESET_TRIGGER_PIN, INPUT);
+    for (uint8_t readCount = 3; readCount >= 0; readCount--) {
+        delay(500);
+        if (digitalRead(PIN_RESET_TRIGGER_PIN) != PIN_RESET_TRIGGER_VALUE) {
+            break;
+        }
+        if (readCount == 0) {
+            debugPrintln(" ++ Reset configuration");
+            Environment::resetEnvData();
+            ESP.restart();
+        }
     }
-    if (readCount == 0)
-    {
-      debugPrintln(" ++ Reset configuration");
-      Environment::resetEnvData();
-      ESP.restart();
-    }
-  }
 #endif
 
-  Controller::getInstance().setErrorFlag(STATUS_RUN_BOOTING, true);
+    Controller::getInstance().setErrorFlag(STATUS_RUN_BOOTING, true);
 #ifdef USE_STATUS_LED
-  ledSetupStart();
+    ledSetupStart();
 #endif
 
-  debugPrintf(true, Text::setupWithName, "WIFI");
-  WiFi.mode(WIFI_STA);
-  const EnvironrmentData *envData = Environment::getData();
+    debugPrintf(true, Text::setupWithName, "WIFI");
+    WiFi.mode(WIFI_STA);
+    const EnvironrmentData *envData = Environment::getData();
 
-  bool wifiDataPresent = strlen(Environment::getData()->wifiSSID);
+    bool wifiDataPresent = strlen(Environment::getData()->wifiSSID);
 
-  if (wifiDataPresent)
-  {
+    if (wifiDataPresent) {
+        IPAddress ip;
+        IPAddress gateway;
+        IPAddress subnet;
+        IPAddress dns1;
+        IPAddress dns2;
 
-    IPAddress ip;
-    IPAddress gateway;
-    IPAddress subnet;
-    IPAddress dns1;
-    IPAddress dns2;
+        if (strlen(envData->wifiIp)) {
+            ip.fromString(envData->wifiIp);
+        }
 
-    if (strlen(envData->wifiIp))
-    {
-      ip.fromString(envData->wifiIp);
+        if (strlen(envData->wifiGateway)) {
+            gateway.fromString(envData->wifiGateway);
+        }
+        if (strlen(envData->wifiSubnet)) {
+            subnet.fromString(envData->wifiSubnet);
+        }
+        if (strlen(envData->wifiDns1)) {
+            dns1.fromString(envData->wifiDns1);
+        }
+        if (strlen(envData->wifiDns2)) {
+            dns2.fromString(envData->wifiDns2);
+        }
+
+        WiFi.config(ip, gateway, subnet, dns1, dns2);
+        WiFi.begin(envData->wifiSSID, envData->wifiPassword);
     }
-
-    if (strlen(envData->wifiGateway))
-    {
-      gateway.fromString(envData->wifiGateway);
-    }
-    if (strlen(envData->wifiSubnet))
-    {
-      subnet.fromString(envData->wifiSubnet);
-    }
-    if (strlen(envData->wifiDns1))
-    {
-      dns1.fromString(envData->wifiDns1);
-    }
-    if (strlen(envData->wifiDns2))
-    {
-      dns2.fromString(envData->wifiDns2);
-    }
-
-    WiFi.config(ip, gateway, subnet, dns1, dns2);
-    WiFi.begin(envData->wifiSSID, envData->wifiPassword);
-  }
 #if defined(USE_DOUBLE_RESET_TRIGGER)
-  if (drd.detectDoubleReset())
-  {
-    DRD_EXEC_STOP
-    debugPrintln(" ++ Start AP configuration");
-    WifiManagerSTB::startWifiConfigurationAP(true);
-    ESP.restart();
-  }
+    if (drd.detectDoubleReset()) {
+        DRD_EXEC_STOP
+        debugPrintln(" ++ Start AP configuration");
+        WifiManagerSTB::startWifiConfigurationAP(true);
+        ESP.restart();
+    }
 #endif
-  DRD_EXEC_LOOP
+    DRD_EXEC_LOOP
 #if defined(USE_HALL_AP_CONFIGURATION_TRIGGER)
-  for (uint8_t readCount = 3; readCount >= 0; readCount--)
-  {
-    delay(500);
-    int hallDiff = hallRead() - HALL_AP_CONFIGURATION_BASE_VALUE;
-    if (hallDiff < HALL_AP_CONFIGURATION_THR_VALUE && hallDiff > -HALL_AP_CONFIGURATION_THR_VALUE)
-    {
-      break;
+    for (uint8_t readCount = 3; readCount >= 0; readCount--) {
+        delay(500);
+        int hallDiff = hallRead() - HALL_AP_CONFIGURATION_BASE_VALUE;
+        if (hallDiff < HALL_AP_CONFIGURATION_THR_VALUE && hallDiff > -HALL_AP_CONFIGURATION_THR_VALUE) {
+            break;
+        }
+        if (readCount == 0) {
+            debugPrintln(" ++ Start AP configuration");
+            DRD_EXEC_STOP
+            WifiManagerSTB::startWifiConfigurationAP(true);
+            ESP.restart();
+        }
     }
-    if (readCount == 0)
-    {
-      debugPrintln(" ++ Start AP configuration");
-      DRD_EXEC_STOP
-      WifiManagerSTB::startWifiConfigurationAP(true);
-      ESP.restart();
-    }
-  }
 #endif
 
 #if defined(USE_PIN_AP_CONFIGURATION_TRIGGER)
-  pinMode(PIN_AP_TRIGGER_PIN, INPUT);
-  for (uint8_t readCount = 3; readCount >= 0; readCount--)
-  {
-    delay(500);
-    if (digitalRead(PIN_AP_TRIGGER_PIN) != PIN_AP_TRIGGER_VALUE)
-    {
-      break;
+    pinMode(PIN_AP_TRIGGER_PIN, INPUT);
+    for (uint8_t readCount = 3; readCount >= 0; readCount--) {
+        delay(500);
+        if (digitalRead(PIN_AP_TRIGGER_PIN) != PIN_AP_TRIGGER_VALUE) {
+            break;
+        }
+        if (readCount == 0) {
+            debugPrintln(" ++ Start AP configuration");
+            WifiManagerSTB::startWifiConfigurationAP(true);
+            ESP.restart();
+        }
     }
-    if (readCount == 0)
-    {
-      debugPrintln(" ++ Start AP configuration");
-      WifiManagerSTB::startWifiConfigurationAP(true);
-      ESP.restart();
-    }
-  }
 #endif
 
-  if (!wifiDataPresent || WiFi.waitForConnectResult() != WL_CONNECTED)
-  {
+    if (!wifiDataPresent || WiFi.waitForConnectResult() != WL_CONNECTED) {
 #if defined USE_WIFI_AP_CONFIGURATION
-    DRD_EXEC_STOP
-    debugPrintln(" ++ Start AP configuration");
-    WifiManagerSTB::startWifiConfigurationAP(false);
+        DRD_EXEC_STOP
+        debugPrintln(" ++ Start AP configuration");
+        WifiManagerSTB::startWifiConfigurationAP(false);
 #else
-    debugPrintln("Connection Failed! Rebooting...");
-    delay(5000);
+        debugPrintln("Connection Failed! Rebooting...");
+        delay(5000);
 #endif
-    ESP.restart();
-  }
-  WiFi.onEvent(onWifiDisconnected, WIFI_STATION_MODE_DISCONNECTED);
+        ESP.restart();
+    }
+    WiFi.onEvent(onWifiDisconnected, WIFI_STATION_MODE_DISCONNECTED);
 
-  debugPrint("Connected: ");
-  debugPrintln(WiFi.localIP().toString());
-  DRD_EXEC_STOP
+    debugPrint("Connected: ");
+    debugPrintln(WiFi.localIP().toString());
+    DRD_EXEC_STOP
 
 #ifdef USE_OTA_UPDATE
-  debugPrintf(true, Text::setupWithName, "ArduinoOTA");
-  arduinoOtaSetup();
-  debugPrintln(Text::ok);
+    debugPrintf(true, Text::setupWithName, "ArduinoOTA");
+    arduinoOtaSetup();
+    debugPrintln(Text::ok);
 #endif
 
 #if defined(USE_SERIAL_STREAM) & defined(USE_SOFTWARE_SERIAL) & defined(BOARD_ST_SERIAL_PIN_MAPPING_RX) & defined(BOARD_ST_SERIAL_PIN_MAPPING_TX)
-  BOARD_ST_SERIAL_STREAM.begin(BOARD_ST_SERIAL_STREAM_BAUDRATE, SWSERIAL_8N1, BOARD_ST_SERIAL_PIN_MAPPING_RX, BOARD_ST_SERIAL_PIN_MAPPING_TX, false);
+    BOARD_ST_SERIAL_STREAM.begin(BOARD_ST_SERIAL_STREAM_BAUDRATE, SWSERIAL_8N1, BOARD_ST_SERIAL_PIN_MAPPING_RX, BOARD_ST_SERIAL_PIN_MAPPING_TX, false);
 #elif defined(USE_SERIAL_STREAM) & !defined(USE_SOFTWARE_SERIAL) & defined(BOARD_ST_SERIAL_PIN_MAPPING_RX) & defined(BOARD_ST_SERIAL_PIN_MAPPING_TX)
-  BOARD_ST_SERIAL_STREAM.begin(BOARD_ST_SERIAL_STREAM_BAUDRATE, SERIAL_8N1, BOARD_ST_SERIAL_PIN_MAPPING_RX, BOARD_ST_SERIAL_PIN_MAPPING_TX);
+    BOARD_ST_SERIAL_STREAM.begin(BOARD_ST_SERIAL_STREAM_BAUDRATE, SERIAL_8N1, BOARD_ST_SERIAL_PIN_MAPPING_RX, BOARD_ST_SERIAL_PIN_MAPPING_TX);
 #elif defined(USE_SERIAL_STREAM) & !defined(USE_SOFTWARE_SERIAL)
-  BOARD_ST_SERIAL_STREAM.begin(BOARD_ST_SERIAL_STREAM_BAUDRATE);
+    BOARD_ST_SERIAL_STREAM.begin(BOARD_ST_SERIAL_STREAM_BAUDRATE);
 #endif
-  debugPrintf(true, Text::setupWithName, "Solar Charge Controller");
-  Controller::getInstance().setup(new SOLAR_TRACER_INSTANCE, new SimpleTimer());
-  debugPrint("Connection Test: ");
-  uint8_t attemptControllerConnectionCount;
-  for (attemptControllerConnectionCount = 1; attemptControllerConnectionCount < 4; attemptControllerConnectionCount++)
-  {
-    if (Controller::getInstance().getSolarController()->testConnection())
-    {
-      break;
+    debugPrintf(true, Text::setupWithName, "Solar Charge Controller");
+    Controller::getInstance().setup(new SOLAR_TRACER_INSTANCE, new SimpleTimer());
+    debugPrint("Connection Test: ");
+    uint8_t attemptControllerConnectionCount;
+    for (attemptControllerConnectionCount = 1; attemptControllerConnectionCount < 4; attemptControllerConnectionCount++) {
+        if (Controller::getInstance().getSolarController()->testConnection()) {
+            break;
+        }
+        debugPrint(Text::dot);
+        delay(1000);
     }
-    debugPrint(Text::dot);
-    delay(1000);
-  }
 
-  switch (attemptControllerConnectionCount)
-  {
-  case 1:
-    debugPrintln(Text::ok);
-    break;
-  case 4:
-    debugPrintf(true, Text::errorWithCodeInt, STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION, Controller::getInstance().getSolarController()->getLastControllerCommunicationStatus());
-    break;
-  default:
-    debugPrintf(true, "OK [attempt=%i]", attemptControllerConnectionCount);
-  }
+    switch (attemptControllerConnectionCount) {
+        case 1:
+            debugPrintln(Text::ok);
+            break;
+        case 4:
+            debugPrintf(true, Text::errorWithCodeInt, STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION, Controller::getInstance().getSolarController()->getLastControllerCommunicationStatus());
+            break;
+        default:
+            debugPrintf(true, "OK [attempt=%i]", attemptControllerConnectionCount);
+    }
 
 #ifdef USE_EXTERNAL_HEAVY_LOAD_CURRENT_METER
-  LoadCurrentOverwrite::setup(Controller::getInstance().getSolarController());
-  Controller::getInstance().getSolarController()->setOnUpdateRunCompleted([]()
-                                                                          { LoadCurrentOverwrite::overWrite(Controller::getInstance().getSolarController()); });
+    LoadCurrentOverwrite::setup(Controller::getInstance().getSolarController());
+    Controller::getInstance().getSolarController()->setOnUpdateRunCompleted([]() { LoadCurrentOverwrite::overWrite(Controller::getInstance().getSolarController()); });
 #endif
 
 #ifdef USE_NTP_SERVER
-  debugPrintf(true, Text::setupWithName, "Local Time");
-  if (Datetime::setupDatetimeFromNTP())
-  {
-
-    struct tm *ti = Datetime::getMyNowTm();
-    debugPrintf(true, "My NOW is: %i-%02i-%02i %02i:%02i:%02i", ti->tm_year + 1900, ti->tm_mon + 1, ti->tm_mday, ti->tm_hour, ti->tm_min, ti->tm_sec);
-  }
+    debugPrintf(true, Text::setupWithName, "Local Time");
+    if (Datetime::setupDatetimeFromNTP()) {
+        struct tm *ti = Datetime::getMyNowTm();
+        debugPrintf(true, "My NOW is: %i-%02i-%02i %02i:%02i:%02i", ti->tm_year + 1900, ti->tm_mon + 1, ti->tm_mday, ti->tm_hour, ti->tm_min, ti->tm_sec);
+    }
 #endif
 #if defined USE_BLYNK
-  BlynkSync::getInstance().setup();
+    BlynkSync::getInstance().setup();
 #endif
 #if defined USE_MQTT && !defined USE_MQTT_HOME_ASSISTANT
-  MqttSync::getInstance().setup();
+    MqttSync::getInstance().setup();
 #endif
 #if defined USE_MQTT_HOME_ASSISTANT
-  MqttHASync::getInstance().setup();
+    MqttHASync::getInstance().setup();
 #endif
 
-  debugPrintf(true, Text::setupWithName, "Solar controller");
+    debugPrintf(true, Text::setupWithName, "Solar controller");
 #ifdef SYNC_ST_TIME
-  debugPrintln("Synchronize NTP time with controller");
-  if (Datetime::getMyNowTm() != nullptr)
-  {
-    Controller::getInstance().getSolarController()->syncRealtimeClock(Datetime::getMyNowTm());
-  }
-  delay(500);
+    debugPrintln("Synchronize NTP time with controller");
+    if (Datetime::getMyNowTm() != nullptr) {
+        Controller::getInstance().getSolarController()->syncRealtimeClock(Datetime::getMyNowTm());
+    }
+    delay(500);
 #endif
 
-  debugPrintln("Get all values");
-  Controller::getInstance().getSolarController()->fetchAllValues();
+    debugPrintln("Get all values");
+    Controller::getInstance().getSolarController()->fetchAllValues();
 
-  delay(1000);
-  debugPrintln("Sync all values");
-  uploadRealtimeAll();
-  uploadStatsAll();
-  delay(1000);
+    delay(1000);
+    debugPrintln("Sync all values");
+    uploadRealtimeAll();
+    uploadStatsAll();
+    delay(1000);
 
-  // periodically refresh tracer values
-  Controller::getInstance().getMainTimer()->setInterval(CONTROLLER_UPDATE_MS_PERIOD, []()
-                                                        {
+    // periodically refresh tracer values
+    Controller::getInstance().getMainTimer()->setInterval(CONTROLLER_UPDATE_MS_PERIOD, []() {
                                                           debugPrint("Update Solar-Tracer ");
                                                           if (Controller::getInstance().getSolarController()->updateRun())
                                                           {
@@ -347,15 +311,15 @@ void setup()
                                                             debugPrintf(true, Text::errorWithCodeInt, STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION, Controller::getInstance().getSolarController()->getLastControllerCommunicationStatus());
                                                             Controller::getInstance().setErrorFlag(STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION, true);
                                                           } });
-  // periodically send STATS all value to blynk
-  Controller::getInstance().getMainTimer()->setInterval(SYNC_STATS_MS_PERIOD, uploadStatsAll);
-  // periodically send REALTIME  value to blynk
-  Controller::getInstance().getMainTimer()->setInterval(SYNC_REALTIME_MS_PERIOD, uploadRealtimeAll);
+    // periodically send STATS all value to blynk
+    Controller::getInstance().getMainTimer()->setInterval(SYNC_STATS_MS_PERIOD, uploadStatsAll);
+    // periodically send REALTIME  value to blynk
+    Controller::getInstance().getMainTimer()->setInterval(SYNC_REALTIME_MS_PERIOD, uploadRealtimeAll);
 
-  debugPrintln();
+    debugPrintln();
 
-  Controller::getInstance().setErrorFlag(STATUS_RUN_BOOTING, false);
+    Controller::getInstance().setErrorFlag(STATUS_RUN_BOOTING, false);
 #ifdef USE_STATUS_LED
-  ledSetupStop();
+    ledSetupStop();
 #endif
 }

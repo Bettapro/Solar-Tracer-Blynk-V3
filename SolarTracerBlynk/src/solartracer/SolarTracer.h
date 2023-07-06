@@ -26,102 +26,94 @@
 
 typedef void (*OnUpdateRunCompletedCallback)();
 
-struct SolarTracerVariableDefinition
-{
-  /**
-   *  byte 0 - enabled
-   *  byte 1 - ready
-   *  byte 2 - overwritten
-   */
-  uint8_t status;
-  void *value;
+struct SolarTracerVariableDefinition {
+        /**
+         *  byte 0 - enabled
+         *  byte 1 - ready
+         *  byte 2 - overwritten
+         */
+        uint8_t status;
+        void *value;
 };
 
-class SolarTracer
-{
-public:
-  SolarTracer();
+class SolarTracer {
+    public:
+        SolarTracer();
 
-  /**
-   * Check if the variable is supporter by the SCC
-   */
-  bool isVariableEnabled(Variable variable);
+        /**
+         * Check if the variable is supporter by the SCC
+         */
+        bool isVariableEnabled(Variable variable);
 
-  /**
-   * Check if variable is ready to be read (value has been fetched from the scc)
-   */
-  bool isVariableReadReady(Variable variable);
+        /**
+         * Check if variable is ready to be read (value has been fetched from the scc)
+         */
+        bool isVariableReadReady(Variable variable);
 
-  /**
-   * Check if variable has been overwritten
-   */
-  bool isVariableOverWritten(Variable variable);
+        /**
+         * Check if variable has been overwritten
+         */
+        bool isVariableOverWritten(Variable variable);
 
-  /**
-   * Set variable as overwritten (not managed by the scc)
-  */
-  void setVariableOverWritten(Variable variable, bool enable);
+        /**
+         * Set variable as overwritten (not managed by the scc)
+         */
+        void setVariableOverWritten(Variable variable, bool enable);
 
-  /**
-   * Get the value of the variable, null if variable is not ready
-  */
-  virtual const void *getValue(Variable variable);
+        /**
+         * Get the value of the variable, null if variable is not ready
+         */
+        virtual const void *getValue(Variable variable);
 
-  /**
-   * Set the value of the variable
-  */
-  bool setVariableValue(Variable variable, const void *value, bool ignoreOverWriteLock = false);
+        /**
+         * Set the value of the variable
+         */
+        bool setVariableValue(Variable variable, const void *value, bool ignoreOverWriteLock = false);
 
-  void setOnUpdateRunCompleted(OnUpdateRunCompletedCallback fn)
-  {
-    this->onUpdateRunCompleted = fn;
-  }
+        void setOnUpdateRunCompleted(OnUpdateRunCompletedCallback fn) {
+            this->onUpdateRunCompleted = fn;
+        }
 
-  /**
-   * Return last status code, 0 means the controller is responding to requests correctly.
-   */
-  inline const uint16_t getLastControllerCommunicationStatus();
+        /**
+         * Return last status code, 0 means the controller is responding to requests correctly.
+         */
+        inline const uint16_t getLastControllerCommunicationStatus();
 
-  virtual bool fetchValue(Variable variable) = 0;
-  virtual bool syncRealtimeClock(struct tm *ti) = 0;
-  virtual void fetchAllValues() = 0;
-  virtual bool updateRun() = 0;
-  virtual bool writeValue(Variable variable, const void *value) = 0;
-  virtual bool testConnection() = 0;
+        virtual bool fetchValue(Variable variable) = 0;
+        virtual bool syncRealtimeClock(struct tm *ti) = 0;
+        virtual void fetchAllValues() = 0;
+        virtual bool updateRun() = 0;
+        virtual bool writeValue(Variable variable, const void *value) = 0;
+        virtual bool testConnection() = 0;
 
-protected:
-  inline bool setFloatVariable(Variable variable, float value);
+    protected:
+        inline bool setFloatVariable(Variable variable, float value);
 
-  void updateRunCompleted()
-  {
-    if (this->onUpdateRunCompleted)
-    {
-      this->onUpdateRunCompleted();
-    }
-  }
+        void updateRunCompleted() {
+            if (this->onUpdateRunCompleted) {
+                this->onUpdateRunCompleted();
+            }
+        }
 
+        void setVariableEnable(Variable variable, bool enable = true);
 
-  void setVariableEnable(Variable variable, bool enable = true);
+        void setVariableReadReady(Variable variable, bool enable);
 
-  void setVariableReadReady(Variable variable, bool enable);
+        void setVariableReadReady(uint8_t count, bool ready, ...);
 
-  void setVariableReadReady(uint8_t count, bool ready, ...);
+        uint16_t lastControllerCommunicationStatus;
 
-  uint16_t lastControllerCommunicationStatus;
-
-private:
-  OnUpdateRunCompletedCallback onUpdateRunCompleted = nullptr;
-  SolarTracerVariableDefinition **variableDefine;
+    private:
+        OnUpdateRunCompletedCallback onUpdateRunCompleted = nullptr;
+        SolarTracerVariableDefinition **variableDefine;
 };
 
-inline const uint16_t SolarTracer::getLastControllerCommunicationStatus()
-{
-  return this->lastControllerCommunicationStatus;
+inline const uint16_t SolarTracer::getLastControllerCommunicationStatus() {
+    return this->lastControllerCommunicationStatus;
 }
 
-inline bool SolarTracer::setFloatVariable(Variable variable, float value)
-{
-  return this->setVariableValue(variable, &value);
+inline bool SolarTracer::setFloatVariable(Variable variable, float value) {
+    return this->setVariableValue(variable, &value);
 }
 
 #endif

@@ -2,8 +2,7 @@
 
 struct EnvironrmentData Environment::envData;
 
-void Environment::loadEnvData()
-{
+void Environment::loadEnvData() {
     envData.serialDebug = true;
     // default from config.h
     strcpy(envData.wifiSSID, WIFI_SSID);
@@ -59,38 +58,30 @@ void Environment::loadEnvData()
     // END OF LOAD FROM config.h
 
 #if defined USE_WIFI_AP_CONFIGURATION
-    if(!LittleFS.begin()){
+    if (!LittleFS.begin()) {
         LittleFS.format();
     }
     // load from file
-    if (!LittleFS.exists(CONFIG_PERSISTENCE))
-    {
+    if (!LittleFS.exists(CONFIG_PERSISTENCE)) {
         // no file found
         debugPrintln("No configuration file found");
-    }
-    else
-    {
+    } else {
         debugPrintln("Restoring configuration from file");
         // file exists, reading and loading
         File configFile = LittleFS.open(CONFIG_PERSISTENCE, "r");
-        if (!configFile)
-        {
+        if (!configFile) {
             debugPrintln("ERROR: cannot open config file");
-        }
-        else
-        {
+        } else {
             size_t size = configFile.size();
             DynamicJsonDocument doc(size * 3);
             DeserializationError error = deserializeJson(doc, configFile);
-            if (error)
-            {
+            if (error) {
                 debugPrintln("ERROR: Cannot deserialize settings from file");
                 debugPrintln(error.c_str());
-            }
-            else
-            {
-                if (doc.containsKey(CONFIG_SERIAL_DEBUG))
+            } else {
+                if (doc.containsKey(CONFIG_SERIAL_DEBUG)) {
                     envData.serialDebug = doc[CONFIG_SERIAL_DEBUG];
+                }
 
                 loadStringToEnvIfExist(doc, CONFIG_WIFI_SSID, envData.wifiSSID);
                 loadStringToEnvIfExist(doc, CONFIG_WIFI_PASSWORD, envData.wifiPassword);
@@ -109,8 +100,9 @@ void Environment::loadEnvData()
 #ifndef USE_BLYNK_2
                 loadStringToEnvIfExist(doc, CONFIG_BLYNK_HOSTNAME, envData.blynkServerHostname);
 
-                if (doc.containsKey(CONFIG_BLYNK_PORT))
+                if (doc.containsKey(CONFIG_BLYNK_PORT)) {
                     envData.blynkServerPort = doc[CONFIG_BLYNK_PORT];
+                }
 #endif
 #endif
 #ifdef USE_MQTT
@@ -143,18 +135,14 @@ void Environment::loadEnvData()
 #endif
 }
 
-void Environment::loadStringToEnvIfExist(DynamicJsonDocument doc, const char *envKey, char *envValue)
-{
-    if (doc.containsKey(envKey))
-        strcpy(envValue, doc[envKey]);
+void Environment::loadStringToEnvIfExist(DynamicJsonDocument doc, const char *envKey, char *envValue) {
+    if (doc.containsKey(envKey)) strcpy(envValue, doc[envKey]);
 }
 
-void Environment::resetEnvData()
-{
+void Environment::resetEnvData() {
     LittleFS.begin();
     // load from file
-    if (LittleFS.exists(CONFIG_PERSISTENCE))
-    {
+    if (LittleFS.exists(CONFIG_PERSISTENCE)) {
         LittleFS.remove(CONFIG_PERSISTENCE);
     }
     LittleFS.end();

@@ -24,15 +24,14 @@
 
 #include "../incl/include_all_core.h"
 
-
 #define DEBUG_REGISTER_CALLBACKS_MAX 2
 
 bool debugEnabled = true;
 
-void setDebugEnabled(bool enabled)  {
+void setDebugEnabled(bool enabled)
+{
     debugEnabled = enabled;
 }
-
 
 uint8_t regCallbacksIndex = 0;
 void (*regCallbacks[DEBUG_REGISTER_CALLBACKS_MAX])(String);
@@ -45,18 +44,22 @@ void debugAddRegisterCallback(void (*regCallback)(String))
     }
 }
 
-void debugDispactMessageRegisterCallback(String msg){
-    for(uint8_t index = 0; index < regCallbacksIndex; index ++){
+void debugDispactMessageRegisterCallback(String msg)
+{
+    for (uint8_t index = 0; index < regCallbacksIndex; index++)
+    {
         (*regCallbacks[index])(msg);
     }
 }
 
 void debugPrint(String message)
 {
-   if(debugEnabled){
+    if (debugEnabled)
+    {
         BOARD_DEBUG_SERIAL_STREAM.print(message);
-   }
-    for(uint8_t index = 0; index < regCallbacksIndex; index ++){
+    }
+    for (uint8_t index = 0; index < regCallbacksIndex; index++)
+    {
         (*regCallbacks[index])(message);
     }
 }
@@ -68,7 +71,7 @@ void debugPrintln()
 
 void debugPrintln(String msgString)
 {
-    debugPrint(msgString +"\r\n");
+    debugPrint(msgString + "\r\n");
 }
 
 void debugPrintln(const char *msgChar)

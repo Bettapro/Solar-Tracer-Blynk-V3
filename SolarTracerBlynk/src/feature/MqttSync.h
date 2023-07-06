@@ -25,44 +25,42 @@
 
 #if defined(USE_MQTT) && !defined(USE_MQTT_HOME_ASSISTANT)
 
-#include "../incl/include_all_lib.h"
 #include "../core/BaseSync.h"
-#include "../core/VariableDefiner.h"
 #include "../core/Controller.h"
+#include "../core/VariableDefiner.h"
+#include "../incl/include_all_lib.h"
 
-class MqttSync : public BaseSync
-{
-public:
-    static MqttSync &getInstance()
-    {
-        static MqttSync instance;
-        return instance;
-    }
+class MqttSync : public BaseSync {
+    public:
+        static MqttSync &getInstance() {
+            static MqttSync instance;
+            return instance;
+        }
 
-    void setup();
-    void connect();
-    void loop();
-    inline bool isVariableAllowed(const VariableDefinition *def);
-    bool sendUpdateToVariable(const VariableDefinition * def, const void *value);
-    // upload values stats
-    void uploadStatsToMqtt();
-    // upload values realtime
-    void uploadRealtimeToMqtt();
+        void setup();
+        void connect();
+        void loop();
+        inline bool isVariableAllowed(const VariableDefinition *def);
+        bool sendUpdateToVariable(const VariableDefinition *def, const void *value);
+        // upload values stats
+        void uploadStatsToMqtt();
+        // upload values realtime
+        void uploadRealtimeToMqtt();
 
-private:
-    MqttSync();
+    private:
+        MqttSync();
 
-    bool attemptMqttSyncConnect();
+        bool attemptMqttSyncConnect();
 
-    PubSubClient* mqttClient;
+        PubSubClient *mqttClient;
 
-char mqttPublishBuffer[20];
+        char mqttPublishBuffer[20];
 
 #if defined(USE_MQTT_RPC_SUBSCRIBE) || defined(USE_MQTT_JSON_PUBLISH)
-DynamicJsonDocument syncJson(1024);
+        DynamicJsonDocument syncJson(1024);
 #endif
 
-    bool initialized;
+        bool initialized;
 };
 
 #endif

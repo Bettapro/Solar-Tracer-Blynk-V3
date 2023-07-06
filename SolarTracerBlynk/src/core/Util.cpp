@@ -25,47 +25,39 @@
 
 #define UTIL_MAX_DEC_DIV 1000
 
-
-uint8_t Util::digits(int number){
+uint8_t Util::digits(int number) {
     if (number < 0) return Util::digits(-number);
     if (number < 10) return 1;
     return 1 + Util::digits(number / 10);
 }
 
-char * Util::sharedBuffer = new char[256];
+char *Util::sharedBuffer = new char[256];
 
-char *Util::intToChar(int v, char *buf)
-{
+char *Util::intToChar(int v, char *buf) {
     itoa(v, buf, 10);
     return buf;
 }
 
-char *Util::floatToChar(float v, char *buf)
-{
+char *Util::floatToChar(float v, char *buf) {
     uint8_t index = 0;
-    if(v < 0){
+    if (v < 0) {
         buf[index++] = '-';
     }
 
-    int iValue= (int) v;
+    int iValue = (int)v;
     int dValue = (v - iValue) * UTIL_MAX_DEC_DIV;
     dValue = dValue < 0 ? -dValue : dValue;
 
     itoa(iValue, buf + index, 10);
     index += Util::digits(iValue);
 
-
-    if(dValue >= 1){
+    if (dValue >= 1) {
         buf[index++] = '.';
-        int decMissPosition = Util::digits(UTIL_MAX_DEC_DIV)- Util::digits(dValue);
-        while (--decMissPosition > 0)
-        {
+        int decMissPosition = Util::digits(UTIL_MAX_DEC_DIV) - Util::digits(dValue);
+        while (--decMissPosition > 0) {
             buf[index++] = '0';
         }
         itoa(dValue, buf + index, 10);
-        
     }
     return buf;
 }
-
-

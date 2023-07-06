@@ -21,73 +21,61 @@
 
 #include "BaseSync.h"
 
-#include "../core/debug.h"
-#include "../core/VariableDefiner.h"
 #include "../core/Controller.h"
+#include "../core/VariableDefiner.h"
+#include "../core/debug.h"
 
 #define VALUE_CACHES_UNTIL_COUNT 100;
 
-BaseSync::BaseSync()
-{
+BaseSync::BaseSync() {
     this->renewValuesCount = new uint8_t[Variable::VARIABLES_COUNT]();
-    this->lastValuesCache = new void*[Variable::VARIABLES_COUNT]();
+    this->lastValuesCache = new void *[Variable::VARIABLES_COUNT]();
 
     uint8_t varSize;
-    for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++)
-    {
+    for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++) {
         this->renewValuesCount[index] = 0;
         varSize = VariableDefiner::getInstance().getVariableSize((Variable)index);
-        if (varSize > 0)
-        {
+        if (varSize > 0) {
             this->lastValuesCache[index] = malloc(varSize);
             memset(this->lastValuesCache[index], 0, varSize);
         }
     }
 }
 
-void BaseSync::applyUpdateToVariable(Variable variable, const void *value, bool silent)
-{
+void BaseSync::applyUpdateToVariable(Variable variable, const void *value, bool silent) {
     SolarTracer *solarT = Controller::getInstance().getSolarController();
     const VariableDefinition *def = VariableDefiner::getInstance().getDefinition(variable);
-    if (def != nullptr)
-    {
-        if (!silent)
-        {
+    if (def != nullptr) {
+        if (!silent) {
             debugPrint("WRITE REQUEST ");
-            switch (def->datatype)
-            {
-            case VariableDatatype::DT_FLOAT:
-                debugPrintf(false, "\"%s\" to %.4f ", def->text, *(const float *)value);
-                break;
-            case VariableDatatype::DT_BOOL:
-                debugPrintf(false, "\"%s\" to %i ", def->text, *(const bool *)value);
-                break;
-            case VariableDatatype::DT_STRING:
-                debugPrintf(false, "\"%s\" to \"%s\" ", def->text, (const char *)value);
-                break;
+            switch (def->datatype) {
+                case VariableDatatype::DT_FLOAT:
+                    debugPrintf(false, "\"%s\" to %.4f ", def->text, *(const float *)value);
+                    break;
+                case VariableDatatype::DT_BOOL:
+                    debugPrintf(false, "\"%s\" to %i ", def->text, *(const bool *)value);
+                    break;
+                case VariableDatatype::DT_STRING:
+                    debugPrintf(false, "\"%s\" to \"%s\" ", def->text, (const char *)value);
+                    break;
             }
         }
         bool writeDone = solarT->writeValue(variable, value);
-        if (!silent)
-        {
+        if (!silent) {
             writeDone ? debugPrintln(Text::ok) : debugPrintf(true, Text::errorWithCode, solarT->getLastControllerCommunicationStatus());
         }
     }
 }
 
-uint8_t BaseSync::sendUpdateAllBySource(VariableSource allowedSource, bool silent)
-{
+uint8_t BaseSync::sendUpdateAllBySource(VariableSource allowedSource, bool silent) {
     SolarTracer *solarT = Controller::getInstance().getSolarController();
     uint8_t varNotReady = 0;
     const VariableDefinition *def;
 
-    for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++)
-    {
+    for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++) {
         def = VariableDefiner::getInstance().getDefinition((Variable)index);
-        if (def->source == allowedSource && this->isVariableAllowed(def) && (solarT->isVariableEnabled(def->variable) || solarT->isVariableOverWritten(def->variable)))
-        {
-            if (!solarT->isVariableReadReady(def->variable) || !this->syncVariable(def, solarT->getValue(def->variable)))
-            {
+        if (def->source == allowedSource && this->isVariableAllowed(def) && (solarT->isVariableEnabled(def->variable) || solarT->isVariableOverWritten(def->variable))) {
+            if (!solarT->isVariableReadReady(def->variable) || !this->syncVariable(def, solarT->getValue(def->variable))) {
 #ifdef USE_DEBUG_SERIAL_VERBOSE_SYNC_ERROR_VARIABLE
                 debugPrintf(true, Text::syncErrorWithVariable, def->text);
 #endif
@@ -96,8 +84,7 @@ uint8_t BaseSync::sendUpdateAllBySource(VariableSource allowedSource, bool silen
         }
     }
 
-    if (!silent && varNotReady > 0)
-    {
+    if (!silent && varNotReady > 0) {
         debugPrintf(true, Text::syncErrorWithCountAndType, varNotReady, allowedSource == VariableSource::SR_STATS ? "ST" : "RT");
     }
     Controller::getInstance().setErrorFlag(allowedSource == VariableSource::SR_STATS ? STATUS_ERR_SOLAR_TRACER_NO_SYNC_ST : STATUS_ERR_SOLAR_TRACER_NO_SYNC_RT, varNotReady > 0);
@@ -105,22 +92,17 @@ uint8_t BaseSync::sendUpdateAllBySource(VariableSource allowedSource, bool silen
     return varNotReady;
 }
 
-bool BaseSync::syncVariable(const VariableDefinition *def, const void *value)
-{
+bool BaseSync::syncVariable(const VariableDefinition *def, const void *value) {
     uint8_t *cachedUntil = &(this->renewValuesCount[def->variable]);
-    if (this->isVariableAllowed(def))
-    {
+    if (this->isVariableAllowed(def)) {
         if (!(
-                this->renewValueCount == 1
-                || (*cachedUntil) <= 0                                                                                  // sync always enabled?
-                || !VariableDefiner::getInstance().isValueEqual(def->variable, value, this->lastValuesCache[def->variable]) // value has changed?
-                || (this->renewValueCount > 1 && ((*cachedUntil)--) <= 0)                                                     // renew required?
-                )                                                                                                           // -> should sync evaluation?
-            || this->sendUpdateToVariable(def, value))
-        {
+                this->renewValueCount == 1 || (*cachedUntil) <= 0                                                            // sync always enabled?
+                || !VariableDefiner::getInstance().isValueEqual(def->variable, value, this->lastValuesCache[def->variable])  // value has changed?
+                || (this->renewValueCount > 1 && ((*cachedUntil)--) <= 0)                                                    // renew required?
+                )                                                                                                            // -> should sync evaluation?
+            || this->sendUpdateToVariable(def, value)) {
             memcpy(this->lastValuesCache[def->variable], value, VariableDefiner::getInstance().getVariableSize(def->variable));
-            if (this->renewValueCount > 1 || (*cachedUntil) <= 0)
-            {
+            if (this->renewValueCount > 1 || (*cachedUntil) <= 0) {
                 (*cachedUntil) = this->renewValueCount + 1;
             }
             return true;

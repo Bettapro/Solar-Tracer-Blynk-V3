@@ -22,73 +22,62 @@
 #ifndef DUMMYSOLARTRACER_H
 #define DUMMYSOLARTRACER_H
 
-#include "../SolarTracer.h"
 #include "../../core/VariableDefiner.h"
+#include "../SolarTracer.h"
 
-class DummySolarTracer : public SolarTracer
-{
-public:
-    DummySolarTracer() : SolarTracer()
-    {
-        this->dummyTextValue = new char[20];
+class DummySolarTracer : public SolarTracer {
+    public:
+        DummySolarTracer() : SolarTracer() {
+            this->dummyTextValue = new char[20];
 
-        bool enabled;
-        for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++)
-        {
-            if (VariableDefiner::getInstance().isFromScc((Variable)index))
-            {
-                this->setVariableEnable((Variable)index, true);
-                this->setVariableReadReady((Variable)index, true);
+            bool enabled;
+            for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++) {
+                if (VariableDefiner::getInstance().isFromScc((Variable)index)) {
+                    this->setVariableEnable((Variable)index, true);
+                    this->setVariableReadReady((Variable)index, true);
+                }
             }
+        };
+
+        virtual bool fetchValue(Variable variable) {
+            return true;
+        };
+        virtual bool syncRealtimeClock(struct tm *ti) {
+            return true;
         }
-    };
+        virtual void fetchAllValues(){};
+        virtual bool updateRun() {
+            return true;
+        };
+        virtual bool writeValue(Variable variable, const void *value) {
+            return true;
+        };
+        virtual bool testConnection() {
+            return true;
+        };
 
-    virtual bool fetchValue(Variable variable)
-    {
-        return true;
-    };
-    virtual bool syncRealtimeClock(struct tm *ti)
-    {
-        return true;
-    }
-    virtual void fetchAllValues(){};
-    virtual bool updateRun()
-    {
-        return true;
-    };
-    virtual bool writeValue(Variable variable, const void *value)
-    {
-        return true;
-    };
-    virtual bool testConnection()
-    {
-        return true;
-    };
-
-    virtual const void *getValue(Variable variable)
-    {
-        switch (VariableDefiner::getInstance().getDatatype(variable))
-        {
-        case VariableDatatype::DT_BOOL:
-            this->dummyBoolValue = random(2) > 0;
-            return &this->dummyBoolValue;
-        case VariableDatatype::DT_FLOAT:
-            this->dummyFloatValue = random(10000) / 100.00;
-            return &this->dummyFloatValue;
-        case VariableDatatype::DT_STRING:
-            strcpy(this->dummyTextValue, "Text");
-            return this->dummyTextValue;
-        case VariableDatatype::DT_UINT16:
-            this->dummyUInt16 = random(100) > 0;
-            return &this->dummyUInt16;
+        virtual const void *getValue(Variable variable) {
+            switch (VariableDefiner::getInstance().getDatatype(variable)) {
+                case VariableDatatype::DT_BOOL:
+                    this->dummyBoolValue = random(2) > 0;
+                    return &this->dummyBoolValue;
+                case VariableDatatype::DT_FLOAT:
+                    this->dummyFloatValue = random(10000) / 100.00;
+                    return &this->dummyFloatValue;
+                case VariableDatatype::DT_STRING:
+                    strcpy(this->dummyTextValue, "Text");
+                    return this->dummyTextValue;
+                case VariableDatatype::DT_UINT16:
+                    this->dummyUInt16 = random(100) > 0;
+                    return &this->dummyUInt16;
+            }
+            return nullptr;
         }
-        return nullptr;
-    }
 
-private:
-    bool dummyBoolValue;
-    float dummyFloatValue;
-    char *dummyTextValue;
-    uint16_t dummyUInt16;
+    private:
+        bool dummyBoolValue;
+        float dummyFloatValue;
+        char *dummyTextValue;
+        uint16_t dummyUInt16;
 };
 #endif

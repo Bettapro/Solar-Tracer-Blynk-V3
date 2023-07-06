@@ -24,107 +24,100 @@
 
 #include <ModbusMaster.h>
 #include <ModbusMasterCallable.h>
-#include "../SolarTracer.h"
 #include <time.h>
 
-class EPEVERSolarTracer : public SolarTracer, public ModbusMasterCallable
-{
-public:
-  EPEVERSolarTracer(Stream &serialCom, uint16_t serialTimeoutMs, uint8_t slave, uint8_t max485_de, uint8_t max485_re_neg, uint16_t preTransmitWait);
-  EPEVERSolarTracer(Stream &serialCom, uint16_t serialTimeoutMs, uint8_t slave, uint16_t preTransmitWait);
+#include "../SolarTracer.h"
 
-  virtual bool syncRealtimeClock(struct tm *ti);
+class EPEVERSolarTracer : public SolarTracer, public ModbusMasterCallable {
+    public:
+        EPEVERSolarTracer(Stream &serialCom, uint16_t serialTimeoutMs, uint8_t slave, uint8_t max485_de, uint8_t max485_re_neg, uint16_t preTransmitWait);
+        EPEVERSolarTracer(Stream &serialCom, uint16_t serialTimeoutMs, uint8_t slave, uint16_t preTransmitWait);
 
-  virtual void fetchAllValues();
+        virtual bool syncRealtimeClock(struct tm *ti);
 
-  virtual bool updateRun();
+        virtual void fetchAllValues();
 
-  virtual bool fetchValue(Variable variable);
+        virtual bool updateRun();
 
-  virtual bool writeValue(Variable variable, const void *value);
+        virtual bool fetchValue(Variable variable);
 
-  bool readControllerSingleCoil(uint16_t address);
+        virtual bool writeValue(Variable variable, const void *value);
 
-  void AddressRegistry_3100();
+        bool readControllerSingleCoil(uint16_t address);
 
-  void AddressRegistry_3110();
+        void AddressRegistry_3100();
 
-  void AddressRegistry_311A();
+        void AddressRegistry_3110();
 
-  void AddressRegistry_331B();
+        void AddressRegistry_311A();
 
-  void AddressRegistry_9003();
+        void AddressRegistry_331B();
 
-  void AddressRegistry_9067();
+        void AddressRegistry_9003();
 
-  void AddressRegistry_906B();
+        void AddressRegistry_9067();
 
-  void fetchAddressStatusVariables();
+        void AddressRegistry_906B();
 
-  void updateStats();
+        void fetchAddressStatusVariables();
 
-  /*
-       Implementation of ModbusMasterCallable
-    */
-  virtual void onModbusPreTransmission();
+        void updateStats();
 
-  virtual void onModbusIdle();
+        /*
+             Implementation of ModbusMasterCallable
+          */
+        virtual void onModbusPreTransmission();
 
-  virtual void onModbusPostTransmission();
+        virtual void onModbusIdle();
 
-  virtual bool testConnection();
+        virtual void onModbusPostTransmission();
 
-protected:
-  uint8_t max485_re_neg, max485_de;
-  uint16_t preTransmitWaitMs;
+        virtual bool testConnection();
 
-  bool rs485readSuccess;
+    protected:
+        uint8_t max485_re_neg, max485_de;
+        uint16_t preTransmitWaitMs;
 
-  uint16_t globalUpdateCounter = 0;
-  uint8_t currentRealtimeUpdateCounter = 0;
+        bool rs485readSuccess;
 
-  ModbusMaster node;
+        uint16_t globalUpdateCounter = 0;
+        uint8_t currentRealtimeUpdateCounter = 0;
 
-  // MODBUS FUNCTION
+        ModbusMaster node;
 
-  bool writeControllerSingleCoil(uint16_t address, bool value);
-  bool writeControllerHoldingRegister(uint16_t address, uint16_t value);
-  bool replaceControllerHoldingRegister(uint16_t address, uint16_t value, uint16_t fromAddress, uint8_t count);
+        // MODBUS FUNCTION
 
-  static constexpr const float ONE_HUNDRED_FLOAT = 100;
- 
-private:
-  static const uint8_t voltageLevels[];
+        bool writeControllerSingleCoil(uint16_t address, bool value);
+        bool writeControllerHoldingRegister(uint16_t address, uint16_t value);
+        bool replaceControllerHoldingRegister(uint16_t address, uint16_t value, uint16_t fromAddress, uint8_t count);
 
-  void onPreNodeRequest()
-  {
-    if (this->preTransmitWaitMs > 0)
-    {
-      delay(this->preTransmitWaitMs);
-    }
-  }
+        static constexpr const float ONE_HUNDRED_FLOAT = 100;
 
-  static uint16_t getBatteryVoltageLevelFromVoltage(uint16_t voltage)
-  {
-    uint8_t index = 0;
-    while (true)
-    {
-      if (voltageLevels[index] == 0)
-      {
-        return 0;
-      }
-      if (voltageLevels[index] == voltage)
-      {
-        return index + 1;
-      }
-      index++;
-    }
-  }
+    private:
+        static const uint8_t voltageLevels[];
 
-  static uint16_t getVoltageFromBatteryVoltageLevel(uint16_t index)
-  {
-    return voltageLevels[index];
-  }
+        void onPreNodeRequest() {
+            if (this->preTransmitWaitMs > 0) {
+                delay(this->preTransmitWaitMs);
+            }
+        }
+
+        static uint16_t getBatteryVoltageLevelFromVoltage(uint16_t voltage) {
+            uint8_t index = 0;
+            while (true) {
+                if (voltageLevels[index] == 0) {
+                    return 0;
+                }
+                if (voltageLevels[index] == voltage) {
+                    return index + 1;
+                }
+                index++;
+            }
+        }
+
+        static uint16_t getVoltageFromBatteryVoltageLevel(uint16_t index) {
+            return voltageLevels[index];
+        }
 };
 
 #endif

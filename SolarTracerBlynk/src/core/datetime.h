@@ -24,34 +24,30 @@
 #ifndef DATETIME_H
 #define DATETIME_H
 
-#include "../incl/include_all_core.h"
 #include "../core/Environment.h"
+#include "../incl/include_all_core.h"
 
-class Datetime
-{
-public:
+class Datetime {
+    public:
 #ifdef USE_NTP_SERVER
-    static bool setupDatetimeFromNTP()
-    {
-        uint8_t maxCount = 20;
-        debugPrint(Text::connecting);
-        configTzTime(Environment::getData()->ntpTimezone, Environment::getData()->ntpServer);
+        static bool setupDatetimeFromNTP() {
+            uint8_t maxCount = 20;
+            debugPrint(Text::connecting);
+            configTzTime(Environment::getData()->ntpTimezone, Environment::getData()->ntpServer);
 
-        while (time(nullptr) < 100000ul && --maxCount > 0)
-        {
-            debugPrint(Text::dot);
-            delay(500);
+            while (time(nullptr) < 100000ul && --maxCount > 0) {
+                debugPrint(Text::dot);
+                delay(500);
+            }
+            debugPrintln(maxCount > 0 ? Text::ok : Text::ko);
+            return maxCount > 0;
         }
-        debugPrintln(maxCount > 0 ? Text::ok : Text::ko);
-        return maxCount > 0;
-    }
 #endif
 
-    static struct tm *getMyNowTm()
-    {
-        time_t tnow = time(nullptr) + 1;
-        return tnow <= 100000ul ? nullptr : localtime(&tnow);
-    }
+        static struct tm *getMyNowTm() {
+            time_t tnow = time(nullptr) + 1;
+            return tnow <= 100000ul ? nullptr : localtime(&tnow);
+        }
 };
 
 #endif

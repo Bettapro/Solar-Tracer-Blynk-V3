@@ -25,42 +25,40 @@
 
 #ifdef USE_MQTT_HOME_ASSISTANT
 
-#include "../incl/include_all_lib.h"
 #include "../core/BaseSync.h"
-#include "../core/VariableDefiner.h"
 #include "../core/Controller.h"
+#include "../core/VariableDefiner.h"
+#include "../incl/include_all_lib.h"
 
-class MqttHASync : public BaseSync
-{
-public:
-    static MqttHASync &getInstance()
-    {
-        static MqttHASync instance;
-        return instance;
-    }
+class MqttHASync : public BaseSync {
+    public:
+        static MqttHASync &getInstance() {
+            static MqttHASync instance;
+            return instance;
+        }
 
-    void setup();
-    void connect();
-    void loop();
-    inline bool isVariableAllowed(const VariableDefinition *def);
-    bool sendUpdateToVariable(const VariableDefinition * def, const void *value);
-    // upload values stats
-    void uploadStatsToMqtt();
-    // upload values realtime
-    void uploadRealtimeToMqtt();
+        void setup();
+        void connect();
+        void loop();
+        inline bool isVariableAllowed(const VariableDefinition *def);
+        bool sendUpdateToVariable(const VariableDefinition *def, const void *value);
+        // upload values stats
+        void uploadStatsToMqtt();
+        // upload values realtime
+        void uploadRealtimeToMqtt();
 
-    Variable findVariableBySensor(HABaseDeviceType *haSensor);
+        Variable findVariableBySensor(HABaseDeviceType *haSensor);
 
-private:
-    MqttHASync();
+    private:
+        MqttHASync();
 
-    bool attemptMqttHASyncConnect();
+        bool attemptMqttHASyncConnect();
 
-    HADevice *device;
-    HAMqtt *mqtt;
-    HABaseDeviceType *haSensors[Variable::VARIABLES_COUNT];
+        HADevice *device;
+        HAMqtt *mqtt;
+        HABaseDeviceType *haSensors[Variable::VARIABLES_COUNT];
 
-    bool initialized;
+        bool initialized;
 };
 
 #endif

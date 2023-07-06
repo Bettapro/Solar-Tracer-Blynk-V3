@@ -21,20 +21,16 @@
 
 #include "SolarTracer.h"
 
-SolarTracer::SolarTracer()
-{
+SolarTracer::SolarTracer() {
     this->variableDefine = new SolarTracerVariableDefinition *[Variable::VARIABLES_COUNT]();
     SolarTracerVariableDefinition *value;
     uint8_t varSize;
 
-    for (uint8_t varIndex = 0; varIndex < Variable::VARIABLES_COUNT; varIndex++)
-    {
+    for (uint8_t varIndex = 0; varIndex < Variable::VARIABLES_COUNT; varIndex++) {
         value = nullptr;
-        if (VariableDefiner::getInstance().isFromScc((Variable)varIndex))
-        {
+        if (VariableDefiner::getInstance().isFromScc((Variable)varIndex)) {
             varSize = VariableDefiner::getInstance().getVariableSize((Variable)varIndex);
-            if (varSize > 0)
-            {
+            if (varSize > 0) {
                 value = new SolarTracerVariableDefinition{0, malloc(varSize)};
             }
         }
@@ -42,74 +38,59 @@ SolarTracer::SolarTracer()
     }
 }
 
-void SolarTracer::setVariableEnable(Variable variable, bool enable)
-{
-    if (variable < Variable::VARIABLES_COUNT && this->variableDefine[variable] != nullptr && this->isVariableEnabled(variable) != enable)
-    {
+void SolarTracer::setVariableEnable(Variable variable, bool enable) {
+    if (variable < Variable::VARIABLES_COUNT && this->variableDefine[variable] != nullptr && this->isVariableEnabled(variable) != enable) {
         this->variableDefine[variable]->status += enable ? 1 : -1;
     }
 }
 
-bool SolarTracer::isVariableEnabled(Variable variable)
-{
+bool SolarTracer::isVariableEnabled(Variable variable) {
     return variable < Variable::VARIABLES_COUNT && this->variableDefine[variable] != nullptr && (this->variableDefine[variable]->status & 1) > 0;
 }
 
-void SolarTracer::setVariableReadReady(Variable variable, bool enable)
-{
-    if (variable < Variable::VARIABLES_COUNT && this->isVariableReadReady(variable) != enable)
-    {
+void SolarTracer::setVariableReadReady(Variable variable, bool enable) {
+    if (variable < Variable::VARIABLES_COUNT && this->isVariableReadReady(variable) != enable) {
         this->variableDefine[variable]->status += enable ? 2 : -2;
     }
 }
 
-void SolarTracer::setVariableReadReady(uint8_t count, bool ready, ...)
-{
+void SolarTracer::setVariableReadReady(uint8_t count, bool ready, ...) {
     va_list args;
     va_start(args, ready);
 
-    for (uint8_t i = 1; i <= count; i++)
-    {
+    for (uint8_t i = 1; i <= count; i++) {
         this->setVariableReadReady((Variable)va_arg(args, int), ready);
     }
 
     va_end(args);
 }
 
-bool SolarTracer::isVariableReadReady(Variable variable)
-{
+bool SolarTracer::isVariableReadReady(Variable variable) {
     return variable < Variable::VARIABLES_COUNT && (this->variableDefine[variable]->status & 2) > 0;
 }
 
-bool SolarTracer::isVariableOverWritten(Variable variable)
-{
+bool SolarTracer::isVariableOverWritten(Variable variable) {
     return variable < Variable::VARIABLES_COUNT && this->variableDefine[variable] != nullptr && (this->variableDefine[variable]->status & 4) > 0;
 }
 
-void SolarTracer::setVariableOverWritten(Variable variable, bool enable)
-{
-    if (variable < Variable::VARIABLES_COUNT && this->isVariableOverWritten(variable) != enable)
-    {
+void SolarTracer::setVariableOverWritten(Variable variable, bool enable) {
+    if (variable < Variable::VARIABLES_COUNT && this->isVariableOverWritten(variable) != enable) {
         this->variableDefine[variable]->status += enable ? 4 : -4;
     }
 }
 
-const void *SolarTracer::getValue(Variable variable)
-{
+const void *SolarTracer::getValue(Variable variable) {
     return this->variableDefine[variable]->value;
 }
 
-bool SolarTracer::setVariableValue(Variable variable, const void *value, bool ignoreOverWriteLock)
-{
-    if(!ignoreOverWriteLock &&  this->isVariableOverWritten(variable)){
+bool SolarTracer::setVariableValue(Variable variable, const void *value, bool ignoreOverWriteLock) {
+    if (!ignoreOverWriteLock && this->isVariableOverWritten(variable)) {
         return true;
     }
     bool valueOk = value != nullptr;
-    if (valueOk)
-    {
+    if (valueOk) {
         uint8_t vSize = VariableDefiner::getInstance().getVariableSize(variable);
-        if (vSize > 0)
-        {
+        if (vSize > 0) {
             memcpy(this->variableDefine[variable]->value, value, vSize);
         }
     }

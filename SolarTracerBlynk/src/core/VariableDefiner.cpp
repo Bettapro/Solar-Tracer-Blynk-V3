@@ -20,10 +20,10 @@
  */
 
 #include "VariableDefiner.h"
+
 #include "../incl/include_all_core.h"
 
-VariableDefiner::VariableDefiner()
-{
+VariableDefiner::VariableDefiner() {
     this->variables = new VariableDefinition[Variable::VARIABLES_COUNT]();
 
     this->initializeVariable(Variable::PV_VOLTAGE, "PV volt.", VariableDatatype::DT_FLOAT, VariableUOM::UOM_VOLT, VariableSource::SR_REALTIME, VariableMode::MD_READ, vPIN_PV_VOLTAGE_DF, MQTT_TOPIC_PV_VOLTAGE_DF);
@@ -78,62 +78,48 @@ VariableDefiner::VariableDefiner()
     this->initializeVariable(Variable::BATTERY_TEMPERATURE_COMPENSATION_COEFFICIENT, "Batt. temp. compensation coeff.", VariableDatatype::DT_FLOAT, VariableUOM::UOM_UNDEFINED, VariableSource::SR_STATS, VariableMode::MD_READWRITE, vPIN_BATTERY_TEMPERATURE_COMPENSATION_COEFF_DF, MQTT_TOPIC_BATTERY_TEMPERATURE_COMPENSATION_COEFF_DF);
     this->initializeVariable(Variable::BATTERY_MANAGEMENT_MODE, "Batt. management mode", VariableDatatype::DT_UINT16, VariableUOM::UOM_UNDEFINED, VariableSource::SR_STATS, VariableMode::MD_READWRITE, vPIN_BATTERY_MANAGEMENT_MODE_DF, MQTT_TOPIC_BATTERY_MANAGEMENT_MODE_DF);
     this->initializeVariable(Variable::CONSUMED_ENERGY_TOTAL, "Energy consumed", VariableDatatype::DT_FLOAT, VariableUOM::UOM_KILOWATTHOUR, VariableSource::SR_STATS, VariableMode::MD_READ, vPIN_STAT_ENERGY_CONSUMED_TOTAL_DF, MQTT_TOPIC_STAT_ENERGY_CONSUMED_TOTAL_DF);
-
 }
 
-const VariableDefinition *VariableDefiner::getDefinitionByBlynkVPin(uint8_t pin)
-{
-    for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++)
-    {
-        if (variables[index].blynkVPin != nullptr && *(variables[index].blynkVPin) == pin)
-        {
+const VariableDefinition *VariableDefiner::getDefinitionByBlynkVPin(uint8_t pin) {
+    for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++) {
+        if (variables[index].blynkVPin != nullptr && *(variables[index].blynkVPin) == pin) {
             return &(variables[index]);
         }
     }
     return nullptr;
 }
 
-const VariableDefinition *VariableDefiner::getDefinitionByMqttTopic(const char *topic)
-{
-    for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++)
-    {
-        if (variables[index].mqttTopic != nullptr && strcmp(variables[index].mqttTopic, topic) == 0)
-        {
+const VariableDefinition *VariableDefiner::getDefinitionByMqttTopic(const char *topic) {
+    for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++) {
+        if (variables[index].mqttTopic != nullptr && strcmp(variables[index].mqttTopic, topic) == 0) {
             return &(variables[index]);
         }
     }
     return nullptr;
 }
 
-void VariableDefiner::initializeVariable(Variable variable, const char *text, VariableDatatype datatype, VariableUOM uom, VariableSource source, VariableMode mode, uint8_t *blynkPin, const char *mqttTopic)
-{
+void VariableDefiner::initializeVariable(Variable variable, const char *text, VariableDatatype datatype, VariableUOM uom, VariableSource source, VariableMode mode, uint8_t *blynkPin, const char *mqttTopic) {
     variables[variable] = {variable, text, datatype, uom, source, mode, blynkPin, mqttTopic};
 }
 
-const VariableDefinition *VariableDefiner::getDefinition(Variable variable)
-{
+const VariableDefinition *VariableDefiner::getDefinition(Variable variable) {
     return &(variables[variable]);
 }
 
-VariableDatatype VariableDefiner::getDatatype(Variable variable)
-{
+VariableDatatype VariableDefiner::getDatatype(Variable variable) {
     return variables[variable].datatype;
 }
 
-uint8_t VariableDefiner::getVariableSize(Variable variable)
-{
-    switch (this->getDatatype(variable))
-    {
-    case VariableDatatype::DT_BOOL:
-        return sizeof(bool);
-    case VariableDatatype::DT_FLOAT:
-        return sizeof(float);
-    case VariableDatatype::DT_UINT16:
-        return sizeof(uint16_t);
-    case VariableDatatype::DT_STRING:
-        return 20;
-
+uint8_t VariableDefiner::getVariableSize(Variable variable) {
+    switch (this->getDatatype(variable)) {
+        case VariableDatatype::DT_BOOL:
+            return sizeof(bool);
+        case VariableDatatype::DT_FLOAT:
+            return sizeof(float);
+        case VariableDatatype::DT_UINT16:
+            return sizeof(uint16_t);
+        case VariableDatatype::DT_STRING:
+            return 20;
     }
     return 0;
 }
-

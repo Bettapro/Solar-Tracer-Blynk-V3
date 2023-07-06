@@ -21,15 +21,12 @@
 
 #include "Controller.h"
 
-bool Controller::getErrorFlag(const uint8_t status)
-{
+bool Controller::getErrorFlag(const uint8_t status) {
     return (this->internalStatus & status) > 0;
 }
 
-void Controller::setErrorFlag(const uint8_t status, bool error)
-{
-    if (this->getErrorFlag(status) != error)
-    {
+void Controller::setErrorFlag(const uint8_t status, bool error) {
+    if (this->getErrorFlag(status) != error) {
         uint8_t tStatus = this->internalStatus + (error ? 1 : -1) * status;
 #ifdef USE_STATUS_LED
         notifyStatusLed(tStatus);

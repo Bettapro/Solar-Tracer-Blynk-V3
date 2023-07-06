@@ -28,10 +28,10 @@
 
 #ifdef USE_BLYNK
 
-#include "../incl/include_all_lib.h"
 #include "../core/BaseSync.h"
-#include "../core/VariableDefiner.h"
 #include "../core/Controller.h"
+#include "../core/VariableDefiner.h"
+#include "../incl/include_all_lib.h"
 
 #define BLYNK_CONNECT_ATTEMPT 3
 #define BLYNK_VALUE_CACHES_UNTIL_COUNT 15
@@ -40,32 +40,29 @@
 void blynkDebugCallback(String message);
 #endif
 
-class BlynkSync : public BaseSync
-{
-public:
-  static BlynkSync &getInstance()
-  {
-    static BlynkSync instance;
-    return instance;
-  }
+class BlynkSync : public BaseSync {
+    public:
+        static BlynkSync &getInstance() {
+            static BlynkSync instance;
+            return instance;
+        }
 
-  void setup();
-  void connect();
-  void loop();
-  inline bool isVariableAllowed(const VariableDefinition *def);
-  bool sendUpdateToVariable(const VariableDefinition * def, const void *value);
-  // upload values stats
-  void uploadStatsToBlynk();
-  // upload values realtime
-  void uploadRealtimeToBlynk();
+        void setup();
+        void connect();
+        void loop();
+        inline bool isVariableAllowed(const VariableDefinition *def);
+        bool sendUpdateToVariable(const VariableDefinition *def, const void *value);
+        // upload values stats
+        void uploadStatsToBlynk();
+        // upload values realtime
+        void uploadRealtimeToBlynk();
 
-private:
-  BlynkSync();
+    private:
+        BlynkSync();
 };
 
-bool BlynkSync::isVariableAllowed(const VariableDefinition *def)
-{
-  return def->blynkVPin != nullptr;
+bool BlynkSync::isVariableAllowed(const VariableDefinition *def) {
+    return def->blynkVPin != nullptr;
 }
 
 #endif

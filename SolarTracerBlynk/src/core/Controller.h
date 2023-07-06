@@ -24,61 +24,51 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
-
-#include "../solartracer/SolarTracer.h"
 #include "../incl/include_all_lib.h"
+#include "../solartracer/SolarTracer.h"
 
-class Controller
-{
-public:
-    static Controller &getInstance()
-    {
-        static Controller instance;
-        return instance;
-    }
+class Controller {
+    public:
+        static Controller &getInstance() {
+            static Controller instance;
+            return instance;
+        }
 
-    void setup(SolarTracer* tracer, SimpleTimer* timer)
-    {
-        this->mainTimer = timer;
-        this->thisController = tracer;
-    }
+        void setup(SolarTracer *tracer, SimpleTimer *timer) {
+            this->mainTimer = timer;
+            this->thisController = tracer;
+        }
 
-    void loop()
-    {
-        this->mainTimer->run();
-    }
+        void loop() {
+            this->mainTimer->run();
+        }
 
-    bool getErrorFlag(uint8_t status);
+        bool getErrorFlag(uint8_t status);
 
-    void setErrorFlag(uint8_t status, bool error);
+        void setErrorFlag(uint8_t status, bool error);
 
-    inline uint8_t getStatus();
+        inline uint8_t getStatus();
 
-    inline SolarTracer *getSolarController();
+        inline SolarTracer *getSolarController();
 
-    inline SimpleTimer *getMainTimer();
+        inline SimpleTimer *getMainTimer();
 
-private:
-    SimpleTimer *mainTimer;
-    SolarTracer *thisController;
-    uint8_t internalStatus = 0;
+    private:
+        SimpleTimer *mainTimer;
+        SolarTracer *thisController;
+        uint8_t internalStatus = 0;
 };
 
-
-uint8_t Controller::getStatus()
-{
+uint8_t Controller::getStatus() {
     return this->internalStatus;
 }
 
-SolarTracer *Controller::getSolarController()
-{
+SolarTracer *Controller::getSolarController() {
     return this->thisController;
 }
 
-SimpleTimer *Controller::getMainTimer()
-{
+SimpleTimer *Controller::getMainTimer() {
     return this->mainTimer;
 }
-
 
 #endif
