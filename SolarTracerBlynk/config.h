@@ -343,6 +343,7 @@
   //#define USE_MQTT_HOME_ASSISTANT
   #ifdef USE_MQTT_HOME_ASSISTANT
     #define MQTT_HOME_ASSISTANT_DEVICE_NAME "SolarTracer1"
+    #define MQTT_HOME_ASSISTANT_DEVICE_ID ""
   #endif
 
   // all the "variable topics" will be published in JSON on a single topic defined in MQTT_JSON_PUBLISH_TOPIC
