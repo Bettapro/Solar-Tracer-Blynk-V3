@@ -74,7 +74,7 @@ void loop() {
     if (Controller::getInstance().getErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION)) {
         WiFi.reconnect();
         if (WiFi.waitForConnectResult() != WL_CONNECTED) {
-            delay(1000);
+            delay(10000);
             return;
         } else {
             Controller::getInstance().setErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION, false);

@@ -43,11 +43,11 @@ class Controller {
             this->mainTimer->run();
         }
 
-        bool getErrorFlag(uint8_t status);
+        bool getErrorFlag(uint32_t status);
 
-        void setErrorFlag(uint8_t status, bool error);
+        void setErrorFlag(uint32_t status, bool error);
 
-        inline uint8_t getStatus();
+        inline uint32_t getStatus();
 
         inline SolarTracer *getSolarController();
 
@@ -56,10 +56,10 @@ class Controller {
     private:
         SimpleTimer *mainTimer;
         SolarTracer *thisController;
-        uint8_t internalStatus = 0;
+        uint32_t internalStatus = 0;
 };
 
-uint8_t Controller::getStatus() {
+uint32_t Controller::getStatus() {
     return this->internalStatus;
 }
 
