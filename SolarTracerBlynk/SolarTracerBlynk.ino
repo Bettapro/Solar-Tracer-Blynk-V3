@@ -113,7 +113,7 @@ void loop() {
         bool connectionOk = WiFi.status() == WL_CONNECTED || WiFi.reconnect();
 #endif
 
-        if (WiFi.status() == WL_CONNECTED) {
+        if (connectionOk) {
             debugPrintln("WiFi connected");
             connectAll();
             Controller::getInstance().setErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION, false);
