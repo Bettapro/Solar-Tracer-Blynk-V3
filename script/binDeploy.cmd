@@ -3,7 +3,7 @@ SETLOCAL EnableDelayedExpansion
 
 rmdir "binFiles" /S /Q
 
-set VERSION_number="3.0.8"
+set VERSION_number="3.0.9"
 
 set esp32_build_flag_base=-DUSE_HALL_AP_CONFIGURATION_TRIGGER
 set esp32_build_flag_minimum=-DUSE_NOT_BLYNK -DSTARTUP_BUILD
