@@ -26,6 +26,8 @@
 // -------------------------------------------------------------------------------
 // MISC
 
+#define USE_ARDUNO_WIFI_RECONNECT
+
 #ifdef USE_DOUBLE_RESET_TRIGGER
 #define DRD_EXEC_LOOP drd.loop();
 #define DRD_EXEC_STOP drd.stop();
@@ -33,6 +35,30 @@
 #define DRD_EXEC_LOOP
 #define DRD_EXEC_STOP
 #endif
+
+void setupAll() {
+#if defined USE_BLYNK
+    BlynkSync::getInstance().setup();
+#endif
+#if defined USE_MQTT && !defined USE_MQTT_HOME_ASSISTANT
+    MqttSync::getInstance().setup();
+#endif
+#if defined USE_MQTT_HOME_ASSISTANT
+    MqttHASync::getInstance().setup();
+#endif
+}
+
+void connectAll() {
+#if defined USE_BLYNK
+    BlynkSync::getInstance().connect();
+#endif
+#if defined USE_MQTT && !defined USE_MQTT_HOME_ASSISTANT
+    MqttSync::getInstance().connect();
+#endif
+#if defined USE_MQTT_HOME_ASSISTANT
+    MqttHASync::getInstance().connect();
+#endif
+}
 
 void uploadRealtimeAll() {
 #if defined USE_BLYNK
@@ -57,39 +83,7 @@ void uploadStatsAll() {
 #endif
 }
 
-void onWifiDisconnected(WiFiEvent_t event) {
-    debugPrintln("WiFi disconnected");
-    Controller::getInstance().setErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION, true);
-}
-
-// ****************************************************************************
-// SETUP and LOOP
-
-void loop() {
-#ifdef USE_OTA_UPDATE
-    ArduinoOTA.handle();
-#endif
-    Controller::getInstance().getMainTimer()->run();
-
-    if (Controller::getInstance().getErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION)) {
-        WiFi.reconnect();
-        if (WiFi.waitForConnectResult() != WL_CONNECTED) {
-            delay(10000);
-            return;
-        } else {
-            Controller::getInstance().setErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION, false);
-#if defined USE_BLYNK
-            BlynkSync::getInstance().connect();
-#endif
-#if defined USE_MQTT && !defined USE_MQTT_HOME_ASSISTANT
-            MqttSync::getInstance().connect();
-#endif
-#if defined USE_MQTT_HOME_ASSISTANT
-            MqttHASync::getInstance().connect();
-#endif
-        }
-    }
-
+void loopAll() {
 #if defined USE_BLYNK
     BlynkSync::getInstance().loop();
 #endif
@@ -99,6 +93,42 @@ void loop() {
 #if defined USE_MQTT_HOME_ASSISTANT
     MqttHASync::getInstance().loop();
 #endif
+}
+
+void onWifiDisconnected(WiFiEvent_t event) {
+    debugPrintln("WiFi disconnected");
+    Controller::getInstance().setErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION, true);
+}
+
+// ****************************************************************************
+// SETUP and LOOP
+
+void loop() {
+    Controller::getInstance().getMainTimer()->run();
+
+    if (Controller::getInstance().getErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION)) {
+#ifdef USE_ARDUNO_WIFI_RECONNECT
+        bool connectionOk = WiFi.status() == WL_CONNECTED;
+#else
+        bool connectionOk = WiFi.status() == WL_CONNECTED || WiFi.reconnect();
+#endif
+
+        if (WiFi.status() == WL_CONNECTED) {
+            debugPrintln("WiFi connected");
+            connectAll();
+            Controller::getInstance().setErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION, false);
+        } else {
+            // not connected
+#ifndef USE_ARDUNO_WIFI_RECONNECT
+            delay(5000);
+#endif
+            return;
+        }
+    }
+#ifdef USE_OTA_UPDATE
+    ArduinoOTA.handle();
+#endif
+    loopAll();
 }
 
 void setup() {
@@ -220,6 +250,9 @@ void setup() {
 
     debugPrint("Connected: ");
     debugPrintln(WiFi.localIP().toString());
+#ifdef USE_ARDUNO_WIFI_RECONNECT
+    WiFi.setAutoReconnect(true);
+#endif
     DRD_EXEC_STOP
 
 #ifdef USE_OTA_UPDATE
@@ -270,15 +303,7 @@ void setup() {
         debugPrintf(true, "My NOW is: %i-%02i-%02i %02i:%02i:%02i", ti->tm_year + 1900, ti->tm_mon + 1, ti->tm_mday, ti->tm_hour, ti->tm_min, ti->tm_sec);
     }
 #endif
-#if defined USE_BLYNK
-    BlynkSync::getInstance().setup();
-#endif
-#if defined USE_MQTT && !defined USE_MQTT_HOME_ASSISTANT
-    MqttSync::getInstance().setup();
-#endif
-#if defined USE_MQTT_HOME_ASSISTANT
-    MqttHASync::getInstance().setup();
-#endif
+    setupAll();
 
     debugPrintf(true, Text::setupWithName, "Solar controller");
 #ifdef SYNC_ST_TIME
