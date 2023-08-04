@@ -46,6 +46,16 @@
  */
 #include "../../config.h"
 
+// disable advanced features not needed in the startup build
+#ifdef STARTUP_BUILD
+#undef USE_BLYNK
+#undef USE_MQTT
+#undef USE_SERIAL_STREAM
+
+#undef SOLAR_TRACER_MODEL
+#define SOLAR_TRACER_MODEL DUMMY_SOLAR_TRACER
+#endif
+
 
 
 /**
