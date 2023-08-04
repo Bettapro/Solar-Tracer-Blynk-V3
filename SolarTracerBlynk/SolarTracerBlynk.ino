@@ -26,7 +26,7 @@
 // -------------------------------------------------------------------------------
 // MISC
 
-#define USE_ARDUNO_WIFI_RECONNECT
+#define USE_ARDUINO_WIFI_RECONNECT
 
 #ifdef USE_DOUBLE_RESET_TRIGGER
 #define DRD_EXEC_LOOP drd.loop();
@@ -107,10 +107,10 @@ void loop() {
     Controller::getInstance().getMainTimer()->run();
 
     if (Controller::getInstance().getErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION)) {
-#ifdef USE_ARDUNO_WIFI_RECONNECT
-        bool connectionOk = WiFi.status() == WL_CONNECTED;
+#ifdef USE_ARDUINO_WIFI_RECONNECT
+        bool connectionOk = WiFi.isConnected();
 #else
-        bool connectionOk = WiFi.status() == WL_CONNECTED || WiFi.reconnect();
+        bool connectionOk = WiFi.isConnected() || WiFi.reconnect();
 #endif
 
         if (connectionOk) {
@@ -119,7 +119,7 @@ void loop() {
             Controller::getInstance().setErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION, false);
         } else {
             // not connected
-#ifndef USE_ARDUNO_WIFI_RECONNECT
+#ifndef USE_ARDUINO_WIFI_RECONNECT
             delay(5000);
 #endif
             return;
@@ -250,7 +250,7 @@ void setup() {
 
     debugPrint("Connected: ");
     debugPrintln(WiFi.localIP().toString());
-#ifdef USE_ARDUNO_WIFI_RECONNECT
+#ifdef USE_ARDUINO_WIFI_RECONNECT
     WiFi.setAutoReconnect(true);
 #endif
     DRD_EXEC_STOP
