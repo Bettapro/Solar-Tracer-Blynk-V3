@@ -1,8 +1,9 @@
 # Platformio
-.pio*
+.pio
 
-# Visual Studio Code.pio
+# Visual Studio Code
 .vscode
+*.code-workspace
 
 #build folder
 binFiles
