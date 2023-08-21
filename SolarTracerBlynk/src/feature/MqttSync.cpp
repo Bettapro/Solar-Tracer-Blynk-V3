@@ -116,18 +116,19 @@ bool MqttSync::attemptMqttSyncConnect() {
     return mqttClient->connected();
 }
 
-void MqttSync::connect() {
+void MqttSync::connect(bool blocking) {
     debugPrintf(true, Text::setupWithName, "MQTT");
     debugPrint(Text::connecting);
 
     uint8_t counter = 0;
 
-    while (!attemptMqttSyncConnect()) {
+    while (!attemptMqttSyncConnect() && ( blocking || counter < 10)) {
         debugPrint(Text::dot);
         delay(500);
         counter++;
     }
-    debugPrintln(Text::ok);
+    debugPrintln(mqtt->isConnected() ? Text::ok : Text::ko);
+    Controller::getInstance().setErrorFlag(STATUS_ERR_NO_MQTT_CONNECTION, !mqttClient->connected());
 }
 void MqttSync::loop() {
     Controller::getInstance().setErrorFlag(STATUS_ERR_NO_MQTT_CONNECTION, !mqttClient->connected());

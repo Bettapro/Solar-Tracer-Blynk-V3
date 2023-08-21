@@ -38,7 +38,7 @@ class MqttSync : public BaseSync {
         }
 
         void setup();
-        void connect();
+        void connect(bool blocking = true);
         void loop();
         inline bool isVariableAllowed(const VariableDefinition *def);
         bool sendUpdateToVariable(const VariableDefinition *def, const void *value);

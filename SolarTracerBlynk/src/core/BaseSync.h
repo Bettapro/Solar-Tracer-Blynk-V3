@@ -32,7 +32,7 @@ class BaseSync {
     public:
         BaseSync();
         virtual void setup() = 0;
-        virtual void connect() = 0;
+        virtual void connect(bool blocking = true) = 0;
         virtual void loop() = 0;
         /**
          * @brief Send the update to remote server

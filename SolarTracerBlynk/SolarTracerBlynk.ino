@@ -26,7 +26,7 @@
 // -------------------------------------------------------------------------------
 // MISC
 
-#define USE_ARDUINO_WIFI_RECONNECT
+// #define USE_ARDUINO_WIFI_RECONNECT
 
 #ifdef USE_DOUBLE_RESET_TRIGGER
 #define DRD_EXEC_LOOP drd.loop();
@@ -56,7 +56,8 @@ void connectAll() {
     MqttSync::getInstance().connect();
 #endif
 #if defined USE_MQTT_HOME_ASSISTANT
-    MqttHASync::getInstance().connect();
+    // not needed
+    // MqttHASync::getInstance().connect();
 #endif
 }
 
@@ -95,9 +96,56 @@ void loopAll() {
 #endif
 }
 
-void onWifiDisconnected(WiFiEvent_t event) {
-    debugPrintln("WiFi disconnected");
-    Controller::getInstance().setErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION, true);
+bool configWiFi() {
+    const EnvironrmentData *envData = Environment::getData();
+
+    bool wifiDataPresent = strlen(Environment::getData()->wifiSSID);
+
+    if (wifiDataPresent) {
+        IPAddress ip;
+        IPAddress gateway;
+        IPAddress subnet;
+        IPAddress dns1;
+        IPAddress dns2;
+
+        if (strlen(envData->wifiIp)) {
+            ip.fromString(envData->wifiIp);
+        }
+
+        if (strlen(envData->wifiGateway)) {
+            gateway.fromString(envData->wifiGateway);
+        }
+        if (strlen(envData->wifiSubnet)) {
+            subnet.fromString(envData->wifiSubnet);
+        }
+        if (strlen(envData->wifiDns1)) {
+            dns1.fromString(envData->wifiDns1);
+        }
+        if (strlen(envData->wifiDns2)) {
+            dns2.fromString(envData->wifiDns2);
+        }
+
+        WiFi.config(ip, gateway, subnet, dns1, dns2);
+        WiFi.begin(envData->wifiSSID, envData->wifiPassword);
+    }
+    return wifiDataPresent;
+}
+
+void watchDog() {
+    bool wifiOk = WiFi.isConnected();
+    Controller::getInstance().setErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION, !wifiOk);
+    if (!wifiOk) {
+#ifndef USE_ARDUINO_WIFI_RECONNECT
+        WiFi.disconnect();
+        configWiFi();
+        if (WiFi.waitForConnectResult(10000) != WL_CONNECTED) {
+            debugPrintln("WIFI not connected");
+        }
+        Controller::getInstance().setErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION, !WiFi.isConnected());
+#else
+        debugPrintln("WIFI not connected");
+#endif
+    }
 }
 
 // ****************************************************************************
@@ -107,23 +155,7 @@ void loop() {
     Controller::getInstance().getMainTimer()->run();
 
     if (Controller::getInstance().getErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION)) {
-#ifdef USE_ARDUINO_WIFI_RECONNECT
-        bool connectionOk = WiFi.isConnected();
-#else
-        bool connectionOk = WiFi.isConnected() || WiFi.reconnect();
-#endif
-
-        if (connectionOk) {
-            debugPrintln("WiFi connected");
-            connectAll();
-            Controller::getInstance().setErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION, false);
-        } else {
-            // not connected
-#ifndef USE_ARDUINO_WIFI_RECONNECT
-            delay(5000);
-#endif
-            return;
-        }
+        return;
     }
 #ifdef USE_OTA_UPDATE
     ArduinoOTA.handle();
@@ -164,37 +196,8 @@ void setup() {
 
     debugPrintf(true, Text::setupWithName, "WIFI");
     WiFi.mode(WIFI_STA);
-    const EnvironrmentData *envData = Environment::getData();
 
-    bool wifiDataPresent = strlen(Environment::getData()->wifiSSID);
-
-    if (wifiDataPresent) {
-        IPAddress ip;
-        IPAddress gateway;
-        IPAddress subnet;
-        IPAddress dns1;
-        IPAddress dns2;
-
-        if (strlen(envData->wifiIp)) {
-            ip.fromString(envData->wifiIp);
-        }
-
-        if (strlen(envData->wifiGateway)) {
-            gateway.fromString(envData->wifiGateway);
-        }
-        if (strlen(envData->wifiSubnet)) {
-            subnet.fromString(envData->wifiSubnet);
-        }
-        if (strlen(envData->wifiDns1)) {
-            dns1.fromString(envData->wifiDns1);
-        }
-        if (strlen(envData->wifiDns2)) {
-            dns2.fromString(envData->wifiDns2);
-        }
-
-        WiFi.config(ip, gateway, subnet, dns1, dns2);
-        WiFi.begin(envData->wifiSSID, envData->wifiPassword);
-    }
+    bool wifiDataPresent = configWiFi();
 #if defined(USE_DOUBLE_RESET_TRIGGER)
     if (drd.detectDoubleReset()) {
         DRD_EXEC_STOP
@@ -246,7 +249,11 @@ void setup() {
 #endif
         ESP.restart();
     }
-    WiFi.onEvent(onWifiDisconnected, WIFI_STATION_MODE_DISCONNECTED);
+    WiFi.onEvent(
+        [](WiFiEvent_t event) {
+            watchDog();
+        },
+        WIFI_STATION_MODE_DISCONNECTED);
 
     debugPrint("Connected: ");
     debugPrintln(WiFi.localIP().toString());
@@ -340,10 +347,13 @@ void setup() {
     Controller::getInstance().getMainTimer()->setInterval(SYNC_STATS_MS_PERIOD, uploadStatsAll);
     // periodically send REALTIME  value to blynk
     Controller::getInstance().getMainTimer()->setInterval(SYNC_REALTIME_MS_PERIOD, uploadRealtimeAll);
+    // esp watchddog
+    Controller::getInstance().getMainTimer()->setInterval(5000, watchDog);
 
     debugPrintln();
 
     Controller::getInstance().setErrorFlag(STATUS_RUN_BOOTING, false);
+
 #ifdef USE_STATUS_LED
     ledSetupStop();
 #endif

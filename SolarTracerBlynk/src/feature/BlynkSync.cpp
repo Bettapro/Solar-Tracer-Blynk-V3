@@ -19,6 +19,10 @@
 #endif
 #endif
 
+#ifndef BLYNK_CONNECT_ATTEMPT
+#define BLYNK_CONNECT_ATTEMPT 10
+#endif
+
 #ifdef vPIN_INTERNAL_DEBUG_TERMINAL
 void blynkDebugCallback(String message) {
     Blynk.virtualWrite(vPIN_INTERNAL_DEBUG_TERMINAL, message);
@@ -30,13 +34,17 @@ BlynkSync::BlynkSync() {
 }
 
 void BlynkSync::setup() {
-    this->connect();
+#ifndef BLYNK_CONNECTION_REQUIRED
+    this->connect(true);
+#else
+    this->connect(false);
+#endif
 #ifdef vPIN_INTERNAL_DEBUG_TERMINAL
     debugAddRegisterCallback(blynkDebugCallback);
 #endif
 }
 
-void BlynkSync::connect() {
+void BlynkSync::connect(bool blocking) {
     debugPrintf(true, Text::setupWithName, "BLYNK");
     debugPrint(Text::connecting);
 
@@ -53,16 +61,15 @@ void BlynkSync::connect() {
 
     uint8_t counter = 0;
 
-    while (counter < BLYNK_CONNECT_ATTEMPT && !Blynk.connect()) {
+    while (( blocking || counter < BLYNK_CONNECT_ATTEMPT) && !Blynk.connect()) {
         delay(500);
         debugPrint(Text::dot);
 
-#ifndef BLYNK_CONNECTION_REQUIRED
         counter++;
-#endif
     }
 
     debugPrintln(Blynk.connected() ? Text::ok : Text::ko);
+    Controller::getInstance().setErrorFlag(STATUS_ERR_NO_BLYNK_CONNECTION, false);
 }
 
 void BlynkSync::loop() {

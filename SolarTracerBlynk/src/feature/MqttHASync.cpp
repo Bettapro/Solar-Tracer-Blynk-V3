@@ -140,8 +140,6 @@ MqttHASync::MqttHASync() : BaseSync() {
 }
 
 void MqttHASync::setup() {
-    this->initialized = false;
-
     // set device's details
 
     device->setName(Environment::getData()->mqttHADeviceName);
@@ -240,18 +238,24 @@ bool MqttHASync::attemptMqttHASyncConnect() {
     return mqtt->isConnected();
 }
 
-void MqttHASync::connect() {
+void MqttHASync::connect(bool blocking) {
+    if(this->initialized){
+        mqtt->disconnect();
+    }
+    this->initialized = false;
     debugPrintf(true, Text::setupWithName, "MQTT-HA");
     debugPrint(Text::connecting);
 
     uint8_t counter = 0;
 
-    while (!attemptMqttHASyncConnect()) {
+    while (!attemptMqttHASyncConnect() && ( blocking || counter < 10) ) {
         debugPrint(Text::dot);
         delay(500);
         counter++;
+      
     }
-    debugPrintln(Text::ok);
+    debugPrintln(mqtt->isConnected() ? Text::ok : Text::ko);
+    Controller::getInstance().setErrorFlag(STATUS_ERR_NO_MQTT_CONNECTION, !mqtt->isConnected());
 }
 void MqttHASync::loop() {
     Controller::getInstance().setErrorFlag(STATUS_ERR_NO_MQTT_CONNECTION, !mqtt->isConnected());
