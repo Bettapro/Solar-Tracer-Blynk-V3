@@ -32,11 +32,13 @@ jobs:
         - source-url : https://github.com/Bettapro/ModbusMaster.git
         - name: PubSubClient
         - source-url : https://github.com/Bettapro/SimpleTimer.git
-        - source-url : https://github.com/dawidchyrzynski/arduino-home-assistant.git#2.1.0
+        - source-url : https://github.com/dawidchyrzynski/arduino-home-assistant.git
+          version : 2.1.0
         - source-url : https://github.com/Bettapro/LinearSensHallCurrent.git
         - source-url : https://github.com/RobTillaart/ADS1X15.git
         - source-url : https://github.com/khoih-prog/ESP_DoubleResetDetector.git
-        - source-url : https://github.com/plerup/espsoftwareserial.git#8.0.3
+        - source-url : https://github.com/plerup/espsoftwareserial.git
+          version : 8.0.3
       # sketch paths to compile (recursive) for all boards
       sketch_paths: |
         - SolarTracerBlynk
