@@ -60,6 +60,9 @@ class LoadCurrentOverwrite {
 
             tracer->setVariableOverWritten(Variable::LOAD_CURRENT, true);
             tracer->setVariableOverWritten(Variable::LOAD_POWER, tracer->isVariableEnabled(Variable::BATTERY_VOLTAGE));
+            tracer->setVariableOverWritten(Variable::CONSUMED_ENERGY_TODAY, tracer->isVariableEnabled(Variable::BATTERY_VOLTAGE));
+            tracer->setVariableOverWritten(Variable::CONSUMED_ENERGY_MONTH, tracer->isVariableEnabled(Variable::BATTERY_VOLTAGE));
+            tracer->setVariableOverWritten(Variable::CONSUMED_ENERGY_YEAR, tracer->isVariableEnabled(Variable::BATTERY_VOLTAGE));
             tracer->setVariableOverWritten(Variable::CONSUMED_ENERGY_TOTAL, tracer->isVariableEnabled(Variable::BATTERY_VOLTAGE));
             tracer->setVariableOverWritten(Variable::BATTERY_OVERALL_CURRENT, tracer->isVariableEnabled(Variable::BATTERY_CHARGE_CURRENT));
         }
@@ -97,6 +100,9 @@ class LoadCurrentOverwrite {
             tracer->setVariableValue(Variable::LOAD_POWER, &loadPower, true);
 
             totalLoadEnergy += loadEnergy;
+            tracer->setVariableValue(Variable::CONSUMED_ENERGY_TODAY, &totalLoadEnergy, true);
+            tracer->setVariableValue(Variable::CONSUMED_ENERGY_MONTH, &totalLoadEnergy, true);
+            tracer->setVariableValue(Variable::CONSUMED_ENERGY_YEAR, &totalLoadEnergy, true);
             tracer->setVariableValue(Variable::CONSUMED_ENERGY_TOTAL, &totalLoadEnergy, true);
         }
 

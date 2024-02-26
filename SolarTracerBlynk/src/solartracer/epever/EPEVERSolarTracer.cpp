@@ -78,6 +78,10 @@ EPEVERSolarTracer::EPEVERSolarTracer(Stream &serialCom, uint16_t serialTimeoutMs
     this->setVariableEnable(Variable::GENERATED_ENERGY_MONTH);
     this->setVariableEnable(Variable::GENERATED_ENERGY_YEAR);
     this->setVariableEnable(Variable::GENERATED_ENERGY_TOTAL);
+    this->setVariableEnable(Variable::CONSUMED_ENERGY_TODAY);
+    this->setVariableEnable(Variable::CONSUMED_ENERGY_MONTH);
+    this->setVariableEnable(Variable::CONSUMED_ENERGY_YEAR);
+    this->setVariableEnable(Variable::CONSUMED_ENERGY_TOTAL);
     this->setVariableEnable(Variable::MAXIMUM_PV_VOLTAGE_TODAY);
     this->setVariableEnable(Variable::MINIMUM_PV_VOLTAGE_TODAY);
     this->setVariableEnable(Variable::MAXIMUM_BATTERY_VOLTAGE_TODAY);
@@ -610,10 +614,17 @@ void EPEVERSolarTracer::updateStats() {
 
     rs485readSuccess = this->lastControllerCommunicationStatus == this->node.ku8MBSuccess;
     if (rs485readSuccess) {
-        this->setFloatVariable(Variable::MAXIMUM_PV_VOLTAGE_TODAY, this->node.getResponseBuffer(0x00) / ONE_HUNDRED_FLOAT);
-        this->setFloatVariable(Variable::MINIMUM_PV_VOLTAGE_TODAY, this->node.getResponseBuffer(0x01) / ONE_HUNDRED_FLOAT);
-        this->setFloatVariable(Variable::MAXIMUM_BATTERY_VOLTAGE_TODAY, this->node.getResponseBuffer(0x02) / ONE_HUNDRED_FLOAT);
-        this->setFloatVariable(Variable::MINIMUM_BATTERY_VOLTAGE_TODAY, this->node.getResponseBuffer(0x03) / ONE_HUNDRED_FLOAT);
+        this->setFloatVariable(Variable::MAXIMUM_PV_VOLTAGE_TODAY, this->node.getResponseBuffer(0) / ONE_HUNDRED_FLOAT);
+        this->setFloatVariable(Variable::MINIMUM_PV_VOLTAGE_TODAY, this->node.getResponseBuffer(1) / ONE_HUNDRED_FLOAT);
+        this->setFloatVariable(Variable::MAXIMUM_BATTERY_VOLTAGE_TODAY, this->node.getResponseBuffer(2) / ONE_HUNDRED_FLOAT);
+        this->setFloatVariable(Variable::MINIMUM_BATTERY_VOLTAGE_TODAY, this->node.getResponseBuffer(3) / ONE_HUNDRED_FLOAT);
+
+        if(!this->isVariableOverWritten(Variable::CONSUMED_ENERGY_TOTAL)){
+            this->setFloatVariable(Variable::CONSUMED_ENERGY_TODAY, (this->node.getResponseBuffer(4) | this->node.getResponseBuffer(5) << 16) / ONE_HUNDRED_FLOAT);
+            this->setFloatVariable(Variable::CONSUMED_ENERGY_MONTH, (this->node.getResponseBuffer(6) | this->node.getResponseBuffer(7) << 16) / ONE_HUNDRED_FLOAT);
+            this->setFloatVariable(Variable::CONSUMED_ENERGY_YEAR, (this->node.getResponseBuffer(8) | this->node.getResponseBuffer(9) << 16) / ONE_HUNDRED_FLOAT);
+            this->setFloatVariable(Variable::CONSUMED_ENERGY_TOTAL, (this->node.getResponseBuffer(10) | this->node.getResponseBuffer(11) << 16) / ONE_HUNDRED_FLOAT);
+        }
 
         this->setFloatVariable(Variable::GENERATED_ENERGY_TODAY, (this->node.getResponseBuffer(12) | this->node.getResponseBuffer(13) << 16) / ONE_HUNDRED_FLOAT);
         this->setFloatVariable(Variable::GENERATED_ENERGY_MONTH, (this->node.getResponseBuffer(14) | this->node.getResponseBuffer(15) << 16) / ONE_HUNDRED_FLOAT);
