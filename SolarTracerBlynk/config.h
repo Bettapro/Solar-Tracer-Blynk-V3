@@ -192,7 +192,7 @@
   #if defined USE_HALL_AP_CONFIGURATION_TRIGGER
     // standard value (no interaction)
     //#define HALL_AP_CONFIGURATION_BASE_VALUE 75
-    // threshoold to detect interraction
+    // threshoold to detect interaction
     //#define HALL_AP_CONFIGURATION_THR_VALUE 30
   #endif
 
@@ -307,7 +307,10 @@
   #define vPIN_BATTERY_BOOST_DURATION                     50
   #define vPIN_BATTERY_TEMPERATURE_COMPENSATION_COEFF     51
   #define vPIN_BATTERY_MANAGEMENT_MODE                    52
-  #define vPIN_STAT_ENERGY_CONSUMED_TOTAL                 53
+  #define vPIN_STAT_ENERGY_CONSUMED_TODAY                 53
+  #define vPIN_STAT_ENERGY_CONSUMED_THIS_MONTH            54
+  #define vPIN_STAT_ENERGY_CONSUMED_THIS_YEAR             55
+  #define vPIN_STAT_ENERGY_CONSUMED_TOTAL                 56
   // internal
   #define vPIN_INTERNAL_STATUS                            27
   #define vPIN_INTERNAL_DEBUG_TERMINAL                    44
@@ -379,6 +382,10 @@
   #define MQTT_TOPIC_BATTERY_CHARGE_POWER                     MQTT_TOPIC_ROOT "battery_charging_power"
   #define MQTT_TOPIC_BATTERY_OVERALL_CURRENT                  MQTT_TOPIC_ROOT "battery_overall_current"
   #define MQTT_TOPIC_LOAD_ENABLED                             MQTT_TOPIC_ROOT "controller_load_enabled"
+  #define MQTT_TOPIC_STAT_ENERGY_CONSUMED_TODAY               MQTT_TOPIC_ROOT "stats_consumption_day"
+  #define MQTT_TOPIC_STAT_ENERGY_CONSUMED_THIS_MONTH          MQTT_TOPIC_ROOT "stats_consumption_month"
+  #define MQTT_TOPIC_STAT_ENERGY_CONSUMED_THIS_YEAR           MQTT_TOPIC_ROOT "stats_consumption_year"
+  #define MQTT_TOPIC_STAT_ENERGY_CONSUMED_TOTAL               MQTT_TOPIC_ROOT "stats_consumption_total"
   #define MQTT_TOPIC_STAT_ENERGY_GENERATED_TODAY              MQTT_TOPIC_ROOT "stats_production_day"
   #define MQTT_TOPIC_STAT_ENERGY_GENERATED_THIS_MONTH         MQTT_TOPIC_ROOT "stats_production_month"
   #define MQTT_TOPIC_STAT_ENERGY_GENERATED_THIS_YEAR          MQTT_TOPIC_ROOT "stats_production_year"
@@ -411,7 +418,6 @@
   #define MQTT_TOPIC_BATTERY_BOOST_DURATION                   MQTT_TOPIC_ROOT "battery_settings_boost_duration"
   #define MQTT_TOPIC_BATTERY_TEMPERATURE_COMPENSATION_COEFF   MQTT_TOPIC_ROOT "battery_settings_temperature_compensation_coeff"
   #define MQTT_TOPIC_BATTERY_MANAGEMENT_MODE                  MQTT_TOPIC_ROOT "battery_settings_management_mode"
-  #define MQTT_TOPIC_STAT_ENERGY_CONSUMED_TOTAL               MQTT_TOPIC_ROOT "stats_consumption_total"
   // internal
   #define MQTT_TOPIC_INTERNAL_STATUS                          MQTT_TOPIC_ROOT "internal_status"
   //action
