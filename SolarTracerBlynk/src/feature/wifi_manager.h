@@ -231,6 +231,8 @@ class WifiManagerSTB {
                     LittleFS.end();
                     debugPrintln(Text::ok);
                 }
+
+                ESP.restart();
             }
         }
 };

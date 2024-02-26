@@ -148,10 +148,45 @@ void watchDog() {
     }
 }
 
+void checkAPTrigger() {
+#if defined(USE_HALL_AP_CONFIGURATION_TRIGGER)
+    for (uint8_t readCount = 3; readCount >= 0; readCount--) {
+        int hallDiff = hallRead() - HALL_AP_CONFIGURATION_BASE_VALUE;
+        if (hallDiff < HALL_AP_CONFIGURATION_THR_VALUE && hallDiff > -HALL_AP_CONFIGURATION_THR_VALUE) {
+            break;
+        }
+        if (readCount == 0) {
+            debugPrintln(" ++ Start AP configuration");
+            DRD_EXEC_STOP
+            WifiManagerSTB::startWifiConfigurationAP(true);
+        }
+        delay(500);
+    }
+#endif
+
+#if defined(USE_PIN_AP_CONFIGURATION_TRIGGER)
+    pinMode(PIN_AP_TRIGGER_PIN, INPUT);
+    for (uint8_t readCount = 3; readCount >= 0; readCount--) {
+        if (digitalRead(PIN_AP_TRIGGER_PIN) != PIN_AP_TRIGGER_VALUE) {
+            break;
+        }
+        if (readCount == 0) {
+            debugPrintln(" ++ Start AP configuration");
+            DRD_EXEC_STOP
+            WifiManagerSTB::startWifiConfigurationAP(true);
+        };
+        delay(500);
+    }
+
+#endif
+}
+
 // ****************************************************************************
 // SETUP and LOOP
 
 void loop() {
+    checkAPTrigger();
+
     Controller::getInstance().getMainTimer()->run();
 
     if (Controller::getInstance().getErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION)) {
@@ -203,40 +238,11 @@ void setup() {
         DRD_EXEC_STOP
         debugPrintln(" ++ Start AP configuration");
         WifiManagerSTB::startWifiConfigurationAP(true);
-        ESP.restart();
     }
 #endif
     DRD_EXEC_LOOP
-#if defined(USE_HALL_AP_CONFIGURATION_TRIGGER)
-    for (uint8_t readCount = 3; readCount >= 0; readCount--) {
-        delay(500);
-        int hallDiff = hallRead() - HALL_AP_CONFIGURATION_BASE_VALUE;
-        if (hallDiff < HALL_AP_CONFIGURATION_THR_VALUE && hallDiff > -HALL_AP_CONFIGURATION_THR_VALUE) {
-            break;
-        }
-        if (readCount == 0) {
-            debugPrintln(" ++ Start AP configuration");
-            DRD_EXEC_STOP
-            WifiManagerSTB::startWifiConfigurationAP(true);
-            ESP.restart();
-        }
-    }
-#endif
 
-#if defined(USE_PIN_AP_CONFIGURATION_TRIGGER)
-    pinMode(PIN_AP_TRIGGER_PIN, INPUT);
-    for (uint8_t readCount = 3; readCount >= 0; readCount--) {
-        delay(500);
-        if (digitalRead(PIN_AP_TRIGGER_PIN) != PIN_AP_TRIGGER_VALUE) {
-            break;
-        }
-        if (readCount == 0) {
-            debugPrintln(" ++ Start AP configuration");
-            WifiManagerSTB::startWifiConfigurationAP(true);
-            ESP.restart();
-        }
-    }
-#endif
+    checkAPTrigger();
 
     if (!wifiDataPresent || WiFi.waitForConnectResult() != WL_CONNECTED) {
 #if defined USE_WIFI_AP_CONFIGURATION
