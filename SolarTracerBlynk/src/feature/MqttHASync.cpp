@@ -116,6 +116,8 @@ void setupHASensor(HASensor *sensor, const VariableUOM *uom) {
             break;
         case UOM_KILOWATTHOUR:
             sensor->setDeviceClass("energy");
+            // enable long term statistics
+            sensor->setStateClass("total_increasing");
             break;
         case UOM_PERCENT:
             sensor->setUnitOfMeasurement("%");
