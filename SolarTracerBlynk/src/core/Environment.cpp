@@ -73,13 +73,13 @@ void Environment::loadEnvData() {
             debugPrintln("ERROR: cannot open config file");
         } else {
             size_t size = configFile.size();
-            DynamicJsonDocument doc(size * 3);
+            JsonDocument doc;
             DeserializationError error = deserializeJson(doc, configFile);
             if (error) {
                 debugPrintln("ERROR: Cannot deserialize settings from file");
                 debugPrintln(error.c_str());
             } else {
-                if (doc.containsKey(CONFIG_SERIAL_DEBUG)) {
+                if (doc[CONFIG_SERIAL_DEBUG].is<JsonVariant>()) {
                     envData.serialDebug = doc[CONFIG_SERIAL_DEBUG];
                 }
 
@@ -100,7 +100,7 @@ void Environment::loadEnvData() {
 #ifndef USE_BLYNK_2
                 loadStringToEnvIfExist(doc, CONFIG_BLYNK_HOSTNAME, envData.blynkServerHostname);
 
-                if (doc.containsKey(CONFIG_BLYNK_PORT)) {
+                if (doc[CONFIG_BLYNK_PORT].is<JsonVariant>()) {
                     envData.blynkServerPort = doc[CONFIG_BLYNK_PORT];
                 }
 #endif
@@ -110,7 +110,7 @@ void Environment::loadEnvData() {
                 loadStringToEnvIfExist(doc, CONFIG_MQTT_PASSWORD, envData.mqttPassword);
                 loadStringToEnvIfExist(doc, CONFIG_MQTT_USERNAME, envData.mqttUsername);
                 loadStringToEnvIfExist(doc, CONFIG_MQTT_CLIENT_ID, envData.mqttClientId);
-                if (doc.containsKey(CONFIG_MQTT_PORT))
+                if (doc[CONFIG_MQTT_PORT].is<JsonVariant>())
                     envData.mqttServerPort = doc[CONFIG_MQTT_PORT];
 
 #endif
@@ -135,8 +135,8 @@ void Environment::loadEnvData() {
 #endif
 }
 
-void Environment::loadStringToEnvIfExist(DynamicJsonDocument doc, const char *envKey, char *envValue) {
-    if (doc.containsKey(envKey)) strcpy(envValue, doc[envKey]);
+void Environment::loadStringToEnvIfExist(JsonDocument doc, const char *envKey, char *envValue) {
+    if (doc[envKey].is<JsonVariant>()) strcpy(envValue, doc[envKey]);
 }
 
 void Environment::resetEnvData() {

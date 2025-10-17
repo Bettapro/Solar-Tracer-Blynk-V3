@@ -87,7 +87,7 @@ class Environment {
         }
 
     private:
-        static void loadStringToEnvIfExist(DynamicJsonDocument doc, const char *envKey, char *envValue);
+        static void loadStringToEnvIfExist(JsonDocument doc, const char *envKey, char *envValue);
 
         static EnvironrmentData envData;
 };

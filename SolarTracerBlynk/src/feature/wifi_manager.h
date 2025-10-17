@@ -171,7 +171,7 @@ class WifiManagerSTB {
                     return;
                 }
 
-                DynamicJsonDocument doc(1024);
+                JsonDocument doc;
                 doc[CONFIG_SERIAL_DEBUG] = strcmp(customDebug.getValue(), CONFIG_SERIAL_DEBUG) == 0;
                 doc[CONFIG_WIFI_SSID] = WiFi.SSID();
                 doc[CONFIG_WIFI_PASSWORD] = WiFi.psk();
