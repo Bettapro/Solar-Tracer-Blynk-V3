@@ -30,7 +30,7 @@ jobs:
         - name: WiFiManager
           version:  2.0.17
         - name: ArduinoJson
-          version: v7.4.2
+          version: 7.4.2
         - source-url : https://github.com/Bettapro/ModbusMaster.git
         - source-url: https://github.com/knolleary/pubsubclient
           version: v2.8

@@ -55,6 +55,9 @@ jobs:
         pip install -U https://github.com/platformio/platformio-core/archive/develop.zip
         platformio update
 
+    - name: Install intelhex
+        run: pip install intelhex
+
     - name: Run ${{ matrix.test-platform }} Tests
       run: |
         pio run -e ${{ matrix.test-platform }}
