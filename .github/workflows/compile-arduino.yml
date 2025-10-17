@@ -28,17 +28,21 @@ jobs:
         - name: Blynk
           version: 1.1.0
         - name: WiFiManager
+          version:  v2.0.17
         - name: ArduinoJson
+          version: v7.4.2
         - source-url : https://github.com/Bettapro/ModbusMaster.git
-        - name: PubSubClient
+        - source-url: https://github.com/knolleary/pubsubclient
+          version: v2.8
         - source-url : https://github.com/Bettapro/SimpleTimer.git
         - source-url : https://github.com/dawidchyrzynski/arduino-home-assistant.git
           version : 2.1.0
         - source-url : https://github.com/Bettapro/LinearSensHallCurrent.git
         - source-url : https://github.com/RobTillaart/ADS1X15.git
+          version: 0.5.4
         - source-url : https://github.com/khoih-prog/ESP_DoubleResetDetector.git
         - source-url : https://github.com/plerup/espsoftwareserial.git
-          version : 8.0.3
+          version : 8.2.0
       # sketch paths to compile (recursive) for all boards
       sketch_paths: |
         - SolarTracerBlynk
