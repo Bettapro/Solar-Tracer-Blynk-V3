@@ -56,7 +56,7 @@ jobs:
         platformio update
 
     - name: Install intelhex
-        run: pip install intelhex
+      run: pip install intelhex
 
     - name: Run ${{ matrix.test-platform }} Tests
       run: |
