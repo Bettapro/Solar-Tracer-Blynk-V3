@@ -149,21 +149,6 @@ void watchDog() {
 }
 
 void checkAPTrigger() {
-#if defined(USE_HALL_AP_CONFIGURATION_TRIGGER)
-    for (uint8_t readCount = 3; readCount >= 0; readCount--) {
-        int hallDiff = hallRead() - HALL_AP_CONFIGURATION_BASE_VALUE;
-        if (hallDiff < HALL_AP_CONFIGURATION_THR_VALUE && hallDiff > -HALL_AP_CONFIGURATION_THR_VALUE) {
-            break;
-        }
-        if (readCount == 0) {
-            debugPrintln(" ++ Start AP configuration");
-            DRD_EXEC_STOP
-            WifiManagerSTB::startWifiConfigurationAP(true);
-        }
-        delay(500);
-    }
-#endif
-
 #if defined(USE_PIN_AP_CONFIGURATION_TRIGGER)
     pinMode(PIN_AP_TRIGGER_PIN, INPUT);
     for (uint8_t readCount = 3; readCount >= 0; readCount--) {

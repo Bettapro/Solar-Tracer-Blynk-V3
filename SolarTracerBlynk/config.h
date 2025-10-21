@@ -187,15 +187,6 @@
   // max seconds ap will wait to be configured
   #define WIFI_AP_TIMEOUT 150
 
-  // use hall sensor to trigger ap mode
-  //#define USE_HALL_AP_CONFIGURATION_TRIGGER
-  #if defined USE_HALL_AP_CONFIGURATION_TRIGGER
-    // standard value (no interaction)
-    //#define HALL_AP_CONFIGURATION_BASE_VALUE 75
-    // threshoold to detect interaction
-    //#define HALL_AP_CONFIGURATION_THR_VALUE 30
-  #endif
-
   // use a double reset to trigger ap mode
   #define USE_DOUBLE_RESET_TRIGGER
 
