@@ -18,17 +18,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#ifndef TASK_UPDATE_CONTROLLER_H
+#define TASK_UPDATE_CONTROLLER_H
 
-#pragma once
+#include "src/incl/include.h"
 
-#ifndef SOLAR_TRACER_ALL_H
-#define SOLAR_TRACER_ALL_H
+void updateControllerRun() {
+    debugPrint("Update Solar-Tracer ");
+    if (Controller::getInstance().getSolarController()->updateRun()) {
+        debugPrintln(Text::ok);
+        Controller::getInstance().setErrorFlag(STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION, false);
+    } else {
+        debugPrintf(true, Text::errorWithCodeInt, STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION, Controller::getInstance().getSolarController()->getLastControllerCommunicationStatus());
+        Controller::getInstance().setErrorFlag(STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION, true);
+    }
+}
 
-#define DUMMY_SOLAR_TRACER 0xF001
-
-#define EPEVER_SOLAR_TRACER_A 0x0001
-#define EPEVER_SOLAR_TRACER_B 0x0002
-#define EPEVER_SOLAR_TRACER_TRITON 0x0003
-#define EPEVER_SOLAR_TRACER_XTRA 0x0004
 
 #endif

@@ -19,6 +19,11 @@
  *
  */
 
+#pragma once
+
+#ifndef INCLUDE_H
+#define INCLUDE_H
+
 // INCL all core dependendecies
 #include "include_all_core.h"
 // INCL all third party libs
@@ -34,7 +39,6 @@
 #include "../core/Controller.h"
 // INCL optional features
 #include "include_all_feature.h"
-
 
 #if !defined(ESP8266) && !defined(ESP32)
 #error "Your board is not supported"
@@ -73,4 +77,6 @@
 
 #if defined(USE_SERIAL_STREAM)  &&  !defined(BOARD_ST_SERIAL_STREAM)
 #error You must specify a serial in BOARD_ST_SERIAL_STREAM!
+#endif
+
 #endif

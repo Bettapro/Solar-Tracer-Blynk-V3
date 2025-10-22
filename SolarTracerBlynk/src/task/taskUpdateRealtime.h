@@ -18,17 +18,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#ifndef TASK_UPDATE_REALTIME_H
+#define TASK_UPDATE_REALTIME_H
 
-#pragma once
+#include "src/incl/include.h"
 
-#ifndef SOLAR_TRACER_ALL_H
-#define SOLAR_TRACER_ALL_H
+void uploadRealtimeAllRun() {
+#if defined USE_BLYNK
+    BlynkSync::getInstance().uploadRealtimeToBlynk();
+#endif
+#if defined USE_MQTT && !defined USE_MQTT_HOME_ASSISTANT
+    MqttSync::getInstance().uploadRealtimeToMqtt();
+#endif
+#if defined USE_MQTT_HOME_ASSISTANT
+    MqttHASync::getInstance().uploadRealtimeToMqtt();
+#endif
+}
 
-#define DUMMY_SOLAR_TRACER 0xF001
-
-#define EPEVER_SOLAR_TRACER_A 0x0001
-#define EPEVER_SOLAR_TRACER_B 0x0002
-#define EPEVER_SOLAR_TRACER_TRITON 0x0003
-#define EPEVER_SOLAR_TRACER_XTRA 0x0004
 
 #endif

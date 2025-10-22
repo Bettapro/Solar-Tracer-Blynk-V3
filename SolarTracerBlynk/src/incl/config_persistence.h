@@ -21,6 +21,9 @@
 
 #pragma once
 
+#ifndef CONFIG_PERSISTENCE_H
+#define CONFIG_PERSISTENCE_H
+
 #define CONFIG_PERSISTENCE "/config.json"
 
 //settings
@@ -95,3 +98,5 @@
 #define CONFIG_WIFI_DNS2_LEN 15
 
 #define CONFIG_EXTERNAL_HEAVY_LOAD_CURRENT_METER_VOLTAGE_ZERO_AMP_VOLT "hlZeroVOff"
+
+#endif

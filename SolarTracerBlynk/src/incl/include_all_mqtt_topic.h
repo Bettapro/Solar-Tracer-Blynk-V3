@@ -21,6 +21,9 @@
 
 #pragma once
 
+#ifndef INCLUDE_ALL_MQTT_TOPIC_H
+#define INCLUDE_ALL_MQTT_TOPIC_H
+
 #include "../incl/include_all_core.h"
 
 
@@ -294,4 +297,6 @@
 #define MQTT_TOPIC_STAT_ENERGY_CONSUMED_TOTAL_DF nullptr
 #else
 #define MQTT_TOPIC_STAT_ENERGY_CONSUMED_TOTAL_DF MQTT_TOPIC_STAT_ENERGY_CONSUMED_TOTAL
+#endif
+
 #endif

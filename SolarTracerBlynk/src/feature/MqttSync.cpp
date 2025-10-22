@@ -33,7 +33,7 @@
 #if defined(USE_MQTT_RPC_SUBSCRIBE)
 DynamicJsonDocument json(1024);
 #endif
-void mqttCallback(char *topic, uint8_t *bytes, unsigned int length) {
+void mqttCallback(char* topic, uint8_t* bytes, unsigned int length) {
     String payload;
     for (int i = 0; i < length; i++) {
         payload += (char)bytes[i];
@@ -41,13 +41,13 @@ void mqttCallback(char *topic, uint8_t *bytes, unsigned int length) {
 
 #ifdef USE_MQTT_RPC_SUBSCRIBE
     deserializeJson(json, payload);
-    const char *constTopic = json["method"].as<const char *>();
+    const char* constTopic = json["method"].as<const char*>();
     payload = json["params"].as<String>();
 #else
-    const char *constTopic = topic;
+    const char* constTopic = topic;
 #endif
 
-    const VariableDefinition *def = VariableDefiner::getInstance().getDefinitionByMqttTopic(topic);
+    const VariableDefinition* def = VariableDefiner::getInstance().getDefinitionByMqttTopic(topic);
 
     if (def != nullptr && def->mode == MD_READWRITE) {
         if (def->source == VariableSource::SR_INTERNAL) {
@@ -89,7 +89,7 @@ void mqttCallback(char *topic, uint8_t *bytes, unsigned int length) {
 }
 
 MqttSync::MqttSync() {
-    WiFiClient *espClient = new WiFiClient();
+    WiFiClient* espClient = new WiFiClient();
     this->mqttClient = new PubSubClient(*espClient);
 }
 
@@ -98,7 +98,7 @@ void MqttSync::setup() {
 
     mqttClient->setCallback(mqttCallback);
     for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++) {
-        const VariableDefinition *def = VariableDefiner::getInstance().getDefinition((Variable)index);
+        const VariableDefinition* def = VariableDefiner::getInstance().getDefinition((Variable)index);
         if (def->mqttTopic != nullptr && def->mode == MD_READWRITE && (def->source == VariableSource::SR_INTERNAL || Controller::getInstance().getSolarController()->isVariableEnabled(def->variable))) {
             this->mqttClient->subscribe(def->mqttTopic);
         }
@@ -113,25 +113,22 @@ void MqttSync::connect(bool blocking) {
 
     uint8_t counter = 0;
 
-    do {
-        mqttClient->connect(
+    mqttClient->connect(
 
-            Environment::getData()->mqttClientId,
-            strlen(Environment::getData()->mqttUsername) > 0 ? Environment::getData()->mqttUsername : nullptr,
-            strlen(Environment::getData()->mqttPassword) > 0 ? Environment::getData()->mqttPassword : nullptr);
-        while (!mqttClient->connected() && counter < 10) {
-            debugPrint(Text::dot);
-            delay(500);
-            counter++;
-        }
+        Environment::getData()->mqttClientId,
+        strlen(Environment::getData()->mqttUsername) > 0 ? Environment::getData()->mqttUsername : nullptr,
+        strlen(Environment::getData()->mqttPassword) > 0 ? Environment::getData()->mqttPassword : nullptr);
+    while (!mqttClient->connected() && counter < 10) {
+        debugPrint(Text::dot);
+        delay(500);
+        counter++;
+    }
 
-        if (mqttClient->state() != MQTT_CONNECTED) {
-            debugPrintf(true, Text::errorWithCode, mqttClient->state());
-        } else {
-            debugPrintln(Text::ok);
-        }
-
-    } while (blocking && !mqttClient->connected());
+    if (mqttClient->state() != MQTT_CONNECTED) {
+        debugPrintf(true, Text::errorWithCode, mqttClient->state());
+    } else {
+        debugPrintln(Text::ok);
+    }
 
     Controller::getInstance().setErrorFlag(STATUS_ERR_NO_MQTT_CONNECTION, !mqttClient->connected());
 }
@@ -139,39 +136,39 @@ void MqttSync::loop() {
     Controller::getInstance().setErrorFlag(STATUS_ERR_NO_MQTT_CONNECTION, !mqttClient->connected());
     mqttClient->loop();
 }
-bool MqttSync::isVariableAllowed(const VariableDefinition *def) {
+bool MqttSync::isVariableAllowed(const VariableDefinition* def) {
     return def->mqttTopic != nullptr;
 }
-bool MqttSync::sendUpdateToVariable(const VariableDefinition *def, const void *value) {
+bool MqttSync::sendUpdateToVariable(const VariableDefinition* def, const void* value) {
     switch (def->datatype) {
         case VariableDatatype::DT_UINT16:
 #ifdef USE_MQTT_JSON_PUBLISH
-            syncJson[def->mqttTopic] = *(uint16_t *)value;
+            syncJson[def->mqttTopic] = *(uint16_t*)value;
             return true;
 #else
-            dtostrf(*(uint16_t *)value, 0, 0, mqttPublishBuffer);
+            dtostrf(*(uint16_t*)value, 0, 0, mqttPublishBuffer);
 #endif
         case VariableDatatype::DT_FLOAT:
 #ifdef USE_MQTT_JSON_PUBLISH
-            syncJson[def->mqttTopic] = *(float *)value;
+            syncJson[def->mqttTopic] = *(float*)value;
             return true;
 #else
-            dtostrf(*(float *)value, 0, 4, mqttPublishBuffer);
+            dtostrf(*(float*)value, 0, 4, mqttPublishBuffer);
             return mqttClient->publish(def->mqttTopic, mqttPublishBuffer, RETAIN_ALL_MSG);
 #endif
         case VariableDatatype::DT_BOOL:
 #ifdef USE_MQTT_JSON_PUBLISH
-            syncJson[def->mqttTopic] = *(bool *)value;
+            syncJson[def->mqttTopic] = *(bool*)value;
             return true;
 #else
-            return mqttClient->publish(def->mqttTopic, (*(const bool *)value) ? "1" : "0", RETAIN_ALL_MSG);
+            return mqttClient->publish(def->mqttTopic, (*(const bool*)value) ? "1" : "0", RETAIN_ALL_MSG);
 #endif
         case VariableDatatype::DT_STRING:
 #ifdef USE_MQTT_JSON_PUBLISH
-            syncJson[def->mqttTopic] = *(const char *)value;
+            syncJson[def->mqttTopic] = *(const char*)value;
             return true;
 #else
-            return mqttClient->publish(def->mqttTopic, (const char *)value, RETAIN_ALL_MSG);
+            return mqttClient->publish(def->mqttTopic, (const char*)value, RETAIN_ALL_MSG);
 #endif
     }
     return false;

@@ -52,4 +52,6 @@
 #include "../feature/MqttHASync.h"
 #endif
 
+#include "../feature/wifi.h"
+
 #endif

@@ -21,6 +21,9 @@
 
 #pragma once
 
+#ifndef INCLUDE_ALL_BLYNK_VPIN_H
+#define INCLUDE_ALL_BLYNK_VPIN_H
+
 #include "../incl/include_all_core.h"
 
 /**
@@ -293,4 +296,6 @@
 #define vPIN_STAT_ENERGY_CONSUMED_TOTAL_DF new uint8_t(vPIN_STAT_ENERGY_CONSUMED_TOTAL)
 #endif
 
+
+#endif
 

@@ -18,17 +18,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#ifndef TASK_WATCHDOG_H
+#define TASK_WATCHDOG_H
 
-#pragma once
+#include "src/incl/include.h"
 
-#ifndef SOLAR_TRACER_ALL_H
-#define SOLAR_TRACER_ALL_H
+void watchDogRun() {
+    bool wifiOk = WiFi.isConnected();
+    Controller::getInstance().setErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION, !wifiOk);
+    if (!wifiOk) {
+#ifndef USE_ARDUINO_WIFI_RECONNECT
+        WiFi.disconnect();
+        configWiFi();
+        if (WiFi.waitForConnectResult(10000) != WL_CONNECTED) {
+            debugPrintln("WIFI not connected");
+        }
+        Controller::getInstance().setErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION, !WiFi.isConnected());
+#else
+        debugPrintln("WIFI not connected");
+#endif
+    }
+}
 
-#define DUMMY_SOLAR_TRACER 0xF001
-
-#define EPEVER_SOLAR_TRACER_A 0x0001
-#define EPEVER_SOLAR_TRACER_B 0x0002
-#define EPEVER_SOLAR_TRACER_TRITON 0x0003
-#define EPEVER_SOLAR_TRACER_XTRA 0x0004
 
 #endif

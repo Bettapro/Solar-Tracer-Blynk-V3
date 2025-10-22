@@ -1,3 +1,24 @@
+/**
+ * Solar Tracer Blynk V3 [https://github.com/Bettapro/Solar-Tracer-Blynk-V3]
+ * Copyright (c) 2021 Alberto Bettin 
+ *
+ * Based on the work of @jaminNZx and @tekk.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+
 #include "BlynkSync.h"
 
 #include "../incl/include_all_core.h"
@@ -61,7 +82,7 @@ void BlynkSync::connect(bool blocking) {
 
     uint8_t counter = 0;
 
-    while (( blocking || counter < BLYNK_CONNECT_ATTEMPT) && !Blynk.connect()) {
+    while (counter < BLYNK_CONNECT_ATTEMPT && !Blynk.connect()) {
         delay(500);
         debugPrint(Text::dot);
 
@@ -77,23 +98,23 @@ void BlynkSync::loop() {
     Blynk.run();
 }
 
-bool BlynkSync::sendUpdateToVariable(const VariableDefinition *def, const void *value) {
+bool BlynkSync::sendUpdateToVariable(const VariableDefinition* def, const void* value) {
     if (def->blynkVPin != nullptr) {
         switch (def->datatype) {
             case VariableDatatype::DT_BOOL: {
-                Blynk.virtualWrite(*def->blynkVPin, *(bool *)value);
+                Blynk.virtualWrite(*def->blynkVPin, *(bool*)value);
                 return true;
             } break;
             case VariableDatatype::DT_FLOAT: {
-                Blynk.virtualWrite(*def->blynkVPin, *(float *)value);
+                Blynk.virtualWrite(*def->blynkVPin, *(float*)value);
                 return true;
             } break;
             case VariableDatatype::DT_UINT16: {
-                Blynk.virtualWrite(*def->blynkVPin, *(uint16_t *)value);
+                Blynk.virtualWrite(*def->blynkVPin, *(uint16_t*)value);
                 return true;
             } break;
             case VariableDatatype::DT_STRING: {
-                Blynk.virtualWrite(*def->blynkVPin, (const char *)value);
+                Blynk.virtualWrite(*def->blynkVPin, (const char*)value);
                 return true;
             }
         }
@@ -124,7 +145,7 @@ void BlynkSync::uploadRealtimeToBlynk() {
 }
 
 BLYNK_WRITE_DEFAULT() {
-    const VariableDefinition *def = VariableDefiner::getInstance().getDefinitionByBlynkVPin(request.pin);
+    const VariableDefinition* def = VariableDefiner::getInstance().getDefinitionByBlynkVPin(request.pin);
     if (def != nullptr) {
         if (def->source == VariableSource::SR_INTERNAL) {
             switch (def->variable) {

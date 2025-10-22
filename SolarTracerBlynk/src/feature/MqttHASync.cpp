@@ -34,7 +34,7 @@ char mqttPublishBuffer[20];
 // every setValue/setState will trigger mqttCallbacks,
 bool ignoreCallback = false;
 
-inline const char *getVariableUOM(VariableUOM uom) {
+inline const char* getVariableUOM(VariableUOM uom) {
     switch (uom) {
         case UOM_TEMPERATURE_C:
             return "°C";
@@ -54,7 +54,7 @@ inline const char *getVariableUOM(VariableUOM uom) {
     return nullptr;
 }
 
-void onMqttNumberCallback(HANumeric value, HANumber *el) {
+void onMqttNumberCallback(HANumeric value, HANumber* el) {
     if (!ignoreCallback) {
         MqttHASync haSync = MqttHASync::getInstance();
         Variable var = haSync.findVariableBySensor(el);
@@ -73,7 +73,7 @@ void onMqttNumberCallback(HANumeric value, HANumber *el) {
     }
 }
 
-void onMqttBoolButtonCallback(HAButton *el) {
+void onMqttBoolButtonCallback(HAButton* el) {
     if (!ignoreCallback) {
         MqttHASync haSync = MqttHASync::getInstance();
         Variable var = haSync.findVariableBySensor(el);
@@ -96,7 +96,7 @@ void onMqttBoolButtonCallback(HAButton *el) {
     }
 }
 
-void onMqttBoolSwitchCallback(bool value, HASwitch *el) {
+void onMqttBoolSwitchCallback(bool value, HASwitch* el) {
     if (!ignoreCallback) {
         MqttHASync haSync = MqttHASync::getInstance();
         Variable var = haSync.findVariableBySensor(el);
@@ -106,7 +106,7 @@ void onMqttBoolSwitchCallback(bool value, HASwitch *el) {
     }
 }
 
-void setupHASensor(HASensor *sensor, const VariableUOM *uom) {
+void setupHASensor(HASensor* sensor, const VariableUOM* uom) {
     switch (*uom) {
         case UOM_TEMPERATURE_C:
             sensor->setDeviceClass("temperature");
@@ -136,7 +136,7 @@ void setupHASensor(HASensor *sensor, const VariableUOM *uom) {
 MqttHASync::MqttHASync() : BaseSync() {
     this->renewValueCount = 0;
 
-    WiFiClient *wifiClient = new WiFiClient;
+    WiFiClient* wifiClient = new WiFiClient;
 
     device = new HADevice(Environment::getData()->mqttClientId);
     mqtt = new HAMqtt(*wifiClient, *device, VARIABLES_COUNT);
@@ -154,7 +154,7 @@ void MqttHASync::setup() {
     device->enableLastWill();
 
     for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++) {
-        const VariableDefinition *def = VariableDefiner::getInstance().getDefinition((Variable)index);
+        const VariableDefinition* def = VariableDefiner::getInstance().getDefinition((Variable)index);
 
         if (def->mqttTopic != nullptr && (def->source == VariableSource::SR_INTERNAL || Controller::getInstance().getSolarController()->isVariableEnabled(def->variable) || Controller::getInstance().getSolarController()->isVariableOverWritten(def->variable))) {
             haSensors[index] = nullptr;
@@ -162,11 +162,11 @@ void MqttHASync::setup() {
                 case DT_BOOL:
                     if (def->mode == MD_READWRITE) {
                         if (def->uom == UOM_TRIGGER) {
-                            HAButton *haButton = new HAButton(def->mqttTopic);
+                            HAButton* haButton = new HAButton(def->mqttTopic);
                             haButton->onCommand(onMqttBoolButtonCallback);
                             haSensors[index] = haButton;
                         } else {
-                            HASwitch *haSwitch = new HASwitch(def->mqttTopic);
+                            HASwitch* haSwitch = new HASwitch(def->mqttTopic);
                             haSwitch->onCommand(onMqttBoolSwitchCallback);
                             haSensors[index] = haSwitch;
                         }
@@ -177,7 +177,7 @@ void MqttHASync::setup() {
                 case DT_UINT16:
                 case DT_FLOAT:
                     if (def->mode == MD_READWRITE) {
-                        HANumber *haNumber = new HANumber(
+                        HANumber* haNumber = new HANumber(
                             def->mqttTopic,
                             def->datatype == DT_FLOAT ? HABaseDeviceType::PrecisionP2 : HABaseDeviceType::PrecisionP0);
                         haNumber->onCommand(onMqttNumberCallback);
@@ -185,7 +185,7 @@ void MqttHASync::setup() {
                         haNumber->setUnitOfMeasurement(getVariableUOM(def->uom));
                         haSensors[index] = haNumber;
                     } else {
-                        HASensorNumber *hASensor = new HASensorNumber(
+                        HASensorNumber* hASensor = new HASensorNumber(
                             def->mqttTopic,
                             def->datatype == DT_FLOAT ? HABaseDeviceType::PrecisionP2 : HABaseDeviceType::PrecisionP0);
                         setupHASensor(hASensor, &(def->uom));
@@ -194,13 +194,13 @@ void MqttHASync::setup() {
                     break;
                 default:
                     if (def->mode == MD_READWRITE) {
-                        HANumber *haNumber = new HANumber(def->mqttTopic);
+                        HANumber* haNumber = new HANumber(def->mqttTopic);
                         haNumber->onCommand(onMqttNumberCallback);
                         haNumber->setStep(def->datatype == DT_FLOAT ? 0.01 : 1);
                         haNumber->setUnitOfMeasurement(getVariableUOM(def->uom));
                         haSensors[index] = haNumber;
                     } else {
-                        HASensor *hASensor = new HASensor(def->mqttTopic);
+                        HASensor* hASensor = new HASensor(def->mqttTopic);
                         setupHASensor(hASensor, &(def->uom));
                         haSensors[index] = hASensor;
                     }
@@ -211,7 +211,7 @@ void MqttHASync::setup() {
             if (strlen(Environment::getData()->mqttHADeviceId) <= 0) {
                 haSensors[index]->setObjectId(def->mqttTopic);
             } else {
-                char *idName = new char[strlen(Environment::getData()->mqttHADeviceId) + strlen(def->text) + 2];
+                char* idName = new char[strlen(Environment::getData()->mqttHADeviceId) + strlen(def->text) + 2];
                 strcpy(idName, Environment::getData()->mqttHADeviceId);
                 strcat(idName, " ");
                 strcat(idName, def->text);
@@ -222,7 +222,7 @@ void MqttHASync::setup() {
     this->connect();
 }
 
-Variable MqttHASync::findVariableBySensor(HABaseDeviceType *haSensor) {
+Variable MqttHASync::findVariableBySensor(HABaseDeviceType* haSensor) {
     for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++) {
         if (haSensors[index] == haSensor) {
             return (Variable)index;
@@ -240,62 +240,60 @@ void MqttHASync::connect(bool blocking) {
 
     uint8_t counter;
 
-    do {
-        counter = 0;
-        debugPrint(Text::connecting);
-        if (!initialized) {
-            initialized = mqtt->begin(
-                Environment::getData()->mqttServerHostname,
-                Environment::getData()->mqttServerPort,
-                strlen(Environment::getData()->mqttUsername) > 0 ? Environment::getData()->mqttUsername : nullptr,
-                strlen(Environment::getData()->mqttPassword) > 0 ? Environment::getData()->mqttPassword : nullptr);
-        }
-        mqtt->loop();
+    counter = 0;
+    debugPrint(Text::connecting);
+    if (!initialized) {
+        initialized = mqtt->begin(
+            Environment::getData()->mqttServerHostname,
+            Environment::getData()->mqttServerPort,
+            strlen(Environment::getData()->mqttUsername) > 0 ? Environment::getData()->mqttUsername : nullptr,
+            strlen(Environment::getData()->mqttPassword) > 0 ? Environment::getData()->mqttPassword : nullptr);
+    }
+    mqtt->loop();
 
-        while (!mqtt->isConnected() && counter < 10) {
-            debugPrint(Text::dot);
-            delay(500);
-            counter++;
-        }
-        if (mqtt->getState() != HAMqtt::StateConnected) {
-            debugPrintf(true, Text::errorWithCode, mqtt->getState());
-        } else {
-            debugPrintln(Text::ok);
-        }
-    } while (blocking && !mqtt->isConnected());
+    while (!mqtt->isConnected() && counter < 10) {
+        debugPrint(Text::dot);
+        delay(500);
+        counter++;
+    }
+    if (mqtt->getState() != HAMqtt::StateConnected) {
+        debugPrintf(true, Text::errorWithCode, mqtt->getState());
+    } else {
+        debugPrintln(Text::ok);
+    }
     Controller::getInstance().setErrorFlag(STATUS_ERR_NO_MQTT_CONNECTION, !mqtt->isConnected());
 }
 void MqttHASync::loop() {
     Controller::getInstance().setErrorFlag(STATUS_ERR_NO_MQTT_CONNECTION, !mqtt->isConnected());
     mqtt->loop();
 }
-bool MqttHASync::isVariableAllowed(const VariableDefinition *def) {
+bool MqttHASync::isVariableAllowed(const VariableDefinition* def) {
     return def->mqttTopic != nullptr;
 }
-bool MqttHASync::sendUpdateToVariable(const VariableDefinition *def, const void *value) {
-    HABaseDeviceType *sensor = haSensors[def->variable];
+bool MqttHASync::sendUpdateToVariable(const VariableDefinition* def, const void* value) {
+    HABaseDeviceType* sensor = haSensors[def->variable];
     bool result = false;
     ignoreCallback = true;
     switch (def->datatype) {
         case VariableDatatype::DT_UINT16:
             result = def->mode == MD_READ
-                         ? ((HASensorNumber *)sensor)->setValue(*(uint16_t *)value)
-                         : ((HANumber *)sensor)->setState(*(uint16_t *)value);
+                         ? ((HASensorNumber*)sensor)->setValue(*(uint16_t*)value)
+                         : ((HANumber*)sensor)->setState(*(uint16_t*)value);
             break;
         case VariableDatatype::DT_FLOAT:
             result = def->mode == MD_READ
-                         ? ((HASensorNumber *)sensor)->setValue(*(float *)value)
-                         : ((HANumber *)sensor)->setState(*(float *)value);
+                         ? ((HASensorNumber*)sensor)->setValue(*(float*)value)
+                         : ((HANumber*)sensor)->setState(*(float*)value);
             break;
         case VariableDatatype::DT_BOOL:
             result = def->uom != UOM_TRIGGER
                          ? def->mode == MD_READ
-                               ? ((HASwitch *)sensor)->setState(*(bool *)value)
-                               : ((HABinarySensor *)sensor)->setState(*(bool *)value)
+                               ? ((HASwitch*)sensor)->setState(*(bool*)value)
+                               : ((HABinarySensor*)sensor)->setState(*(bool*)value)
                          : false;
             break;
         default:
-            result = ((HASensor *)sensor)->setValue((const char *)value);
+            result = ((HASensor*)sensor)->setValue((const char*)value);
             break;
     }
     ignoreCallback = false;

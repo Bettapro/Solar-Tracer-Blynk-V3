@@ -22,9 +22,15 @@
 
 #include "src/incl/include.h"
 #include "src/solartracer/incl/solar_config.h"
+#include "src/task/taskUpdateRealtime.h"
+#include "src/task/taskUpdateStat.h"
+#include "src/task/taskUpdateWatchdog.h"
+#include "src/task/taskUpdateController.h"
 
 // -------------------------------------------------------------------------------
 // MISC
+
+#define CONTROLLER_MAX_ATTEMPTS 4
 
 // #define USE_ARDUINO_WIFI_RECONNECT
 
@@ -61,29 +67,6 @@ void connectAll() {
 #endif
 }
 
-void uploadRealtimeAll() {
-#if defined USE_BLYNK
-    BlynkSync::getInstance().uploadRealtimeToBlynk();
-#endif
-#if defined USE_MQTT && !defined USE_MQTT_HOME_ASSISTANT
-    MqttSync::getInstance().uploadRealtimeToMqtt();
-#endif
-#if defined USE_MQTT_HOME_ASSISTANT
-    MqttHASync::getInstance().uploadRealtimeToMqtt();
-#endif
-}
-void uploadStatsAll() {
-#if defined USE_BLYNK
-    BlynkSync::getInstance().uploadStatsToBlynk();
-#endif
-#if defined USE_MQTT && !defined USE_MQTT_HOME_ASSISTANT
-    MqttSync::getInstance().uploadStatsToMqtt();
-#endif
-#if defined USE_MQTT_HOME_ASSISTANT
-    MqttHASync::getInstance().uploadStatsToMqtt();
-#endif
-}
-
 void loopAll() {
 #if defined USE_BLYNK
     BlynkSync::getInstance().loop();
@@ -96,58 +79,6 @@ void loopAll() {
 #endif
 }
 
-bool configWiFi() {
-    const EnvironrmentData *envData = Environment::getData();
-
-    bool wifiDataPresent = strlen(Environment::getData()->wifiSSID);
-
-    if (wifiDataPresent) {
-        IPAddress ip;
-        IPAddress gateway;
-        IPAddress subnet;
-        IPAddress dns1;
-        IPAddress dns2;
-
-        if (strlen(envData->wifiIp)) {
-            ip.fromString(envData->wifiIp);
-        }
-
-        if (strlen(envData->wifiGateway)) {
-            gateway.fromString(envData->wifiGateway);
-        }
-        if (strlen(envData->wifiSubnet)) {
-            subnet.fromString(envData->wifiSubnet);
-        }
-        if (strlen(envData->wifiDns1)) {
-            dns1.fromString(envData->wifiDns1);
-        }
-        if (strlen(envData->wifiDns2)) {
-            dns2.fromString(envData->wifiDns2);
-        }
-
-        WiFi.config(ip, gateway, subnet, dns1, dns2);
-        WiFi.begin(envData->wifiSSID, envData->wifiPassword);
-    }
-    return wifiDataPresent;
-}
-
-void watchDog() {
-    bool wifiOk = WiFi.isConnected();
-    Controller::getInstance().setErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION, !wifiOk);
-    if (!wifiOk) {
-#ifndef USE_ARDUINO_WIFI_RECONNECT
-        WiFi.disconnect();
-        configWiFi();
-        if (WiFi.waitForConnectResult(10000) != WL_CONNECTED) {
-            debugPrintln("WIFI not connected");
-        }
-        Controller::getInstance().setErrorFlag(STATUS_ERR_NO_WIFI_CONNECTION, !WiFi.isConnected());
-#else
-        debugPrintln("WIFI not connected");
-#endif
-    }
-}
-
 void checkAPTrigger() {
 #if defined(USE_PIN_AP_CONFIGURATION_TRIGGER)
     pinMode(PIN_AP_TRIGGER_PIN, INPUT);
@@ -158,7 +89,7 @@ void checkAPTrigger() {
         if (readCount == 0) {
             debugPrintln(" ++ Start AP configuration");
             DRD_EXEC_STOP
-            WifiManagerSTB::startWifiConfigurationAP(true);
+            WifiManagerSTB::getInstance().start(true, true);
         };
         delay(500);
     }
@@ -170,7 +101,10 @@ void checkAPTrigger() {
 // SETUP and LOOP
 
 void loop() {
+
     checkAPTrigger();
+
+    WifiManagerSTB::getInstance().loop();
 
     Controller::getInstance().getMainTimer()->run();
 
@@ -222,7 +156,7 @@ void setup() {
     if (drd.detectDoubleReset()) {
         DRD_EXEC_STOP
         debugPrintln(" ++ Start AP configuration");
-        WifiManagerSTB::startWifiConfigurationAP(true);
+       // WifiManagerSTB::getInstance().start(true, true);
     }
 #endif
     DRD_EXEC_LOOP
@@ -233,7 +167,7 @@ void setup() {
 #if defined USE_WIFI_AP_CONFIGURATION
         DRD_EXEC_STOP
         debugPrintln(" ++ Start AP configuration");
-        WifiManagerSTB::startWifiConfigurationAP(false);
+        WifiManagerSTB::getInstance().start(false, true);
 #else
         debugPrintln("Connection Failed! Rebooting...");
         delay(5000);
@@ -242,7 +176,7 @@ void setup() {
     }
     WiFi.onEvent(
         [](WiFiEvent_t event) {
-            watchDog();
+            watchDogRun();
         },
         WIFI_STATION_MODE_DISCONNECTED);
 
@@ -252,6 +186,8 @@ void setup() {
     WiFi.setAutoReconnect(true);
 #endif
     DRD_EXEC_STOP
+
+    WifiManagerSTB::getInstance().start(false, false);
 
 #ifdef USE_OTA_UPDATE
     debugPrintf(true, Text::setupWithName, "ArduinoOTA");
@@ -270,7 +206,7 @@ void setup() {
     Controller::getInstance().setup(new SOLAR_TRACER_INSTANCE, new SimpleTimer());
     debugPrint("Connection Test: ");
     uint8_t attemptControllerConnectionCount;
-    for (attemptControllerConnectionCount = 1; attemptControllerConnectionCount < 4; attemptControllerConnectionCount++) {
+    for (attemptControllerConnectionCount = 0; attemptControllerConnectionCount < CONTROLLER_MAX_ATTEMPTS; attemptControllerConnectionCount++) {
         if (Controller::getInstance().getSolarController()->testConnection()) {
             break;
         }
@@ -279,10 +215,10 @@ void setup() {
     }
 
     switch (attemptControllerConnectionCount) {
-        case 1:
+        case 0:
             debugPrintln(Text::ok);
             break;
-        case 4:
+        case CONTROLLER_MAX_ATTEMPTS:
             debugPrintf(true, Text::errorWithCodeInt, STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION, Controller::getInstance().getSolarController()->getLastControllerCommunicationStatus());
             break;
         default:
@@ -297,29 +233,31 @@ void setup() {
 #ifdef USE_NTP_SERVER
     debugPrintf(true, Text::setupWithName, "Local Time");
     if (Datetime::setupDatetimeFromNTP()) {
-        struct tm *ti = Datetime::getMyNowTm();
+        struct tm* ti = Datetime::getMyNowTm();
         debugPrintf(true, "My NOW is: %i-%02i-%02i %02i:%02i:%02i", ti->tm_year + 1900, ti->tm_mon + 1, ti->tm_mday, ti->tm_hour, ti->tm_min, ti->tm_sec);
     }
 #endif
     setupAll();
 
-    debugPrintf(true, Text::setupWithName, "Solar controller");
+    if (CONTROLLER_MAX_ATTEMPTS > attemptControllerConnectionCount) {
+        debugPrintf(true, Text::setupWithName, "Solar controller");
 #ifdef SYNC_ST_TIME
-    debugPrintln("Synchronize NTP time with controller");
-    if (Datetime::getMyNowTm() != nullptr) {
-        Controller::getInstance().getSolarController()->syncRealtimeClock(Datetime::getMyNowTm());
-    }
-    delay(500);
+        debugPrintln("Synchronize NTP time with controller");
+        if (Datetime::getMyNowTm() != nullptr) {
+            Controller::getInstance().getSolarController()->syncRealtimeClock(Datetime::getMyNowTm());
+        }
+        delay(500);
 #endif
 
-    debugPrintln("Get all values");
-    Controller::getInstance().getSolarController()->fetchAllValues();
+        debugPrintln("Get all values");
+        Controller::getInstance().getSolarController()->fetchAllValues();
 
-    delay(1000);
-    debugPrintln("Sync all values");
-    uploadRealtimeAll();
-    uploadStatsAll();
-    delay(1000);
+        delay(1000);
+        debugPrintln("Sync all values");
+        uploadRealtimeAllRun();
+        uploadStatsAllRun();
+        delay(1000);
+    }
 
     // periodically refresh tracer values
     Controller::getInstance().getMainTimer()->setInterval(CONTROLLER_UPDATE_MS_PERIOD, []() {
@@ -335,11 +273,12 @@ void setup() {
                                                             Controller::getInstance().setErrorFlag(STATUS_ERR_SOLAR_TRACER_NO_COMMUNICATION, true);
                                                           } });
     // periodically send STATS all value to blynk
-    Controller::getInstance().getMainTimer()->setInterval(SYNC_STATS_MS_PERIOD, uploadStatsAll);
+    Controller::getInstance().getMainTimer()->setInterval(SYNC_STATS_MS_PERIOD, uploadStatsAllRun);
     // periodically send REALTIME  value to blynk
-    Controller::getInstance().getMainTimer()->setInterval(SYNC_REALTIME_MS_PERIOD, uploadRealtimeAll);
+    Controller::getInstance().getMainTimer()->setInterval(SYNC_REALTIME_MS_PERIOD, uploadRealtimeAllRun);
     // esp watchddog
-    Controller::getInstance().getMainTimer()->setInterval(5000, watchDog);
+    Controller::getInstance().getMainTimer()->setInterval(5000, watchDogRun);
+#
 
     debugPrintln();
 
