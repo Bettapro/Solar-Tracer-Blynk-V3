@@ -39,7 +39,7 @@
 #endif
 
 #if defined USE_WIFI_AP_CONFIGURATION
-#include "../feature/wifi_manager.h"
+#include "../feature/WifiManagerSTB.h"
 #endif
 
 #if defined USE_BLYNK

@@ -22,10 +22,10 @@
 
 #include "src/incl/include.h"
 #include "src/solartracer/incl/solar_config.h"
+#include "src/task/taskUpdateController.h"
 #include "src/task/taskUpdateRealtime.h"
 #include "src/task/taskUpdateStat.h"
 #include "src/task/taskUpdateWatchdog.h"
-#include "src/task/taskUpdateController.h"
 
 // -------------------------------------------------------------------------------
 // MISC
@@ -101,10 +101,11 @@ void checkAPTrigger() {
 // SETUP and LOOP
 
 void loop() {
-
     checkAPTrigger();
 
+#ifdef USE_WIFI_AP_PERSISTENT
     WifiManagerSTB::getInstance().loop();
+#endif
 
     Controller::getInstance().getMainTimer()->run();
 
@@ -156,7 +157,7 @@ void setup() {
     if (drd.detectDoubleReset()) {
         DRD_EXEC_STOP
         debugPrintln(" ++ Start AP configuration");
-       // WifiManagerSTB::getInstance().start(true, true);
+        WifiManagerSTB::getInstance().start(true, true);
     }
 #endif
     DRD_EXEC_LOOP
@@ -187,12 +188,14 @@ void setup() {
 #endif
     DRD_EXEC_STOP
 
+#ifdef USE_WIFI_AP_PERSISTENT
+    debugPrintf(true, Text::setupWithName, "AP");
     WifiManagerSTB::getInstance().start(false, false);
+#endif
 
 #ifdef USE_OTA_UPDATE
     debugPrintf(true, Text::setupWithName, "ArduinoOTA");
     arduinoOtaSetup();
-    debugPrintln(Text::ok);
 #endif
 
 #if defined(USE_SERIAL_STREAM) & defined(USE_SOFTWARE_SERIAL) & defined(BOARD_ST_SERIAL_PIN_MAPPING_RX) & defined(BOARD_ST_SERIAL_PIN_MAPPING_TX)

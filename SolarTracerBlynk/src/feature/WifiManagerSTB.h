@@ -28,7 +28,7 @@
 
 #ifdef USE_WIFI_AP_CONFIGURATION
 
-#define ADD_PARAM_CHECKBOX(id, label, checked) \
+#define ADD_PARAM_CHECKBOX(id, label, checked)                \
     this->wifiManager->addParameter(new WiFiManagerParameter( \
         id, label, "on", 15, checked ? "type=\"checkbox\" checked" : "type=\"checkbox\""))
 
@@ -46,67 +46,65 @@
 
 class WifiManagerSTB {
     public:
-        void exit(boolean save) {
+        void exit() {
             if (this->wifiManager == nullptr) {
                 return;
-            }
-
-            if (save) {
-                debugPrintln("Saving parameters... ");
-                if (!LittleFS.begin()) {
-                    debugPrintf(true, Text::errorWithCode, STATUS_ERR_LITTLEFS_BEGIN_FAILED);
-                    if (!LittleFS.format() || !LittleFS.begin()) {
-                        debugPrintf(true, Text::errorWithCode, STATUS_ERR_LITTLEFS_FORMAT_FAILED);
-                    }
-                    return;
-                }
-
-                JsonDocument doc;
-                doc[CONFIG_WIFI_SSID] = WiFi.SSID();
-                doc[CONFIG_WIFI_PASSWORD] = WiFi.psk();
-
-                WiFiManagerParameter** ppointer = this->wifiManager->getParameters();
-                for (uint16_t paramCount = 0; paramCount < this->wifiManager->getParametersCount(); paramCount++) {
-                    WiFiManagerParameter* parameter = ppointer[paramCount];
-
-                    const char* paramId = parameter->getID();
-                    // skip parameters with no id (titles..)
-                    if(paramId == nullptr){
-                        continue;
-                    }
-
-                    if (
-                        strcmp(paramId, CONFIG_SERIAL_DEBUG) == 0) {
-                        // boolean
-                        doc[paramId] = strcmp(parameter->getValue(), "on") == 0;
-                    } else if (
-                        strcmp(paramId, CONFIG_BLYNK_PORT) == 0 ||
-                        strcmp(paramId, CONFIG_MQTT_PORT) == 0) {
-                        // integer
-                        doc[paramId] = strlen(parameter->getValue()) > 0 ? atoi(parameter->getValue()) : 0;
-                    } else {
-                        // default = string
-                        doc[paramId] = parameter->getValue();
-                    }
-                }
-
-                File configFile = LittleFS.open(CONFIG_PERSISTENCE, "w");
-                if (!configFile) {
-                    LittleFS.end();
-                } else {
-                    serializeJson(doc, configFile);
-                    configFile.flush();
-                    configFile.close();
-                    LittleFS.end();
-                    debugPrintln(Text::ok);
-                }
-
-                ESP.restart();
             }
 
             this->wifiManager->stopConfigPortal();
             delete this->wifiManager;
             this->wifiManager = nullptr;
+        }
+
+        void saveAllParameters() {
+            debugPrint("Saving parameters... ");
+            if (!LittleFS.begin()) {
+                debugPrintf(true, Text::errorWithCode, STATUS_ERR_LITTLEFS_BEGIN_FAILED);
+                if (!LittleFS.format() || !LittleFS.begin()) {
+                    debugPrintf(true, Text::errorWithCode, STATUS_ERR_LITTLEFS_FORMAT_FAILED);
+                }
+                return;
+            }
+
+            JsonDocument doc;
+            doc[CONFIG_WIFI_SSID] = WiFi.SSID();
+            doc[CONFIG_WIFI_PASSWORD] = WiFi.psk();
+
+            WiFiManagerParameter** ppointer = this->wifiManager->getParameters();
+            for (uint16_t paramCount = 0; paramCount < this->wifiManager->getParametersCount(); paramCount++) {
+                WiFiManagerParameter* parameter = ppointer[paramCount];
+
+                const char* paramId = parameter->getID();
+                // skip parameters with no id (titles..)
+                if (paramId == nullptr) {
+                    continue;
+                }
+
+                if (
+                    strcmp(paramId, CONFIG_SERIAL_DEBUG) == 0) {
+                    // boolean
+                    doc[paramId] = strcmp(parameter->getValue(), "on") == 0;
+                } else if (
+                    strcmp(paramId, CONFIG_BLYNK_PORT) == 0 ||
+                    strcmp(paramId, CONFIG_MQTT_PORT) == 0) {
+                    // integer
+                    doc[paramId] = strlen(parameter->getValue()) > 0 ? atoi(parameter->getValue()) : 0;
+                } else {
+                    // default = string
+                    doc[paramId] = parameter->getValue();
+                }
+            }
+
+            File configFile = LittleFS.open(CONFIG_PERSISTENCE, "w");
+            if (!configFile) {
+                LittleFS.end();
+            } else {
+                serializeJson(doc, configFile);
+                configFile.flush();
+                configFile.close();
+                LittleFS.end();
+                debugPrintln(Text::ok);
+            }
         }
 
         void start(bool tryConnection, bool blocking) {
@@ -121,13 +119,26 @@ class WifiManagerSTB {
 
             this->wifiManager = new WiFiManager();
 
+            // "wifi", "wifinoscan", "info", "param", "custom", "close", "sep", "erase", "update", "restart", "exit"
+            std::vector<const char*> menu = {
+                "wifi",                        // COnfigure WiFi
+                "param",                       // Setup
+                "sep",                         // ---------
+                "info",                        // Info
+                "sep",                         // ---------
+                "restart"                      // restart
+            };
+
+            wifiManager->setMenu(menu);
+
             this->wifiManager->setTitle("Solar-tracer-Blynk-V3");
-            this->wifiManager->setBreakAfterConfig(true);
-            this->wifiManager->setSaveParamsCallback([this]() { this->exit(true); });
-            this->wifiManager->setSaveConfigCallback([this]() { this->exit(true); });
-            this->wifiManager->setConfigResetCallback([]() { Environment::resetEnvData(); });
-            this->wifiManager->setParamsPage(true);
+            
+            this->wifiManager->setSaveParamsCallback([this]() { this->saveAllParameters(); });
+            this->wifiManager->setSaveConfigCallback([this]() { this->saveAllParameters(); });
             this->wifiManager->setConfigPortalBlocking(blocking);
+            this->wifiManager->setBreakAfterConfig(true);
+            this->wifiManager->setDisableConfigPortal(false);
+            this->wifiManager->setShowInfoErase(false);
             this->wifiManager->setDebugOutput(false);
 
             ADD_PARAM_CHECKBOX(CONFIG_SERIAL_DEBUG, "Serial debug", Environment::getData()->serialDebug);
@@ -190,7 +201,8 @@ class WifiManagerSTB {
             this->wifiManager->startConfigPortal(Environment::getData()->wmApSSID, Environment::getData()->wmApPassword);
 
             if (blocking) {
-                this->exit(false);
+                this->exit();
+                ESP.restart();
             }
         }
 

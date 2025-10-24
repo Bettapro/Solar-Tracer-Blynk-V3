@@ -187,8 +187,10 @@
   // max seconds ap will wait to be configured
   #define WIFI_AP_TIMEOUT 150
 
+  #define USE_WIFI_AP_PERSISTENT
+
   // use a double reset to trigger ap mode
-  #define USE_DOUBLE_RESET_TRIGGER
+  //#define USE_DOUBLE_RESET_TRIGGER
 
   // use pin state to trigger ap mode
   //#define USE_PIN_AP_CONFIGURATION_TRIGGER
