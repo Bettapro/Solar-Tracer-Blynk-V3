@@ -21,7 +21,7 @@
 #ifndef TASK_UPDATE_REALTIME_H
 #define TASK_UPDATE_REALTIME_H
 
-#include "src/incl/include.h"
+#include "../incl/include.h"
 
 void uploadRealtimeAllRun() {
 #if defined USE_BLYNK
