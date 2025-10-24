@@ -13,7 +13,7 @@ You need:
 
 The very first time you process with the firmware flash, you must prepare your board.  
 
-You need one additional bin file, the 0x0 bin file you download from the [latest relase](https://github.com/Bettapro/Solar-Tracer-Blynk-V3/releases/latest)  
+You need one additional bin file, the 0x0 bin file you download from the [latest release](https://github.com/Bettapro/Solar-Tracer-Blynk-V3/releases/latest)  
 This bin file contains a complete image of the flash memory.
 
 Start esp_flash_download_tool and select the correct board (ESP32):  
