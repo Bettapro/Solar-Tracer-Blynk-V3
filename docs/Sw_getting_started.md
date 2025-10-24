@@ -28,15 +28,19 @@ Open you favorite IDE:
 
 ### Libraries to include in Arduino IDE
 
-
-
-* [ArduinoOTA](https://github.com/esp8266/Arduino/tree/master/libraries/ArduinoOTA)
-* [ModbusMaster](https://github.com/Bettapro/ModbusMaster) 
-* [WiFiManager](https://github.com/tzapu/WiFiManager) 
-* [ArduinoJson](https://github.com/bblanchon/ArduinoJson) 
-* [PubSubClient](https://github.com/knolleary/pubsubclient) - MQTT ONLY
-* [Blynk Library](https://github.com/blynkkk/blynk-library) - BLYNK ONLY
-* [SimpleTimer](https://github.com/Bettapro/SimpleTimer) - MQTT ONLY
+- ArduinoOTA
+- WiFi
+- Blynk 1.1.0
+- WiFiManager v2.0.17
+- ArduinoJson v7.4.2
+- https://github.com/Bettapro/ModbusMaster.git
+- https://github.com/knolleary/pubsubclient v2.8
+- https://github.com/Bettapro/SimpleTimer.git
+- https://github.com/dawidchyrzynski/arduino-home-assistant.git 2.1.0
+- https://github.com/Bettapro/LinearSensHallCurrent.git
+- https://github.com/RobTillaart/ADS1X15.git 0.5.4
+- https://github.com/khoih-prog/ESP_DoubleResetDetector.git
+- https://github.com/plerup/espsoftwareserial.git 8.2.0
 
 
 ### Edit `config.h` library

@@ -11,7 +11,18 @@ Flash the firmware on your EPS8266/ESP32, more information how to flash firmware
 
 
 Boot the ESP in Configuration mode and double check all the settings, double check the mqtt section and make sure that settings are correct.
-![Alt text](../images/wifi_manager_mqtt_settings.png)  
+![Alt text](../images/wifi_manager_mqtt_settings.png) 
+
+Connection to MQTT broker could fail with error, the error code will be reported in the serial log, here the full error code list:
+- **-4** connection timeout
+- **-3** connection lost
+- **-2** connection failed
+- **-1** disconnected
+- **1** bad protocol
+- **2** bad client id
+- **3** unavailable
+- **4** bad credentials
+- **5** unauthorized
 
 If everything is working your mqtt integration will discover and configure the solar tracer.  
 ![image](https://user-images.githubusercontent.com/3984840/160839821-8fd79592-4d98-4107-8b78-3d2c2c555c7f.png)
