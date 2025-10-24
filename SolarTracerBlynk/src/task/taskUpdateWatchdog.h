@@ -21,7 +21,7 @@
 #ifndef TASK_WATCHDOG_H
 #define TASK_WATCHDOG_H
 
-#include "src/incl/include.h"
+#include "../incl/include.h"
 
 void watchDogRun() {
     bool wifiOk = WiFi.isConnected();

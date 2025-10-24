@@ -24,8 +24,9 @@
 #ifndef WIFI_CONFIG_H
 #define WIFI_CONFIG_H
 
-#include "src/incl/include_all_lib.h"
-#include "src/core/Environment.h"
+#include "../incl/include_all_lib.h"
+#include "../core/Environment.h"
+
 
 bool configWiFi() {
     const EnvironrmentData *envData = Environment::getData();

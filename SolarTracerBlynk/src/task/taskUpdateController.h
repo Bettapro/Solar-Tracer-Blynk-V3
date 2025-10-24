@@ -21,7 +21,7 @@
 #ifndef TASK_UPDATE_CONTROLLER_H
 #define TASK_UPDATE_CONTROLLER_H
 
-#include "src/incl/include.h"
+#include "../incl/include.h"
 
 void updateControllerRun() {
     debugPrint("Update Solar-Tracer ");

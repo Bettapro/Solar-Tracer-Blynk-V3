@@ -72,7 +72,6 @@ void Environment::loadEnvData() {
         if (!configFile) {
             debugPrintln("ERROR: cannot open config file");
         } else {
-            size_t size = configFile.size();
             JsonDocument doc;
             DeserializationError error = deserializeJson(doc, configFile);
             if (error) {

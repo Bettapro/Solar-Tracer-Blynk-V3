@@ -21,7 +21,7 @@
 #ifndef TASK_UPDATE_STAT_H
 #define TASK_UPDATE_STAT_H
 
-#include "src/incl/include.h"
+#include "../incl/include.h"
 
 
 void uploadStatsAllRun() {
