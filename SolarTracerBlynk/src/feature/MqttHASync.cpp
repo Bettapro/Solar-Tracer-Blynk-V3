@@ -149,7 +149,8 @@ void MqttHASync::setup() {
     device->setManufacturer(PROJECT_AUTHOR);
     device->setModel(PROJECT_NAME);
     device->setSoftwareVersion(PROJECT_VERSION);
-    device->setConfigurationUrl(WiFi.localIP().toString().c_str());
+    String url = "http://" + WiFi.localIP().toString();
+    device->setConfigurationUrl(url.c_str());
     device->enableSharedAvailability();
     device->enableLastWill();
 
