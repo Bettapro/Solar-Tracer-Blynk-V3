@@ -95,6 +95,9 @@ MqttSync::MqttSync() {
 
 void MqttSync::setup() {
     this->mqttClient->setServer(Environment::getData()->mqttServerHostname, Environment::getData()->mqttServerPort);
+    
+    // must connect at first 
+    this->connect();
 
     mqttClient->setCallback(mqttCallback);
     for (uint8_t index = 0; index < Variable::VARIABLES_COUNT; index++) {
@@ -104,7 +107,6 @@ void MqttSync::setup() {
         }
     }
 
-    this->connect();
 }
 
 void MqttSync::connect(bool blocking) {
