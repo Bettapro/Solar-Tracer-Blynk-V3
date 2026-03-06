@@ -31,7 +31,7 @@
 #define MQTT_CONNECT_ATTEMPT 3
 
 #if defined(USE_MQTT_RPC_SUBSCRIBE)
-DynamicJsonDocument json(1024);
+JsonDocument json;
 #endif
 void mqttCallback(char* topic, uint8_t* bytes, unsigned int length) {
     String payload;
@@ -74,11 +74,11 @@ void mqttCallback(char* topic, uint8_t* bytes, unsigned int length) {
                 case VariableDatatype::DT_UINT16: {
                     uint16_t newState = payload.toInt();
                     MqttSync::getInstance().applyUpdateToVariable(def->variable, &newState, false);
-                }
+                } break;
                 case VariableDatatype::DT_FLOAT: {
                     float newState = payload.toFloat();
                     MqttSync::getInstance().applyUpdateToVariable(def->variable, &newState, false);
-                }
+                } break;
                 case VariableDatatype::DT_BOOL: {
                     bool newState = payload.toInt() > 0;
                     MqttSync::getInstance().applyUpdateToVariable(def->variable, &newState, false);
@@ -145,14 +145,15 @@ bool MqttSync::sendUpdateToVariable(const VariableDefinition* def, const void* v
     switch (def->datatype) {
         case VariableDatatype::DT_UINT16:
 #ifdef USE_MQTT_JSON_PUBLISH
-            syncJson[def->mqttTopic] = *(uint16_t*)value;
+            json[def->mqttTopic] = *(uint16_t*)value;
             return true;
 #else
             dtostrf(*(uint16_t*)value, 0, 0, mqttPublishBuffer);
+            return mqttClient->publish(def->mqttTopic, mqttPublishBuffer, RETAIN_ALL_MSG);
 #endif
         case VariableDatatype::DT_FLOAT:
 #ifdef USE_MQTT_JSON_PUBLISH
-            syncJson[def->mqttTopic] = *(float*)value;
+            json[def->mqttTopic] = *(float*)value;
             return true;
 #else
             dtostrf(*(float*)value, 0, 4, mqttPublishBuffer);
@@ -160,7 +161,7 @@ bool MqttSync::sendUpdateToVariable(const VariableDefinition* def, const void* v
 #endif
         case VariableDatatype::DT_BOOL:
 #ifdef USE_MQTT_JSON_PUBLISH
-            syncJson[def->mqttTopic] = *(bool*)value;
+            json[def->mqttTopic] = *(bool*)value;
             return true;
 #else
             return mqttClient->publish(def->mqttTopic, (*(const bool*)value) ? "1" : "0", RETAIN_ALL_MSG);
